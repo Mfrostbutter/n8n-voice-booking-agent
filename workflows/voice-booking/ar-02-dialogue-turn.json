@@ -365,6 +365,42 @@
               "type": "string"
             },
             {
+              "id": "77a3c0d7-f793-5e41-ada8-494cadfa951e",
+              "name": "gateIntent",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "51782a2d-cec9-57bd-b530-9a131bc768c9",
+              "name": "gateServices",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "3e01c972-41fd-540b-8f11-9b7dead4aa1c",
+              "name": "gateAction",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "1c946d67-ea81-5c95-aa59-0cf728354cdc",
+              "name": "gateFromDate",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "ddfea51f-e2a6-5622-b1f0-8e3f5f88370d",
+              "name": "prefetchNote",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "ed206691-8969-5c28-ab6f-b8a15810f202",
+              "name": "intent",
+              "value": "={{ $('LoadSession').first().json.intent || 'UNKNOWN' }}",
+              "type": "string"
+            },
+            {
               "id": "140442b6-bfd1-53c0-9010-c2b3dfab807a",
               "name": "utter",
               "value": "={{ String($('ValidateTurn').first().json.transcript || '').trim().toLowerCase() }}",
@@ -431,6 +467,66 @@
               "type": "array"
             },
             {
+              "id": "c16ba23b-5f82-5dd6-a5e1-32154090ba05",
+              "name": "caseOrigin",
+              "value": "={{ $('LoadSession').first().json.caseOrigin || 'IN_CAR' }}",
+              "type": "string"
+            },
+            {
+              "id": "46cbd366-88a6-5daa-aad4-4505deacca0d",
+              "name": "identifyAttempts",
+              "value": "={{ Number($('LoadSession').first().json.identifyAttempts) || 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "17a8abf7-df12-5f7b-8c0f-f57d20e0b65a",
+              "name": "reservationId",
+              "value": "={{ $('LoadSession').first().json.reservationId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "2673947b-b4a5-53c5-8823-0e4aa7182d15",
+              "name": "services",
+              "value": "={{ JSON.parse($('LoadSession').first().json.services || '[]') }}",
+              "type": "array"
+            },
+            {
+              "id": "41ef944e-c42b-591f-a9e2-e076674a45db",
+              "name": "selectedServices",
+              "value": "={{ $('LoadSession').first().json.selectedServices || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fa62a97c-db22-5cd5-9b94-a03793f678ec",
+              "name": "appointmentRef",
+              "value": "={{ $('LoadSession').first().json.appointmentRef || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "6a572431-79f8-54d9-b8ee-e48296257ee7",
+              "name": "appointmentLabel",
+              "value": "={{ $('LoadSession').first().json.appointmentLabel || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ea9e420c-54f2-5c03-be12-10b67b7429c7",
+              "name": "cancelledAt",
+              "value": "={{ $('LoadSession').first().json.cancelledAt || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "45f312d0-b4d7-5bf8-a14e-d0ee1486b2f4",
+              "name": "movedAt",
+              "value": "={{ $('LoadSession').first().json.movedAt || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "55bdbd0b-0d6a-592b-afc1-5afa52328750",
+              "name": "callbackAt",
+              "value": "={{ $('LoadSession').first().json.callbackAt || '' }}",
+              "type": "string"
+            },
+            {
               "id": "43256b3f-1032-5315-b868-de342e629222",
               "name": "marketBookable",
               "value": "={{ String($json.bookable) !== 'false' }}",
@@ -470,7 +566,7 @@
       "typeVersion": 3.4,
       "position": [
         0,
-        704
+        720
       ]
     },
     {
@@ -503,38 +599,14 @@
                       "type": "string",
                       "operation": "regex"
                     }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "IdentityDenied"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "loose",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "c1b6c087-52a3-5058-955a-3c872db44cfd",
-                    "leftValue": "={{ $json.rowState }}",
-                    "rightValue": "IDENTIFY",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
                   },
                   {
-                    "id": "243e4b3c-da51-50db-a9ae-b293ae110667",
+                    "id": "02cb18c1-9a01-58dd-9261-b9ed25d2979f",
                     "leftValue": "={{ $json.customerRef }}",
                     "rightValue": "",
                     "operator": {
                       "type": "string",
-                      "operation": "empty",
+                      "operation": "notEmpty",
                       "singleValue": true
                     }
                   }
@@ -542,7 +614,7 @@
                 "combinator": "and"
               },
               "renameOutput": true,
-              "outputKey": "CustomerUnknown"
+              "outputKey": "IdentityDenied"
             },
             {
               "conditions": {
@@ -569,6 +641,16 @@
                     "operator": {
                       "type": "string",
                       "operation": "regex"
+                    }
+                  },
+                  {
+                    "id": "44b1d812-0d17-5eae-af1e-b6fa22fe66e2",
+                    "leftValue": "={{ $json.customerRef }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
                     }
                   }
                 ],
@@ -664,7 +746,7 @@
                   {
                     "id": "2fdf17af-f7d1-5fea-8844-97215366a178",
                     "leftValue": "={{ $json.utter }}",
-                    "rightValue": "^(tak|zgadza|owszem|dok[łl]adnie|to ja|oczywi[śs]cie|jasne|s[íi]|claro|correcto|as[íi] es|soy yo|exacto|vale|de acuerdo|por supuesto|ja|genau|richtig|korrekt|das bin ich|stimmt|nat[üu]rlich|gerne|in ordnung|yes|yeah|yep|correct|that'?s me|that is me|sure|of course|go ahead|ok(ay)?)(?=[\\s,.!?;:]|$)",
+                    "rightValue": "(^(tak|zgadza|owszem|dok[łl]adnie|to ja|oczywi[śs]cie|jasne|s[íi]|claro|correcto|as[íi] es|soy yo|exacto|vale|de acuerdo|por supuesto|ja|genau|richtig|korrekt|das bin ich|stimmt|nat[üu]rlich|gerne|in ordnung|yes|yeah|yep|correct|that'?s me|that is me|sure|of course|go ahead|ok(ay)?)(?=[\\s,.!?;:]|$))|\b(fine|good|great|works|suits|perfect|that one|pasuje|odpowiada|dobrze|passt|gut|vale|bien|perfecto|me va)\b",
                     "operator": {
                       "type": "string",
                       "operation": "regex"
@@ -685,6 +767,371 @@
               },
               "renameOutput": true,
               "outputKey": "DealerAgreed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9a767371-75b9-5b65-9cbe-07285fecee1b",
+                    "leftValue": "={{ $json.rowState }}",
+                    "rightValue": "NEED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "168d6d41-7cef-5b61-8490-2c738daeb473",
+                    "leftValue": "={{ $json.utter }}",
+                    "rightValue": "anul|odwo[łl]a|cancel|anular|stornier|absag",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NeedCancel"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9f0acce6-dbac-52d5-9070-25933d16a3f7",
+                    "leftValue": "={{ $json.rowState }}",
+                    "rightValue": "NEED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "af95883f-250b-5809-b7e3-df8b1fc5afa7",
+                    "leftValue": "={{ $json.utter }}",
+                    "rightValue": "prze[łl]o[żz]|przesun|inny termin|reschedul|move (my|the)|change (my|the) (appointment|time|date)|another (time|date)|cambiar|aplazar|verschieb|umbuch",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NeedReschedule"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "cccdd4a3-b4de-50e6-a138-6e1e047d1f69",
+                    "leftValue": "={{ $json.rowState }}",
+                    "rightValue": "NEED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "2936e91e-1023-5eef-a814-0a1296074204",
+                    "leftValue": "={{ $json.utter }}",
+                    "rightValue": "oddzwon|zadzwoni|call(ed)? me back|call back|callback|llam(e|en) de vuelta|devuelv|zur[üu]ckruf|r[üu]ckruf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NeedCallback"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9c9d0d11-31e9-51dd-b24b-206ff2ed92cb",
+                    "leftValue": "={{ $json.rowState }}",
+                    "rightValue": "NEED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "453a960b-5470-5694-a737-153e8b147451",
+                    "leftValue": "={{ $json.utter }}",
+                    "rightValue": "sam[ao]?\\b.*(aplikacj|stron)|aplikacj|na stronie|myself|the app\\b|website|online|yo mism|la app\\b|selbst|die app\\b|webseite",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NeedSelfService"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "62a070d9-b3c2-5bc3-a748-8e80c4cc1ea5",
+                    "leftValue": "={{ $json.rowState }}",
+                    "rightValue": "SERVICES",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "82b78207-34ed-58e8-af40-c793273b9e25",
+                    "leftValue": "={{ $json.dealerId }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  },
+                  {
+                    "id": "eb6303ce-006c-563b-b7b8-5aeffef72719",
+                    "leftValue": "={{ $json.utter }}",
+                    "rightValue": "(^(tak|zgadza|owszem|dok[łl]adnie|to ja|oczywi[śs]cie|jasne|s[íi]|claro|correcto|as[íi] es|soy yo|exacto|vale|de acuerdo|por supuesto|ja|genau|richtig|korrekt|das bin ich|stimmt|nat[üu]rlich|gerne|in ordnung|yes|yeah|yep|correct|that'?s me|that is me|sure|of course|go ahead|ok(ay)?)(?=[\\s,.!?;:]|$))|(przegl|serwis|maintenance|regular service|mantenimiento|revisi|wartung|service|inspek|inspection|inspecci|opon|tyre|tire|neum|reifen|napraw|repair|reparac|reparatur|kontrolk|warning|lamp|testigo|warnleucht)",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ServicesChosen"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5546f69e-a67a-538b-a50e-55ac424939bc",
+                    "leftValue": "={{ $json.rowState }}",
+                    "rightValue": "LOOKUP",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "845ec125-b849-5cff-9b28-c7a3650b0d89",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "RESCHEDULE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "603b2032-ada6-5aad-9b58-72811537f639",
+                    "leftValue": "={{ $json.appointmentRef }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  },
+                  {
+                    "id": "a72171de-1bcb-5d2d-89d1-99dea83fccdc",
+                    "leftValue": "={{ $json.utter }}",
+                    "rightValue": "(^(tak|zgadza|owszem|dok[łl]adnie|to ja|oczywi[śs]cie|jasne|s[íi]|claro|correcto|as[íi] es|soy yo|exacto|vale|de acuerdo|por supuesto|ja|genau|richtig|korrekt|das bin ich|stimmt|nat[üu]rlich|gerne|in ordnung|yes|yeah|yep|correct|that'?s me|that is me|sure|of course|go ahead|ok(ay)?)(?=[\\s,.!?;:]|$))|(tydz|tygod|przysz|jutro|pojutrze|poniedzia|wtorek|[śs]rod|czwart|pi[ąa]t|sobot|rano|po ?po[łl]udniu|week|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|morning|afternoon|next|soon|asap|earliest|semana|ma[ñn]ana|lunes|martes|mi[ée]rcoles|jueves|viernes|s[áa]bado|pronto|woche|morgen|montag|dienstag|mittwoch|donnerstag|freitag|samstag|bald|fr[üu]h)",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "RescheduleDate"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e156d4d8-180e-506d-bfb1-5aab46004081",
+                    "leftValue": "={{ $json.rowState }}",
+                    "rightValue": "LOOKUP",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "bbe832ea-f6d4-570a-9abd-4fa36f417631",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "CANCEL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "5d06515e-fd34-5f5d-92ef-5cdf4ff08c8a",
+                    "leftValue": "={{ $json.appointmentRef }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  },
+                  {
+                    "id": "19c1c9c1-fc6d-55d0-a3f0-b583048c064b",
+                    "leftValue": "={{ $json.utter }}",
+                    "rightValue": "(^(tak|zgadza|owszem|dok[łl]adnie|to ja|oczywi[śs]cie|jasne|s[íi]|claro|correcto|as[íi] es|soy yo|exacto|vale|de acuerdo|por supuesto|ja|genau|richtig|korrekt|das bin ich|stimmt|nat[üu]rlich|gerne|in ordnung|yes|yeah|yep|correct|that'?s me|that is me|sure|of course|go ahead|ok(ay)?)(?=[\\s,.!?;:]|$))|anul|odwo[łl]a|cancel|anular|stornier|absag",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CancelInLookup"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a920c4af-dbc8-5f8d-a439-a11a8ff57694",
+                    "leftValue": "={{ $json.rowState }}",
+                    "rightValue": "CONFIRM_CANCEL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "62dac5b8-799c-5da6-8f2b-e94f9330a089",
+                    "leftValue": "={{ $json.utter }}",
+                    "rightValue": "^(tak|zgadza|owszem|dok[łl]adnie|to ja|oczywi[śs]cie|jasne|s[íi]|claro|correcto|as[íi] es|soy yo|exacto|vale|de acuerdo|por supuesto|ja|genau|richtig|korrekt|das bin ich|stimmt|nat[üu]rlich|gerne|in ordnung|yes|yeah|yep|correct|that'?s me|that is me|sure|of course|go ahead|ok(ay)?)(?=[\\s,.!?;:]|$)",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  },
+                  {
+                    "id": "777f6151-9851-5992-8dc8-5cb16d63c322",
+                    "leftValue": "={{ $json.appointmentRef }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CancelConfirmed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a81497b1-08ad-5c00-ad40-77c52eb0d6d1",
+                    "leftValue": "={{ $json.rowState }}",
+                    "rightValue": "CONFIRM",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "26aaea07-f355-57bb-92ae-c734ce1fe0bb",
+                    "leftValue": "={{ $json.utter }}",
+                    "rightValue": "^(tak|zgadza|owszem|dok[łl]adnie|to ja|oczywi[śs]cie|jasne|s[íi]|claro|correcto|as[íi] es|soy yo|exacto|vale|de acuerdo|por supuesto|ja|genau|richtig|korrekt|das bin ich|stimmt|nat[üu]rlich|gerne|in ordnung|yes|yeah|yep|correct|that'?s me|that is me|sure|of course|go ahead|ok(ay)?)(?=[\\s,.!?;:]|$)",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  },
+                  {
+                    "id": "b1860c94-def4-5e4a-90b8-68d4601cc7b4",
+                    "leftValue": "={{ $json.pendingSlotId }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SlotConfirmed"
             }
           ]
         },
@@ -700,7 +1147,7 @@
       "typeVersion": 3.4,
       "position": [
         208,
-        704
+        720
       ]
     },
     {
@@ -723,8 +1170,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        208,
-        976
+        416,
+        720
       ]
     },
     {
@@ -753,8 +1200,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        208,
-        1248
+        416,
+        992
       ]
     },
     {
@@ -777,8 +1224,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        208,
-        1520
+        416,
+        1264
       ]
     },
     {
@@ -807,8 +1254,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        208,
-        1792
+        416,
+        1536
       ]
     },
     {
@@ -818,7 +1265,7 @@
             {
               "id": "9eea7e25-81a8-59af-8050-49165d581325",
               "name": "state",
-              "value": "SLOT",
+              "value": "SERVICES",
               "type": "string"
             },
             {
@@ -837,8 +1284,320 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        208,
-        2064
+        416,
+        1808
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d05f763a-8bfa-5a5e-93c4-51eb2a23828b",
+              "name": "state",
+              "value": "LOOKUP",
+              "type": "string"
+            },
+            {
+              "id": "0b54515f-6240-570a-b6c2-135be9aabc41",
+              "name": "gateAdvanced",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "eb1faf6a-8852-5b7d-8728-80ff84fe489c",
+              "name": "gateIntent",
+              "value": "CANCEL",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "80028f1d-b087-5738-933a-a1ebad76b03d",
+      "name": "OnNeedCancel",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "06a6cb35-80ac-5563-b32b-207f8adab5e2",
+              "name": "state",
+              "value": "LOOKUP",
+              "type": "string"
+            },
+            {
+              "id": "5bdafae9-d409-5cce-a9e2-a052dc01b5c6",
+              "name": "gateAdvanced",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "77b6d0a1-df4d-5be0-8e41-31ae32a9af2e",
+              "name": "gateIntent",
+              "value": "RESCHEDULE",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "ccc78f52-2d08-58aa-addc-4f193a7809f2",
+      "name": "OnNeedReschedule",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        992
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3ad40ae4-156f-57d1-a2d1-eefbea45b025",
+              "name": "state",
+              "value": "CALLBACK",
+              "type": "string"
+            },
+            {
+              "id": "2be299f5-45e4-569b-a737-42c8423353eb",
+              "name": "gateAdvanced",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "0c35bdac-7eff-5033-9039-e46424665a41",
+              "name": "gateIntent",
+              "value": "CALLBACK",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "69925957-1233-577f-8cd6-b85cec91c368",
+      "name": "OnNeedCallback",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        1264
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "977695a9-7944-542e-9097-b97ad83791d0",
+              "name": "state",
+              "value": "SELF_SERVICE",
+              "type": "string"
+            },
+            {
+              "id": "c92e1c0b-a7c8-5a56-8e59-27444a99a693",
+              "name": "gateAdvanced",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "6c0e433f-6dd9-52cc-93a7-ff03870bdd40",
+              "name": "gateIntent",
+              "value": "SELF_SERVICE",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "dcc4df08-84f5-512a-a74b-ce89f7e75bc2",
+      "name": "OnNeedSelfService",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        1536
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "43bc6ccf-48f5-538d-8e13-eceb728ce0cc",
+              "name": "state",
+              "value": "SLOT",
+              "type": "string"
+            },
+            {
+              "id": "5681a12e-9bf9-5613-94a2-2cdd0e1ae9ca",
+              "name": "gateAdvanced",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "3157ba7d-6c4c-5c51-9be0-65ae69b6a3a2",
+              "name": "gateServices",
+              "value": "={{ Object.entries({\"MAINT\": \"przegl|serwis|maintenance|regular service|mantenimiento|revisi|wartung|service\", \"INSP\": \"inspek|inspection|inspecci\", \"TYRE\": \"opon|tyre|tire|neum|reifen\", \"REPAIR\": \"napraw|repair|reparac|reparatur\", \"WARN\": \"kontrolk|warning|lamp|testigo|warnleucht\"}).filter(([id, re]) => new RegExp(re).test($json.utter)).map(([id]) => id).join(',') || 'MAINT' }}",
+              "type": "string"
+            },
+            {
+              "id": "725ad9bf-79b2-51bf-a132-b6f8d2884740",
+              "name": "gateFromDate",
+              "value": "={{ /przysz|tygod|next week|pr[óo]xima semana|n[äa]chste woche/.test($json.utter) ? $today.plus({ days: 7 }).toFormat('yyyy-MM-dd') : $today.plus({ days: 1 }).toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "f0b8859f-93f1-5fd4-a13c-b57100b2f898",
+      "name": "OnServicesChosen",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        1808
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c02ca5c8-736f-51fa-ae9a-26a84d75e6c7",
+              "name": "state",
+              "value": "SLOT",
+              "type": "string"
+            },
+            {
+              "id": "200720e5-7d55-5060-b4d2-e1f49161ef2f",
+              "name": "gateAdvanced",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "a475130c-36af-520d-a6ca-9a503ceab5b0",
+              "name": "gateFromDate",
+              "value": "={{ /przysz|tygod|next week|pr[óo]xima semana|n[äa]chste woche/.test($json.utter) ? $today.plus({ days: 7 }).toFormat('yyyy-MM-dd') : $today.plus({ days: 1 }).toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "77330f8a-3eaa-5657-ab66-10f184c80215",
+      "name": "OnRescheduleDate",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4ebf487d-9a7d-54fc-8f2f-13174ca5db7c",
+              "name": "state",
+              "value": "CONFIRM_CANCEL",
+              "type": "string"
+            },
+            {
+              "id": "5c76d320-edd6-5088-9651-53fdcc5da9bf",
+              "name": "gateAdvanced",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "16cc0e22-3fbd-5c2d-8528-878e1bb790b2",
+      "name": "OnCancelInLookup",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        992
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "079ad679-0223-57d7-93c5-fb4090d32b18",
+              "name": "gateAdvanced",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "0e8c2a01-e65a-5d96-9e3a-db676b7199e3",
+              "name": "gateAction",
+              "value": "cancel",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "00bd1886-d3f8-5368-910d-30a34b6a7435",
+      "name": "OnCancelConfirmed",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        1264
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d8eac941-56ee-5d9c-8ac0-7dd7c94a1af9",
+              "name": "gateAdvanced",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "d6ac16ab-baf2-59d3-a175-29db613ef4b2",
+              "name": "gateAction",
+              "value": "={{ $json.appointmentRef ? 'move' : 'book' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "f745c569-f260-567d-b2ab-234eecc61398",
+      "name": "OnSlotConfirmed",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        1536
       ]
     },
     {
@@ -872,13 +1631,25 @@
             {
               "id": "5ff94829-c2d5-5526-8a67-9c448e9056ed",
               "name": "gateLine",
-              "value": "={{ $json.gateAdvanced ? 'The caller has just ' + ($json.rowState === 'IDENTIFY' ? 'confirmed their identity' : $json.rowState === 'CONSENT' ? 'agreed to continue with the assistant' : 'agreed to the dealer ' + $json.dealerName + ' (dealerId ' + $json.dealerId + '); call FindSlots for it now') + '. Do not ask that again; follow the current goal.' : '' }}",
+              "value": "={{ $json.gateAdvanced ? 'The caller has just ' + ($json.gateAction ? 'confirmed, and the booking system was already updated this turn (see the tool result below): tell the caller the result' : $json.rowState === 'IDENTIFY' ? 'confirmed their identity' : $json.rowState === 'CONSENT' ? 'agreed to continue with the assistant' : $json.rowState === 'DEALER' ? 'agreed to the dealer ' + $json.dealerName + ' (dealerId ' + $json.dealerId + '); the reservation is already created: offer the available services by name, maintenance service first, and ask which they need' : $json.rowState === 'SERVICES' ? 'chosen the services ' + $json.gateServices + '; the slots are already found: offer them by day and time (see Offered slots) and ask which one fits' : $json.rowState === 'LOOKUP' ? ($json.state === 'SLOT' ? 'asked for a new date; the slots are already found: offer them by day and time (see Offered slots) and ask which one fits' : 'confirmed which appointment to cancel: read it back in full (day, time, dealer) and ask for an explicit yes to cancel it; do not say it is cancelled') : $json.gateIntent === 'CANCEL' ? 'asked to cancel an existing appointment: set intent CANCEL; the appointment search is already done: read the appointment in hand back (day, time, dealer) and ask whether that is the one to cancel' : $json.gateIntent === 'RESCHEDULE' ? 'asked to move an existing appointment: set intent RESCHEDULE; the appointment search is already done: read the appointment in hand back and ask for the earliest new date' : $json.gateIntent === 'CALLBACK' ? 'asked to be called back by the dealer: set intent CALLBACK, read back the dealer and the reason, and ask when they want the call' : 'asked to book the appointment themselves: set intent SELF_SERVICE and state SELF_SERVICE') + '. Do not ask that again; follow the current goal.' : '' }}",
               "type": "string"
             },
             {
               "id": "552a5940-3c39-55c8-b301-2d8ee34f4995",
               "name": "slotLines",
               "value": "={{ $json.offered.length ? $json.offered.map(o => '- slotId ' + o.slotId + ': ' + o.label + ' at ' + (o.dealerName || $json.dealerName)).join('\\n') : '(none offered yet)' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef7f85ab-df98-5158-96b1-d8462ba4eee9",
+              "name": "serviceLines",
+              "value": "={{ $json.services.length ? $json.services.map(o => '- serviceId ' + o.serviceId + ': ' + o.name).join('\\n') : '(no reservation yet)' }}",
+              "type": "string"
+            },
+            {
+              "id": "c9f49a10-ac75-5d60-988e-e9958c916f3c",
+              "name": "selfServiceText",
+              "value": "={{ (($('Prompts').first().json.prompts.find(p => p.key === 'selfService') || {})[$json.language] || ($('Prompts').first().json.prompts.find(p => p.key === 'selfService') || {}).en || '') }}",
               "type": "string"
             }
           ]
@@ -891,8 +1662,643 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
+        832,
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cf13aca2-acd0-5700-bab2-284d5024b07a",
+              "name": "prefetchNote",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "5464e497-1c28-5d74-ad1a-f6748daa7055",
+      "name": "GateFacts",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ac46cf4b-467a-5c3d-a16b-e53c8b05aa7d",
+                    "leftValue": "={{ $json.gateIntent }}",
+                    "rightValue": "CANCEL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "310ea387-f2e3-596f-92e4-a7c642e73e8c",
+                    "leftValue": "={{ $json.gateIntent }}",
+                    "rightValue": "RESCHEDULE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "Appointment"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "37c6d758-4c8d-53b0-adb4-84a46f14ebe9",
+                    "leftValue": "={{ $json.gateAdvanced }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  },
+                  {
+                    "id": "4a73d134-b7aa-5ef3-9a52-8c8d7ecd8db6",
+                    "leftValue": "={{ $json.rowState }}",
+                    "rightValue": "DEALER",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Reservation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "6f833bfc-bcde-5063-a78d-957c44b04a2c",
+                    "leftValue": "={{ $json.gateAdvanced }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  },
+                  {
+                    "id": "71943a22-1522-5b62-a54d-f9e1864caf8d",
+                    "leftValue": "={{ $json.state }}",
+                    "rightValue": "SLOT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Slots"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c334550c-3ae7-588d-9064-24722ef20738",
+                    "leftValue": "={{ $json.gateAction }}",
+                    "rightValue": "cancel",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cancel"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "dfc469bf-fc9f-5074-8992-86ee7d2ffd00",
+                    "leftValue": "={{ $json.gateAction }}",
+                    "rightValue": "book",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Book"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "dec7a3ed-36a4-56e9-ba5f-f7bf60ad7ccf",
+                    "leftValue": "={{ $json.gateAction }}",
+                    "rightValue": "move",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Move"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "NoPrefetch"
+        }
+      },
+      "id": "d06a4743-6f7d-53c8-9809-da250f2e9de7",
+      "name": "Prefetch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ (g => ({ ...g, prefetchNote: 'The confirmation tool was already called this turn. Result: ' + JSON.stringify($json) + ' If ok is true, tell the caller it is done and read the result back; otherwise say what the message says. Do not call any tool this turn.' }))($('GateFacts').first().json) }}",
+        "options": {}
+      },
+      "id": "51c0c35f-117f-56c7-88f6-78b03d8814c1",
+      "name": "WithOutcome",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        3056
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-24-find-appointment",
+          "mode": "list",
+          "cachedResultName": "AR-24 Tool: Find appointment"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "bookingRef": ""
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bookingRef",
+              "displayName": "bookingRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "318ffc40-c311-5b81-9a20-70dbeebc0f0e",
+      "name": "FetchAppointment",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
         416,
-        704
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ (g => ({ ...g, appointmentRef: $json.count === 1 ? $json.appointments[0].bookingRef : g.appointmentRef, appointmentLabel: $json.count === 1 ? $json.appointments[0].when + ' at ' + $json.appointments[0].dealerName : g.appointmentLabel, prefetchNote: 'FindAppointment was already called this turn. Result: ' + JSON.stringify($json) + ' Do not call it again this turn.' }))($('GateFacts').first().json) }}",
+        "options": {}
+      },
+      "id": "2db7923f-0a51-56df-9cd2-bb1db03c1fe4",
+      "name": "WithAppointment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-19-create-reservation",
+          "mode": "list",
+          "cachedResultName": "AR-19 Tool: Create reservation"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "dealerId": "={{ $json.dealerId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerId",
+              "displayName": "dealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "393aafd5-ea85-5856-b6c5-cc84e487f10c",
+      "name": "FetchReservation",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        2512
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ (g => ({ ...g, reservationId: $json.reservationId || g.reservationId, dealerName: $json.dealerName || g.dealerName, services: ($json.services && $json.services.length) ? $json.services : g.services, prefetchNote: 'CreateReservation was already called this turn. Result: ' + JSON.stringify($json) + ' Do not call it again.' }))($('GateFacts').first().json) }}",
+        "options": {}
+      },
+      "id": "e113df70-3737-5b0b-bd7d-97d9c7320d99",
+      "name": "WithReservation",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        2512
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-12-find-slots",
+          "mode": "list",
+          "cachedResultName": "AR-12 Tool: Find appointment slots"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "serviceIds": "={{ $json.gateServices || $json.selectedServices || 'MAINT' }}",
+            "fromDate": "={{ $json.gateFromDate }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "serviceIds",
+              "displayName": "serviceIds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fromDate",
+              "displayName": "fromDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "728522de-9a18-5373-9a04-370791e29157",
+      "name": "FetchSlots",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        2784
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ (g => ({ ...g, offered: ($json.slots || []).map(o => ({ slotId: o.slotId, label: o.when, dealerName: $json.dealerName || g.dealerName })), selectedServices: g.gateServices || g.selectedServices, prefetchNote: 'FindSlots was already called this turn. Result: ' + JSON.stringify($json) + ' Do not call it again; offer the slots listed under Offered slots.' }))($('GateFacts').first().json) }}",
+        "options": {}
+      },
+      "id": "087ccb61-f7f3-55eb-8e01-d84ee44312ba",
+      "name": "WithSlots",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        2784
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-25-cancel-appointment",
+          "mode": "list",
+          "cachedResultName": "AR-25 Tool: Cancel appointment"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "bookingRef": "={{ $json.appointmentRef }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bookingRef",
+              "displayName": "bookingRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "4dd9b9c4-f9db-527d-8069-f326ac399ee9",
+      "name": "FetchCancel",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        3056
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-13-book-appointment",
+          "mode": "list",
+          "cachedResultName": "AR-13 Tool: Book appointment"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "slotId": "={{ $json.pendingSlotId }}",
+            "mobility": "",
+            "notes": ""
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slotId",
+              "displayName": "slotId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mobility",
+              "displayName": "mobility",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "52f8c4cc-c1df-5bfc-bb89-ecc26c90f28a",
+      "name": "FetchBook",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        3328
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-26-move-appointment",
+          "mode": "list",
+          "cachedResultName": "AR-26 Tool: Move appointment"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "slotId": "={{ $json.pendingSlotId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slotId",
+              "displayName": "slotId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "3f62bb5d-d9b1-5bec-bd08-dc5c1f9584db",
+      "name": "FetchMove",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        3600
       ]
     },
     {
@@ -902,7 +2308,7 @@
             {
               "id": "4711df15-45a0-5633-b9c2-910fd0043415",
               "name": "factsText",
-              "value": "={{ [ $json.gateLine, 'Session state: ' + $json.state + '.', 'Customer known: ' + ($json.customerRef ? 'yes' : 'no') + '.', $json.greetingName ? 'Name to address the customer: ' + $json.greetingName + '.' : '', $json.vehicleLabel ? 'Vehicle: ' + $json.vehicleLabel + '.' : '', $json.dealerName ? 'Preferred dealer: ' + $json.dealerName + ' (dealerId ' + $json.dealerId + ').' : 'Preferred dealer: none on file.', 'Market: ' + $json.market + '. Online booking enabled in this market: ' + ($json.marketBookable ? 'yes' : 'no') + '.', $json.bookingRef ? 'Booking already made in this call: confirmation code ' + $json.confirmationCode + '.' : 'No booking made yet in this call.', 'Offered slots in this call:\\n' + $json.slotLines, 'Today is ' + new Date().toISOString().slice(0, 10) + ' (UTC).' ].filter(Boolean).join('\\n') }}",
+              "value": "={{ [ $json.gateLine, $json.prefetchNote, 'Session state: ' + $json.state + '.', 'Call origin: ' + ($json.caseOrigin === 'IVR' ? 'phone call through the IVR (no vehicle identified from the car)' : 'in-car call') + '.', 'Customer identified: ' + ($json.customerRef ? 'yes' : 'no' + ($json.identifyAttempts ? ' (failed identification attempts: ' + $json.identifyAttempts + ' of 2)' : '')) + '.', $json.greetingName ? 'Name to address the customer: ' + $json.greetingName + '.' : '', $json.vehicleLabel ? 'Vehicle: ' + $json.vehicleLabel + '.' : '', $json.dealerName ? 'Preferred dealer: ' + $json.dealerName + ' (dealerId ' + $json.dealerId + ').' : 'Preferred dealer: none on file.', 'Market: ' + $json.market + '. Online booking enabled in this market: ' + ($json.marketBookable ? 'yes' : 'no') + '.', $json.reservationId ? 'Reservation in hand at ' + $json.dealerName + '. Services available:\\n' + $json.serviceLines : 'No reservation yet (CreateReservation after the dealer is agreed).', $json.selectedServices ? 'Selected services: ' + $json.selectedServices + '.' : '', $json.appointmentRef ? 'Existing appointment in hand: ' + $json.appointmentLabel + ' (bookingRef ' + $json.appointmentRef + ').' : '', $json.bookingRef && !$json.movedAt ? 'Booking already made in this call: confirmation code ' + $json.confirmationCode + '.' : $json.movedAt ? 'The appointment was moved in this call.' : 'No booking made yet in this call.', $json.cancelledAt ? 'The appointment was cancelled in this call.' : '', $json.callbackAt ? 'The retailer callback is logged; the dealer will call the customer.' : '', 'Offered slots in this call:\\n' + $json.slotLines, 'Today is ' + new Date().toISOString().slice(0, 10) + ' (UTC).' ].filter(Boolean).join('\\n') }}",
               "type": "string"
             }
           ]
@@ -915,8 +2321,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        624,
-        704
+        1040,
+        2240
       ]
     },
     {
@@ -1018,6 +2424,18 @@
               "name": "gateDecline",
               "value": "={{ $json.gateDecline }}",
               "type": "string"
+            },
+            {
+              "id": "f24cf64b-f9ff-591b-9a99-5656342e55ca",
+              "name": "selfServiceText",
+              "value": "={{ $json.selfServiceText }}",
+              "type": "string"
+            },
+            {
+              "id": "2dab7914-09e2-561c-bfc3-1da3f85bf5dc",
+              "name": "rowState",
+              "value": "={{ $json.rowState }}",
+              "type": "string"
             }
           ]
         },
@@ -1028,8 +2446,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        832,
-        704
+        1248,
+        2240
       ]
     },
     {
@@ -1039,7 +2457,7 @@
         "hasOutputParser": true,
         "options": {
           "systemMessage": "={{ $json.systemPrompt }}",
-          "maxIterations": 8
+          "maxIterations": 10
         }
       },
       "id": "08fe1eca-bbb6-5584-a892-34eb1d5c3594",
@@ -1048,7 +2466,7 @@
       "typeVersion": 3.1,
       "position": [
         0,
-        2448
+        4000
       ],
       "onError": "continueErrorOutput"
     },
@@ -1070,7 +2488,7 @@
       "typeVersion": 1.3,
       "position": [
         0,
-        2720
+        4272
       ],
       "credentials": {
         "openAiApi": {
@@ -1092,7 +2510,7 @@
       "typeVersion": 1.4,
       "position": [
         208,
-        2720
+        4272
       ],
       "credentials": {
         "postgres": {
@@ -1104,7 +2522,7 @@
     {
       "parameters": {
         "schemaType": "manual",
-        "inputSchema": "{\n  \"type\": \"object\",\n  \"required\": [\n    \"speak\",\n    \"action\",\n    \"state\",\n    \"intent\"\n  ],\n  \"properties\": {\n    \"speak\": {\n      \"type\": \"string\",\n      \"description\": \"What is read aloud to the caller, in the session language, under 45 words\"\n    },\n    \"action\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"continue\",\n        \"handoff\",\n        \"end\"\n      ]\n    },\n    \"state\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"IDENTIFY\",\n        \"CONSENT\",\n        \"NEED\",\n        \"DEALER\",\n        \"SLOT\",\n        \"CONFIRM\",\n        \"BOOKED\",\n        \"WRAPUP\",\n        \"HANDOFF\"\n      ]\n    },\n    \"intent\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"BOOK\",\n        \"RESCHEDULE\",\n        \"CANCEL\",\n        \"OTHER\",\n        \"UNKNOWN\"\n      ]\n    },\n    \"handoffReason\": {\n      \"type\": [\n        \"string\",\n        \"null\"\n      ],\n      \"enum\": [\n        \"CALLER_REQUEST\",\n        \"SCENARIO_REQUIRES_AGENT\",\n        \"NOT_UNDERSTOOD\",\n        \"BACKEND_UNAVAILABLE\",\n        \"IDENTIFICATION_FAILED\",\n        \"NO_SLOT\",\n        \"POLICY\",\n        \"PLATFORM_ERROR\",\n        null\n      ]\n    },\n    \"slotId\": {\n      \"type\": [\n        \"string\",\n        \"null\"\n      ],\n      \"description\": \"In state CONFIRM: the slotId of the option being read back to the caller. Otherwise null.\"\n    },\n    \"confidence\": {\n      \"type\": \"number\",\n      \"minimum\": 0,\n      \"maximum\": 1\n    },\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"One sentence for a human agent: what the caller wants and where the conversation is\"\n    }\n  }\n}",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"required\": [\n    \"speak\",\n    \"action\",\n    \"state\",\n    \"intent\"\n  ],\n  \"properties\": {\n    \"speak\": {\n      \"type\": \"string\",\n      \"description\": \"What is read aloud to the caller, in the session language, under 45 words\"\n    },\n    \"action\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"continue\",\n        \"handoff\",\n        \"end\"\n      ]\n    },\n    \"state\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"IDENTIFY\",\n        \"CONSENT\",\n        \"NEED\",\n        \"DEALER\",\n        \"SERVICES\",\n        \"SLOT\",\n        \"CONFIRM\",\n        \"BOOKED\",\n        \"LOOKUP\",\n        \"CONFIRM_CANCEL\",\n        \"CANCELLED\",\n        \"MOVED\",\n        \"CALLBACK\",\n        \"CALLBACK_LOGGED\",\n        \"SELF_SERVICE\",\n        \"WRAPUP\",\n        \"HANDOFF\"\n      ]\n    },\n    \"intent\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"BOOK\",\n        \"RESCHEDULE\",\n        \"CANCEL\",\n        \"CALLBACK\",\n        \"SELF_SERVICE\",\n        \"OTHER\",\n        \"UNKNOWN\"\n      ]\n    },\n    \"handoffReason\": {\n      \"type\": [\n        \"string\",\n        \"null\"\n      ],\n      \"enum\": [\n        \"CALLER_REQUEST\",\n        \"SCENARIO_REQUIRES_AGENT\",\n        \"NOT_UNDERSTOOD\",\n        \"BACKEND_UNAVAILABLE\",\n        \"IDENTIFICATION_FAILED\",\n        \"NO_SLOT\",\n        \"POLICY\",\n        \"PLATFORM_ERROR\",\n        null\n      ]\n    },\n    \"slotId\": {\n      \"type\": [\n        \"string\",\n        \"null\"\n      ],\n      \"description\": \"In state CONFIRM: the slotId of the option being read back to the caller (new booking or move). Otherwise null.\"\n    },\n    \"confidence\": {\n      \"type\": \"number\",\n      \"minimum\": 0,\n      \"maximum\": 1\n    },\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"One sentence for a human agent: what the caller wants and where the conversation is\"\n    }\n  }\n}",
         "autoFix": true
       },
       "id": "4036037a-ddb9-5e10-85be-5f74125e0397",
@@ -1113,7 +2531,7 @@
       "typeVersion": 1.3,
       "position": [
         416,
-        2720
+        4272
       ]
     },
     {
@@ -1134,7 +2552,7 @@
       "typeVersion": 1.3,
       "position": [
         624,
-        2992
+        4272
       ],
       "credentials": {
         "openAiApi": {
@@ -1190,13 +2608,13 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        0,
-        2992
+        208,
+        4544
       ]
     },
     {
       "parameters": {
-        "description": "Returns up to three free appointment slots at one dealer from a given date. Call it once a dealer is agreed, and again with a later date if the caller rejects all options. Offer the returned slots by day and time; keep their slotId for BookAppointment.",
+        "description": "Returns up to three free appointment slots from a given date for the reservation in hand (new booking) or the existing appointment's dealer (reschedule). Call it after the caller chose the services, and again with a later date if the caller rejects all options. Offer the returned slots by day and time; keep their slotId for BookAppointment or MoveAppointment.",
         "workflowId": {
           "__rl": true,
           "value": "PENDING_ar-12-find-slots",
@@ -1207,9 +2625,8 @@
           "mappingMode": "defineBelow",
           "value": {
             "sessionId": "={{ $('PrepareTurn').first().json.sessionId }}",
-            "dealerId": "={{ $fromAI('dealerId', 'dealerId of the agreed dealer, exactly as given in the facts or by FindDealers, for example PL-WAW-01', 'string') }}",
-            "fromDate": "={{ $fromAI('fromDate', 'Earliest acceptable date as YYYY-MM-DD, or empty for the earliest available', 'string') }}",
-            "serviceType": "={{ $fromAI('serviceType', 'Service type the caller needs: inspection, service, tyre change, repair, warning light or other', 'string') }}"
+            "serviceIds": "={{ $fromAI('serviceIds', 'serviceIds the caller chose from CreateReservation, comma separated, for example MAINT or MAINT,TYRE; empty when rescheduling', 'string') }}",
+            "fromDate": "={{ $fromAI('fromDate', 'Earliest acceptable date as YYYY-MM-DD, or empty for the earliest available', 'string') }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -1224,8 +2641,8 @@
               "removed": false
             },
             {
-              "id": "dealerId",
-              "displayName": "dealerId",
+              "id": "serviceIds",
+              "displayName": "serviceIds",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -1236,16 +2653,6 @@
             {
               "id": "fromDate",
               "displayName": "fromDate",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "serviceType",
-              "displayName": "serviceType",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -1263,13 +2670,13 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        208,
-        2992
+        624,
+        4544
       ]
     },
     {
       "parameters": {
-        "description": "Books one of the slots offered by FindSlots in this call. Call it only after the caller explicitly confirmed dealer, day and time. Returns the confirmation code to read back, or ok false with the reason (slot not offered, slot taken, backend unavailable).",
+        "description": "Submits the booking for the reservation in hand and one of the slots offered by FindSlots in this call. Call it only after the caller explicitly confirmed dealer, day and time. Returns the confirmation code to read back, or ok false with the reason (slot not offered, slot taken, backend unavailable).",
         "workflowId": {
           "__rl": true,
           "value": "PENDING_ar-13-book-appointment",
@@ -1281,7 +2688,6 @@
           "value": {
             "sessionId": "={{ $('PrepareTurn').first().json.sessionId }}",
             "slotId": "={{ $fromAI('slotId', 'slotId of the option the caller chose, exactly as returned by FindSlots', 'string') }}",
-            "serviceType": "={{ $fromAI('serviceType', 'Service type agreed with the caller', 'string') }}",
             "mobility": "={{ $fromAI('mobility', 'Replacement mobility the caller asked for: none, courtesy car, pick-up, or shuttle', 'string') }}",
             "notes": "={{ $fromAI('notes', 'Anything the dealer should know, in one sentence, or empty', 'string') }}"
           },
@@ -1300,16 +2706,6 @@
             {
               "id": "slotId",
               "displayName": "slotId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "serviceType",
-              "displayName": "serviceType",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -1347,8 +2743,347 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
+        832,
+        4544
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Identifies a caller who is not yet identified (IVR call or unknown vehicle) from the data points they give: vehicle registration plate plus surname or postcode. Call it as soon as the caller has given the plate and one more data point. Returns the customer's greeting name and vehicle, or not_identified with what to do next.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-18-identify-caller",
+          "mode": "list",
+          "cachedResultName": "AR-18 Tool: Identify caller by spoken data"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $('PrepareTurn').first().json.sessionId }}",
+            "lastName": "={{ $fromAI('lastName', 'Surname the caller gave, or empty', 'string') }}",
+            "registrationPlate": "={{ $fromAI('registrationPlate', 'Vehicle registration plate as spoken, letters and digits, or empty', 'string') }}",
+            "postcode": "={{ $fromAI('postcode', 'Postcode the caller gave, or empty', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lastName",
+              "displayName": "lastName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "registrationPlate",
+              "displayName": "registrationPlate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "postcode",
+              "displayName": "postcode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "cbf556e4-f505-552a-bf50-829e7f33ad32",
+      "name": "IdentifyCaller",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        4544
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Creates the DealerBook reservation for the caller's vehicle at the agreed dealer and returns the services available there. Call it once the dealer is agreed, before offering services or slots. Offer the services by name and keep their serviceId for FindSlots.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-19-create-reservation",
+          "mode": "list",
+          "cachedResultName": "AR-19 Tool: Create reservation"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $('PrepareTurn').first().json.sessionId }}",
+            "dealerId": "={{ $fromAI('dealerId', 'dealerId of the agreed dealer, exactly as given in the facts or by FindDealers, for example PL-WAW-01', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerId",
+              "displayName": "dealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "24165927-6d79-5f13-a51c-426bfadfbac8",
+      "name": "CreateReservation",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
         416,
-        2992
+        4544
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Finds the caller's existing booked appointments for a reschedule or a cancellation. Call it as soon as the caller wants to move or cancel an appointment; pass the booking number only if the caller named one. Returns the appointment in hand with day, time and dealer.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-24-find-appointment",
+          "mode": "list",
+          "cachedResultName": "AR-24 Tool: Find appointment"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $('PrepareTurn').first().json.sessionId }}",
+            "bookingRef": "={{ $fromAI('bookingRef', 'Booking number the caller named, or empty', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bookingRef",
+              "displayName": "bookingRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "30e2246a-7d08-5e55-aadb-4dd28a422627",
+      "name": "FindAppointment",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        4816
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Cancels the appointment in hand. Call it only in the turn after the caller explicitly confirmed the cancellation of the appointment read back in state CONFIRM_CANCEL. Returns ok, or not_confirmed with what to do next.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-25-cancel-appointment",
+          "mode": "list",
+          "cachedResultName": "AR-25 Tool: Cancel appointment"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $('PrepareTurn').first().json.sessionId }}",
+            "bookingRef": "={{ $fromAI('bookingRef', 'bookingRef of the appointment in hand, exactly as returned by FindAppointment', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bookingRef",
+              "displayName": "bookingRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "7427b72e-5310-5755-8fd9-7910fd8b4294",
+      "name": "CancelAppointment",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        4816
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Moves the appointment in hand to one of the slots offered by FindSlots in this call. Call it only in the turn after the caller explicitly confirmed the new day and time read back in state CONFIRM. Returns the new time, or not_confirmed with what to do next.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-26-move-appointment",
+          "mode": "list",
+          "cachedResultName": "AR-26 Tool: Move appointment"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $('PrepareTurn').first().json.sessionId }}",
+            "slotId": "={{ $fromAI('slotId', 'slotId of the new option the caller chose, exactly as returned by FindSlots', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slotId",
+              "displayName": "slotId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "d45e02b3-1374-557a-8e8e-42d2c59cd500",
+      "name": "MoveAppointment",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        4816
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Logs a retailer callback: the dealer calls the customer back to arrange the appointment. Use it when the caller asks to be called back, or when the dealer cannot be booked online. Call it only in the turn after the caller confirmed the callback read back in state CALLBACK.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-27-request-callback",
+          "mode": "list",
+          "cachedResultName": "AR-27 Tool: Request retailer callback"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $('PrepareTurn').first().json.sessionId }}",
+            "reason": "={{ $fromAI('reason', 'What the caller needs from the dealer, in one sentence', 'string') }}",
+            "preferredTime": "={{ $fromAI('preferredTime', 'When the caller wants to be called back, as spoken, or empty', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "preferredTime",
+              "displayName": "preferredTime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "fc2e7572-c7e3-5702-9c7c-2b49fe7d248f",
+      "name": "RequestCallback",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        4816
       ]
     },
     {
@@ -1378,7 +3113,7 @@
       "typeVersion": 1.1,
       "position": [
         0,
-        3392
+        5248
       ],
       "alwaysOutputData": true
     },
@@ -1435,6 +3170,12 @@
               "type": "string"
             },
             {
+              "id": "b219ff20-b09d-52fa-8732-bcef9585398a",
+              "name": "rowState",
+              "value": "={{ $('PrepareTurn').first().json.rowState || $('PrepareTurn').first().json.state }}",
+              "type": "string"
+            },
+            {
               "id": "f951e768-b3a5-53a2-83fd-e5cb8e09ef44",
               "name": "gateDecline",
               "value": "={{ $('PrepareTurn').first().json.gateDecline || '' }}",
@@ -1487,6 +3228,48 @@
               "name": "confirmationCode",
               "value": "={{ $json.confirmationCode || '' }}",
               "type": "string"
+            },
+            {
+              "id": "cf397a94-9a11-5806-aad0-93a1dca390f8",
+              "name": "sessIntent",
+              "value": "={{ $json.intent || 'UNKNOWN' }}",
+              "type": "string"
+            },
+            {
+              "id": "957f989a-435e-5e27-bb86-3441c04035be",
+              "name": "known",
+              "value": "={{ !!$json.customerRef }}",
+              "type": "boolean"
+            },
+            {
+              "id": "3d3555f6-e4a7-5e9c-8655-1a4e1867e7f4",
+              "name": "identifyAttempts",
+              "value": "={{ Number($json.identifyAttempts) || 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "5059881b-23fe-5566-93c7-c9a3953ae376",
+              "name": "movedAt",
+              "value": "={{ $json.movedAt || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ffc005bd-6e14-56e7-9055-d83f1d406fa6",
+              "name": "cancelledAt",
+              "value": "={{ $json.cancelledAt || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "bbd69981-2602-5066-b049-b50fea25e04f",
+              "name": "callbackAt",
+              "value": "={{ $json.callbackAt || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "7304912c-8abf-5257-937f-e2fc0b555453",
+              "name": "selfServiceText",
+              "value": "={{ $('PrepareTurn').first().json.selfServiceText || '' }}",
+              "type": "string"
             }
           ]
         },
@@ -1498,7 +3281,7 @@
       "typeVersion": 3.4,
       "position": [
         208,
-        3392
+        5248
       ]
     },
     {
@@ -1520,13 +3303,13 @@
             {
               "id": "f178eef3-7bc0-5bc4-9e26-e78585b2c865",
               "name": "state",
-              "value": "={{ [\"IDENTIFY\", \"CONSENT\", \"NEED\", \"DEALER\", \"SLOT\", \"CONFIRM\", \"BOOKED\", \"WRAPUP\", \"HANDOFF\"].includes($json.out.state) ? $json.out.state : $json.prepState }}",
+              "value": "={{ (({\"IDENTIFY\": [\"IDENTIFY\", \"CONSENT\", \"HANDOFF\"], \"CONSENT\": [\"CONSENT\", \"NEED\", \"HANDOFF\"], \"NEED\": [\"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"LOOKUP\", \"CALLBACK\", \"SELF_SERVICE\", \"HANDOFF\"], \"DEALER\": [\"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"LOOKUP\", \"CALLBACK\", \"SELF_SERVICE\", \"HANDOFF\"], \"SERVICES\": [\"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"LOOKUP\", \"CALLBACK\", \"SELF_SERVICE\", \"HANDOFF\"], \"SLOT\": [\"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"LOOKUP\", \"CALLBACK\", \"SELF_SERVICE\", \"HANDOFF\"], \"CONFIRM\": [\"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"LOOKUP\", \"CALLBACK\", \"SELF_SERVICE\", \"HANDOFF\"], \"BOOKED\": [\"BOOKED\", \"WRAPUP\", \"HANDOFF\"], \"LOOKUP\": [\"LOOKUP\", \"CONFIRM_CANCEL\", \"SLOT\", \"CONFIRM\", \"DEALER\", \"NEED\", \"CALLBACK\", \"HANDOFF\"], \"CONFIRM_CANCEL\": [\"CONFIRM_CANCEL\", \"LOOKUP\", \"SLOT\", \"NEED\", \"HANDOFF\"], \"CANCELLED\": [\"CANCELLED\", \"WRAPUP\", \"HANDOFF\"], \"MOVED\": [\"MOVED\", \"WRAPUP\", \"HANDOFF\"], \"CALLBACK\": [\"CALLBACK\", \"NEED\", \"HANDOFF\"], \"CALLBACK_LOGGED\": [\"CALLBACK_LOGGED\", \"WRAPUP\", \"HANDOFF\"], \"SELF_SERVICE\": [\"SELF_SERVICE\", \"WRAPUP\", \"NEED\", \"HANDOFF\"], \"WRAPUP\": [\"WRAPUP\", \"HANDOFF\"], \"HANDOFF\": [\"HANDOFF\"]})[$json.prepState] || [\"IDENTIFY\", \"CONSENT\", \"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"BOOKED\", \"LOOKUP\", \"CONFIRM_CANCEL\", \"CANCELLED\", \"MOVED\", \"CALLBACK\", \"CALLBACK_LOGGED\", \"SELF_SERVICE\", \"WRAPUP\", \"HANDOFF\"]).includes($json.out.state) ? $json.out.state : $json.prepState }}",
               "type": "string"
             },
             {
               "id": "9813313f-0368-510a-a425-80499c31b28b",
               "name": "intent",
-              "value": "={{ [\"BOOK\", \"RESCHEDULE\", \"CANCEL\", \"OTHER\", \"UNKNOWN\"].includes($json.out.intent) ? $json.out.intent : 'UNKNOWN' }}",
+              "value": "={{ ([\"BOOK\", \"RESCHEDULE\", \"CANCEL\", \"CALLBACK\", \"SELF_SERVICE\", \"OTHER\", \"UNKNOWN\"].includes($json.out.intent) && !(['OTHER','UNKNOWN'].includes($json.out.intent) && [\"BOOK\", \"RESCHEDULE\", \"CANCEL\", \"CALLBACK\", \"SELF_SERVICE\"].includes($json.sessIntent))) ? $json.out.intent : ([\"BOOK\", \"RESCHEDULE\", \"CANCEL\", \"CALLBACK\", \"SELF_SERVICE\"].includes($json.sessIntent) ? $json.sessIntent : 'UNKNOWN') }}",
               "type": "string"
             },
             {
@@ -1550,7 +3333,7 @@
             {
               "id": "e91dfc20-22a4-5995-a3b8-514c095ac508",
               "name": "guards",
-              "value": "={{ [] }}",
+              "value": "={{ (() => { const o = $json.out.state; const t = ({\"IDENTIFY\": [\"IDENTIFY\", \"CONSENT\", \"HANDOFF\"], \"CONSENT\": [\"CONSENT\", \"NEED\", \"HANDOFF\"], \"NEED\": [\"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"LOOKUP\", \"CALLBACK\", \"SELF_SERVICE\", \"HANDOFF\"], \"DEALER\": [\"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"LOOKUP\", \"CALLBACK\", \"SELF_SERVICE\", \"HANDOFF\"], \"SERVICES\": [\"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"LOOKUP\", \"CALLBACK\", \"SELF_SERVICE\", \"HANDOFF\"], \"SLOT\": [\"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"LOOKUP\", \"CALLBACK\", \"SELF_SERVICE\", \"HANDOFF\"], \"CONFIRM\": [\"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"LOOKUP\", \"CALLBACK\", \"SELF_SERVICE\", \"HANDOFF\"], \"BOOKED\": [\"BOOKED\", \"WRAPUP\", \"HANDOFF\"], \"LOOKUP\": [\"LOOKUP\", \"CONFIRM_CANCEL\", \"SLOT\", \"CONFIRM\", \"DEALER\", \"NEED\", \"CALLBACK\", \"HANDOFF\"], \"CONFIRM_CANCEL\": [\"CONFIRM_CANCEL\", \"LOOKUP\", \"SLOT\", \"NEED\", \"HANDOFF\"], \"CANCELLED\": [\"CANCELLED\", \"WRAPUP\", \"HANDOFF\"], \"MOVED\": [\"MOVED\", \"WRAPUP\", \"HANDOFF\"], \"CALLBACK\": [\"CALLBACK\", \"NEED\", \"HANDOFF\"], \"CALLBACK_LOGGED\": [\"CALLBACK_LOGGED\", \"WRAPUP\", \"HANDOFF\"], \"SELF_SERVICE\": [\"SELF_SERVICE\", \"WRAPUP\", \"NEED\", \"HANDOFF\"], \"WRAPUP\": [\"WRAPUP\", \"HANDOFF\"], \"HANDOFF\": [\"HANDOFF\"]})[$json.prepState] || [\"IDENTIFY\", \"CONSENT\", \"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"BOOKED\", \"LOOKUP\", \"CONFIRM_CANCEL\", \"CANCELLED\", \"MOVED\", \"CALLBACK\", \"CALLBACK_LOGGED\", \"SELF_SERVICE\", \"WRAPUP\", \"HANDOFF\"]; if (![\"IDENTIFY\", \"CONSENT\", \"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"BOOKED\", \"LOOKUP\", \"CONFIRM_CANCEL\", \"CANCELLED\", \"MOVED\", \"CALLBACK\", \"CALLBACK_LOGGED\", \"SELF_SERVICE\", \"WRAPUP\", \"HANDOFF\"].includes(o) || t.includes(o)) return []; return ($json.gateAdvanced && o === $json.rowState) ? ['gate_advance'] : ['illegal_transition']; })() }}",
               "type": "array"
             }
           ]
@@ -1564,7 +3347,7 @@
       "typeVersion": 3.4,
       "position": [
         416,
-        3392
+        5248
       ]
     },
     {
@@ -1617,7 +3400,7 @@
       "typeVersion": 2.2,
       "position": [
         624,
-        3392
+        5248
       ]
     },
     {
@@ -1653,7 +3436,7 @@
       "typeVersion": 3.4,
       "position": [
         624,
-        3664
+        5520
       ]
     },
     {
@@ -1687,7 +3470,7 @@
             },
             {
               "id": "88d9ae67-9112-50fd-96b3-a4fed07476b5",
-              "leftValue": "={{ [\"IDENTIFY\", \"CONSENT\", \"NEED\", \"DEALER\", \"SLOT\", \"CONFIRM\", \"BOOKED\", \"WRAPUP\", \"HANDOFF\"].indexOf($json.state) < [\"IDENTIFY\", \"CONSENT\", \"NEED\", \"DEALER\", \"SLOT\", \"CONFIRM\", \"BOOKED\", \"WRAPUP\", \"HANDOFF\"].indexOf($json.prepState) }}",
+              "leftValue": "={{ [\"IDENTIFY\", \"CONSENT\", \"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"BOOKED\", \"LOOKUP\", \"CONFIRM_CANCEL\", \"CANCELLED\", \"MOVED\", \"CALLBACK\", \"CALLBACK_LOGGED\", \"SELF_SERVICE\", \"WRAPUP\", \"HANDOFF\"].indexOf($json.state) < [\"IDENTIFY\", \"CONSENT\", \"NEED\", \"DEALER\", \"SERVICES\", \"SLOT\", \"CONFIRM\", \"BOOKED\", \"LOOKUP\", \"CONFIRM_CANCEL\", \"CANCELLED\", \"MOVED\", \"CALLBACK\", \"CALLBACK_LOGGED\", \"SELF_SERVICE\", \"WRAPUP\", \"HANDOFF\"].indexOf($json.prepState) }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -1706,7 +3489,7 @@
       "typeVersion": 2.2,
       "position": [
         832,
-        3392
+        5248
       ]
     },
     {
@@ -1736,7 +3519,7 @@
       "typeVersion": 3.4,
       "position": [
         832,
-        3664
+        5520
       ]
     },
     {
@@ -1788,7 +3571,7 @@
       "typeVersion": 2.2,
       "position": [
         1040,
-        3392
+        5248
       ]
     },
     {
@@ -1836,7 +3619,7 @@
       "typeVersion": 3.4,
       "position": [
         1040,
-        3664
+        5520
       ]
     },
     {
@@ -1897,7 +3680,7 @@
       "typeVersion": 2.2,
       "position": [
         0,
-        4064
+        5920
       ]
     },
     {
@@ -1933,7 +3716,95 @@
       "typeVersion": 3.4,
       "position": [
         0,
-        4336
+        6192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4082322d-2458-5d37-9207-e37eb8265142",
+              "leftValue": "={{ $json.known }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "d5e0ee3e-5add-5dc5-8b21-7ddb68201098",
+              "leftValue": "={{ $json.identifyAttempts }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "08daabe2-dcf1-5f2f-b2d7-a64995b9cd68",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "handoff",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c7ce2945-ac37-57e1-aecf-1a0fae53bc24",
+      "name": "IdentifyExhausted",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        5920
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1dfa0dfc-5b3f-5857-a8b1-06a85ae4b13d",
+              "name": "action",
+              "value": "handoff",
+              "type": "string"
+            },
+            {
+              "id": "72f38762-2826-54f7-91d6-8b5001b34ad2",
+              "name": "handoffReason",
+              "value": "IDENTIFICATION_FAILED",
+              "type": "string"
+            },
+            {
+              "id": "2bfed63a-7132-5b7f-9617-b37acc6df50e",
+              "name": "guards",
+              "value": "={{ $json.guards.concat(['identify_exhausted']) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "2783d660-0ac5-5eaf-b801-8f894bf9dd0e",
+      "name": "OnIdentifyExhausted",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        6192
       ]
     },
     {
@@ -1962,8 +3833,289 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        208,
-        4064
+        416,
+        5920
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "55a2adf6-09bc-59ae-af0f-a18ff2b3db42",
+                    "leftValue": "={{ $json.booked && !$json.movedAt }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  },
+                  {
+                    "id": "d76d9771-2073-5c64-8fad-5aa78ad8fb72",
+                    "leftValue": "={{ ['BOOKED','WRAPUP','HANDOFF'].includes($json.state) }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Booked"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "30fd0f8c-550c-518c-9f9b-28ef815e6d66",
+                    "leftValue": "={{ $json.movedAt }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  },
+                  {
+                    "id": "75997273-bad6-5016-bb3b-5a960e3cb17c",
+                    "leftValue": "={{ ['MOVED','WRAPUP','HANDOFF'].includes($json.state) }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Moved"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "28b98bd3-72cc-56a7-b37d-72865fd15185",
+                    "leftValue": "={{ $json.cancelledAt }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  },
+                  {
+                    "id": "e1fe045b-63c8-51f0-9ea2-8aecba0487bc",
+                    "leftValue": "={{ ['CANCELLED','WRAPUP','HANDOFF'].includes($json.state) }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cancelled"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "6f3ad80d-8a14-5579-b7ff-6559ee814f3e",
+                    "leftValue": "={{ $json.callbackAt }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  },
+                  {
+                    "id": "01a227c7-eeab-5f04-8cd1-0cdfc31d532e",
+                    "leftValue": "={{ ['CALLBACK_LOGGED','WRAPUP','HANDOFF'].includes($json.state) }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CallbackLogged"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Unchanged"
+        }
+      },
+      "id": "bf87f641-b217-5561-bf50-2ece4a849231",
+      "name": "OutcomeSync",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        5920
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5c7290f7-7fff-5bf0-8866-2c1c16ac1f37",
+              "name": "state",
+              "value": "BOOKED",
+              "type": "string"
+            },
+            {
+              "id": "521f5288-e459-5816-a0e9-63c928d289aa",
+              "name": "guards",
+              "value": "={{ $json.guards.concat(['state_forced_booked']) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "b10438af-ef8a-510e-944a-79e431562707",
+      "name": "OnSyncBooked",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        6192
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e9a85cc-88c2-5577-8476-e1442a02a233",
+              "name": "state",
+              "value": "MOVED",
+              "type": "string"
+            },
+            {
+              "id": "0b5be476-9c9f-5210-a23c-f576b8ab255f",
+              "name": "guards",
+              "value": "={{ $json.guards.concat(['state_forced_moved']) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "7f8af111-a02f-504c-a2f4-a87222239e68",
+      "name": "OnSyncMoved",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        6464
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "94b157eb-881b-551f-b16e-faf8548472f9",
+              "name": "state",
+              "value": "CANCELLED",
+              "type": "string"
+            },
+            {
+              "id": "34540620-76b2-5d73-8572-8ee37566e220",
+              "name": "guards",
+              "value": "={{ $json.guards.concat(['state_forced_cancelled']) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "a03c711a-2c1d-5834-b926-355414a021d4",
+      "name": "OnSyncCancelled",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        6736
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6281613c-9bdb-5290-87a6-42895ff1394d",
+              "name": "state",
+              "value": "CALLBACK_LOGGED",
+              "type": "string"
+            },
+            {
+              "id": "3b90556d-889f-5a0b-bcff-2692f3f04346",
+              "name": "guards",
+              "value": "={{ $json.guards.concat(['state_forced_callback_logged']) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "471f1877-5003-5cc5-b6ac-412736525b8f",
+      "name": "OnSyncCallbackLogged",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        7008
       ]
     },
     {
@@ -1979,7 +4131,7 @@
             {
               "id": "d3d07c0a-5d9f-5a90-8b04-84d2df1fa377",
               "leftValue": "={{ $json.speak.toLowerCase() }}",
-              "rightValue": "((is|has been|was|are|'s) (now |all )?(booked|confirmed|reserved|scheduled)|confirmation code|zosta[łl][ao]? (zarezerwowan|potwierdzon|umówion)|kod potwierdzenia|(ha sido|está|queda) (reservad|confirmad)|código de confirmación|(ist|wurde) (gebucht|bestätigt|reserviert)|bestätigungscode)",
+              "rightValue": "((is|has been|was|are|'s) (now |all )?(booked|confirmed|reserved|scheduled|moved|rescheduled)|confirmation code|zosta[łl][ao]? (zarezerwowan|potwierdzon|umówion|przeniesion|przełożon)|kod potwierdzenia|(ha sido|está|queda) (reservad|confirmad|cambiad|trasladad)|código de confirmación|(ist|wurde) (gebucht|bestätigt|reserviert|verschoben)|bestätigungscode)",
               "operator": {
                 "type": "string",
                 "operation": "regex"
@@ -1987,12 +4139,39 @@
             },
             {
               "id": "6b069f07-86ee-5df2-ace2-cae2cbd0d74b",
-              "leftValue": "={{ $json.booked }}",
+              "leftValue": "={{ $json.booked || !!$json.movedAt }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
                 "operation": "false",
                 "singleValue": true
+              }
+            },
+            {
+              "id": "d75f8a5f-bcf0-594d-a1ed-8065701aeff8",
+              "leftValue": "={{ $json.intent }}",
+              "rightValue": "CANCEL",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "43f041f9-d8c9-5371-9e58-9053008993b1",
+              "leftValue": "={{ $json.state }}",
+              "rightValue": "LOOKUP",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "1e5caa88-6e4d-5cbd-8206-052dbbd8823b",
+              "leftValue": "={{ $json.state }}",
+              "rightValue": "CONFIRM_CANCEL",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
               }
             }
           ],
@@ -2005,8 +4184,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        416,
-        4064
+        832,
+        5920
       ]
     },
     {
@@ -2022,7 +4201,7 @@
             {
               "id": "d4d08043-06f0-5ca2-ba0d-e3da82f0684b",
               "name": "state",
-              "value": "={{ ['BOOKED','WRAPUP'].includes($json.state) ? 'CONFIRM' : $json.state }}",
+              "value": "={{ ['BOOKED','MOVED','WRAPUP'].includes($json.state) ? 'CONFIRM' : $json.state }}",
               "type": "string"
             },
             {
@@ -2047,8 +4226,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        416,
-        4336
+        832,
+        6192
       ]
     },
     {
@@ -2062,22 +4241,21 @@
           },
           "conditions": [
             {
-              "id": "0f16c229-394b-5574-9a19-10cd62d8308d",
-              "leftValue": "={{ $json.booked }}",
-              "rightValue": "",
+              "id": "89e77584-b1cb-5efa-b7e1-c229a0c12d0e",
+              "leftValue": "={{ $json.speak.toLowerCase() }}",
+              "rightValue": "((is|has been|was|are|'s) (now )?cancell?ed|zosta[łl][ao]? (anulowan|odwo[łl]an)|(ha sido|está|queda) (cancelad|anulad)|(ist|wurde) (storniert|abgesagt))",
               "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
+                "type": "string",
+                "operation": "regex"
               }
             },
             {
-              "id": "eb7c86ff-fbe4-598f-bb8e-3aa3ec2c3289",
-              "leftValue": "={{ ['BOOKED','WRAPUP','HANDOFF'].includes($json.state) }}",
+              "id": "2bdb5f07-8709-5489-a38b-c6e836dba402",
+              "leftValue": "={{ $json.cancelledAt }}",
               "rightValue": "",
               "operator": {
-                "type": "boolean",
-                "operation": "false",
+                "type": "string",
+                "operation": "empty",
                 "singleValue": true
               }
             }
@@ -2086,13 +4264,13 @@
         },
         "options": {}
       },
-      "id": "401614ec-d330-5949-8bf9-4e722df5fbd9",
-      "name": "ForceBooked",
+      "id": "319e9038-5d22-531d-9dbb-87c1ed6d825a",
+      "name": "FalseCancellation",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        624,
-        4064
+        1040,
+        5920
       ]
     },
     {
@@ -2100,15 +4278,27 @@
         "assignments": {
           "assignments": [
             {
-              "id": "8e1afa50-18a6-53af-b6ef-ed1a1194cda4",
-              "name": "state",
-              "value": "BOOKED",
+              "id": "211b523a-6cd6-5b48-8540-17719f9faf40",
+              "name": "speak",
+              "value": "={{ (($('Prompts').first().json.prompts.find(p => p.key === 'notCancelled') || {})[$json.language] || ($('Prompts').first().json.prompts.find(p => p.key === 'notCancelled') || {}).en || '') }}",
               "type": "string"
             },
             {
-              "id": "26cc3b26-940f-53fa-90dd-e540b82cccfb",
+              "id": "14ae7151-e4d9-52b5-8f0e-9058eb3f9aac",
+              "name": "state",
+              "value": "={{ ['CANCELLED','WRAPUP'].includes($json.state) ? 'CONFIRM_CANCEL' : $json.state }}",
+              "type": "string"
+            },
+            {
+              "id": "c7575a30-ac48-5623-9afa-41da24274c97",
+              "name": "action",
+              "value": "={{ $json.action === 'end' ? 'continue' : $json.action }}",
+              "type": "string"
+            },
+            {
+              "id": "5f4f4b8f-b975-526e-805b-aaae387c2aa1",
               "name": "guards",
-              "value": "={{ $json.guards.concat(['state_forced_booked']) }}",
+              "value": "={{ $json.guards.concat(['false_cancellation']) }}",
               "type": "array"
             }
           ]
@@ -2116,13 +4306,107 @@
         "options": {},
         "includeOtherFields": true
       },
-      "id": "0315d4b3-e8b1-5d2d-afb2-ca733cdc033a",
-      "name": "OnForceBooked",
+      "id": "ac7bd63a-31f9-58a3-a881-5a297b067d4c",
+      "name": "OnFalseCancellation",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        624,
-        4336
+        1040,
+        6192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d4c69e7e-6ec4-52df-b5e5-2b26eb2e3181",
+              "leftValue": "={{ $json.state }}",
+              "rightValue": "SELF_SERVICE",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "fb4e0a36-edc1-5cd2-917e-c36b1e9f9e3a",
+              "leftValue": "={{ $json.rowState }}",
+              "rightValue": "SELF_SERVICE",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "7c4a6414-9e9c-5b0e-ada8-b1418ae22a52",
+              "leftValue": "={{ $json.selfServiceText }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "538ebcb1-1dbc-5ab1-930d-189a8c01ec88",
+      "name": "SelfServiceLine",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        5920
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "825b5aa2-38dc-5c50-9ce5-e2934151ef47",
+              "name": "speak",
+              "value": "={{ $json.selfServiceText }}",
+              "type": "string"
+            },
+            {
+              "id": "bc0ae022-bd8b-5866-97af-0e685a8c78ed",
+              "name": "intent",
+              "value": "SELF_SERVICE",
+              "type": "string"
+            },
+            {
+              "id": "e5651012-228b-570c-9a4d-02cc83f6b7e9",
+              "name": "action",
+              "value": "continue",
+              "type": "string"
+            },
+            {
+              "id": "59617a34-f902-59f0-a664-2a5308c4b87c",
+              "name": "guards",
+              "value": "={{ $json.guards.concat(['self_service_line']) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "6364a068-c0b7-5622-b6a4-45b4f6751dbc",
+      "name": "OnSelfService",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1248,
+        6192
       ]
     },
     {
@@ -2156,7 +4440,7 @@
       "typeVersion": 2.2,
       "position": [
         0,
-        4720
+        7408
       ]
     },
     {
@@ -2186,7 +4470,7 @@
       "typeVersion": 3.4,
       "position": [
         0,
-        4992
+        7680
       ]
     },
     {
@@ -2219,7 +4503,7 @@
       "typeVersion": 2.2,
       "position": [
         208,
-        4720
+        7408
       ]
     },
     {
@@ -2249,7 +4533,7 @@
       "typeVersion": 3.4,
       "position": [
         208,
-        4992
+        7680
       ]
     },
     {
@@ -2282,7 +4566,7 @@
       "typeVersion": 2.2,
       "position": [
         416,
-        4720
+        7408
       ]
     },
     {
@@ -2324,7 +4608,7 @@
       "typeVersion": 3.4,
       "position": [
         416,
-        4992
+        7680
       ]
     },
     {
@@ -2366,7 +4650,7 @@
       "typeVersion": 2.2,
       "position": [
         624,
-        4720
+        7408
       ]
     },
     {
@@ -2408,7 +4692,7 @@
       "typeVersion": 3.4,
       "position": [
         624,
-        4992
+        7680
       ]
     },
     {
@@ -2432,7 +4716,7 @@
             },
             {
               "id": "0dea31ad-604a-59ea-b8c9-0f8347e0c30c",
-              "leftValue": "={{ ['BOOKED','WRAPUP'].includes($json.state) }}",
+              "leftValue": "={{ [\"BOOKED\", \"CANCELLED\", \"MOVED\", \"CALLBACK_LOGGED\", \"SELF_SERVICE\", \"WRAPUP\"].includes($json.state) }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -2451,7 +4735,7 @@
       "typeVersion": 2.2,
       "position": [
         832,
-        4720
+        7408
       ]
     },
     {
@@ -2481,7 +4765,7 @@
       "typeVersion": 3.4,
       "position": [
         832,
-        4992
+        7680
       ]
     },
     {
@@ -2606,7 +4890,7 @@
       "typeVersion": 3.4,
       "position": [
         1040,
-        4720
+        7408
       ]
     },
     {
@@ -2731,7 +5015,7 @@
       "typeVersion": 3.4,
       "position": [
         0,
-        5664
+        8352
       ]
     },
     {
@@ -2765,7 +5049,7 @@
       "typeVersion": 2.2,
       "position": [
         0,
-        5392
+        8080
       ]
     },
     {
@@ -2841,7 +5125,7 @@
       "typeVersion": 1.3,
       "position": [
         208,
-        5392
+        8080
       ]
     },
     {
@@ -2856,7 +5140,7 @@
       "typeVersion": 3.4,
       "position": [
         416,
-        5392
+        8080
       ]
     },
     {
@@ -2886,7 +5170,7 @@
       "typeVersion": 3.4,
       "position": [
         672,
-        5392
+        8080
       ]
     },
     {
@@ -3187,6 +5471,156 @@
               "type": "number",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "identifyAttempts",
+              "displayName": "identifyAttempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reservationId",
+              "displayName": "reservationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "selectedServices",
+              "displayName": "selectedServices",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentRef",
+              "displayName": "appointmentRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentLabel",
+              "displayName": "appointmentLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerId",
+              "displayName": "appointmentDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerName",
+              "displayName": "appointmentDealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cancelledAt",
+              "displayName": "cancelledAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "movedAt",
+              "displayName": "movedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackAt",
+              "displayName": "callbackAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "voiceCallId",
+              "displayName": "voiceCallId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentOfferId",
+              "displayName": "appointmentOfferId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fulfilments",
+              "displayName": "fulfilments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -3199,7 +5633,7 @@
       "typeVersion": 1.1,
       "position": [
         880,
-        5392
+        8080
       ],
       "alwaysOutputData": true
     },
@@ -3353,7 +5787,7 @@
       "typeVersion": 1.3,
       "position": [
         1088,
-        5392
+        8080
       ]
     },
     {
@@ -3370,7 +5804,7 @@
       "typeVersion": 1.5,
       "position": [
         1296,
-        5392
+        8080
       ]
     },
     {
@@ -3407,9 +5841,9 @@
     },
     {
       "parameters": {
-        "content": "## Gates and prompt\n\nYesNoGate: a deterministic yes or no in IDENTIFY, CONSENT and DEALER moves the state before the model runs, so a small model cannot loop on a confirmed question. The system prompt is rebuilt every turn from ar_prompts and the facts.",
+        "content": "## Gates\n\nYesNoGate: a deterministic yes or no in IDENTIFY (identified caller), CONSENT, DEALER, CONFIRM and CONFIRM_CANCEL, a spoken journey in NEED (cancel, reschedule, callback, self-service), a chosen service in SERVICES and a date in LOOKUP move the state before the model runs, so a small model cannot loop on a confirmed question or forget a tool call.",
         "width": 1072,
-        "height": 1744,
+        "height": 1488,
         "color": 5
       },
       "id": "zone-03",
@@ -3423,9 +5857,9 @@
     },
     {
       "parameters": {
-        "content": "## Reason\n\nThe agent has three tools, Postgres memory and a structured parser with auto-fix.",
-        "width": 832,
-        "height": 880,
+        "content": "## Prefetch and prompt\n\nThe sub-workflow a gate implies runs here, deterministically: the appointment search on cancel or reschedule, the reservation on dealer agreed, the slot search on services chosen or a new date, the cancel, book or move on the caller's yes. Its result goes into the facts and the model reads it out instead of calling the tool. Then the system prompt is composed.",
+        "width": 1488,
+        "height": 1744,
         "color": 5
       },
       "id": "zone-04",
@@ -3434,14 +5868,14 @@
       "typeVersion": 1,
       "position": [
         -64,
-        2320
+        2064
       ]
     },
     {
       "parameters": {
-        "content": "## Guards 1: gates\n\nThe model's output is clamped to the allowed values, then each rule is an If (the condition) and an Edit Fields (what it changes). Gates: a deterministic yes or no in IDENTIFY and CONSENT wins over the model.",
-        "width": 1280,
-        "height": 624,
+        "content": "## Reason\n\nThe agent has nine tools (one per joint-scope step), Postgres memory and a structured parser with auto-fix.",
+        "width": 1040,
+        "height": 1168,
         "color": 5
       },
       "id": "zone-05",
@@ -3450,14 +5884,14 @@
       "typeVersion": 1,
       "position": [
         -64,
-        3248
+        3856
       ]
     },
     {
       "parameters": {
-        "content": "## Guards 2: caller and booking\n\nCaller asks for a person: handoff. A booking claim without a confirmation code is replaced by a question. A booking made by a tool forces BOOKED.",
-        "width": 864,
-        "height": 624,
+        "content": "## Guards 1: gates\n\nClampOutput: only values the schema allows, only a state transition the table allows (illegal_transition), a journey intent sticks for the call. Then each rule is an If (the condition) and an Edit Fields (what it changes). Gates: a deterministic yes or no in IDENTIFY and CONSENT wins over the model.",
+        "width": 1280,
+        "height": 656,
         "color": 5
       },
       "id": "zone-06",
@@ -3466,14 +5900,14 @@
       "typeVersion": 1,
       "position": [
         -64,
-        3920
+        5072
       ]
     },
     {
       "parameters": {
-        "content": "## Guards 3: reply and end\n\nEmpty or over-long replies are fixed. A handoff always speaks the market's handover line. No end before BOOKED or WRAPUP.",
-        "width": 1280,
-        "height": 608,
+        "content": "## Guards 2: caller, identification and outcomes\n\nCaller asks for a person: handoff. Two failed identifications: handoff. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
+        "width": 1488,
+        "height": 1440,
         "color": 5
       },
       "id": "zone-07",
@@ -3482,7 +5916,23 @@
       "typeVersion": 1,
       "position": [
         -64,
-        4592
+        5776
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Guards 3: reply and end\n\nEmpty or over-long replies are fixed. A handoff always speaks the market's handover line. No end before a journey outcome (BOOKED, MOVED, CANCELLED, CALLBACK_LOGGED, SELF_SERVICE) or WRAPUP.",
+        "width": 1280,
+        "height": 624,
+        "color": 5
+      },
+      "id": "zone-08",
+      "name": "zone-08",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        7264
       ]
     },
     {
@@ -3492,13 +5942,13 @@
         "height": 624,
         "color": 3
       },
-      "id": "zone-08",
-      "name": "zone-08",
+      "id": "zone-09",
+      "name": "zone-09",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
         -64,
-        5248
+        7936
       ]
     },
     {
@@ -3508,13 +5958,13 @@
         "height": 624,
         "color": 4
       },
-      "id": "zone-09",
-      "name": "zone-09",
+      "id": "zone-10",
+      "name": "zone-10",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
         608,
-        5248
+        7936
       ]
     },
     {
@@ -3535,7 +5985,7 @@
     },
     {
       "parameters": {
-        "content": "## Tools\n\nFindDealers, FindSlots, BookAppointment. sessionId is plumbed, never a model parameter. Handoff is not a tool: it is a deterministic consequence of action=handoff.",
+        "content": "## Tools\n\nIdentifyCaller, FindDealers, CreateReservation, FindSlots, BookAppointment, FindAppointment, CancelAppointment, MoveAppointment, RequestCallback. sessionId is plumbed, never a model parameter. Handoff is not a tool: it is a deterministic consequence of action=handoff.",
         "width": 704,
         "height": 256,
         "color": 6
@@ -3595,13 +6045,6 @@
         ],
         [
           {
-            "node": "OnIdentityFailed",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
             "node": "OnIdentityConfirmed",
             "type": "main",
             "index": 0
@@ -3630,7 +6073,70 @@
         ],
         [
           {
-            "node": "AssembleFacts",
+            "node": "OnNeedCancel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnNeedReschedule",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnNeedCallback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnNeedSelfService",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnServicesChosen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnRescheduleDate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnCancelInLookup",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnCancelConfirmed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnSlotConfirmed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GateFacts",
             "type": "main",
             "index": 0
           }
@@ -3641,7 +6147,7 @@
       "main": [
         [
           {
-            "node": "AssembleFacts",
+            "node": "GateFacts",
             "type": "main",
             "index": 0
           }
@@ -3652,7 +6158,7 @@
       "main": [
         [
           {
-            "node": "AssembleFacts",
+            "node": "GateFacts",
             "type": "main",
             "index": 0
           }
@@ -3663,7 +6169,7 @@
       "main": [
         [
           {
-            "node": "AssembleFacts",
+            "node": "GateFacts",
             "type": "main",
             "index": 0
           }
@@ -3674,7 +6180,7 @@
       "main": [
         [
           {
-            "node": "AssembleFacts",
+            "node": "GateFacts",
             "type": "main",
             "index": 0
           }
@@ -3682,6 +6188,279 @@
       ]
     },
     "OnDealerAgreed": {
+      "main": [
+        [
+          {
+            "node": "GateFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnNeedCancel": {
+      "main": [
+        [
+          {
+            "node": "GateFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnNeedReschedule": {
+      "main": [
+        [
+          {
+            "node": "GateFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnNeedCallback": {
+      "main": [
+        [
+          {
+            "node": "GateFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnNeedSelfService": {
+      "main": [
+        [
+          {
+            "node": "GateFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnServicesChosen": {
+      "main": [
+        [
+          {
+            "node": "GateFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnRescheduleDate": {
+      "main": [
+        [
+          {
+            "node": "GateFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnCancelInLookup": {
+      "main": [
+        [
+          {
+            "node": "GateFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnCancelConfirmed": {
+      "main": [
+        [
+          {
+            "node": "GateFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnSlotConfirmed": {
+      "main": [
+        [
+          {
+            "node": "GateFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GateFacts": {
+      "main": [
+        [
+          {
+            "node": "Prefetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prefetch": {
+      "main": [
+        [
+          {
+            "node": "FetchAppointment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "FetchReservation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "FetchSlots",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "FetchCancel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "FetchBook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "FetchMove",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AssembleFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FetchAppointment": {
+      "main": [
+        [
+          {
+            "node": "WithAppointment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FetchReservation": {
+      "main": [
+        [
+          {
+            "node": "WithReservation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FetchSlots": {
+      "main": [
+        [
+          {
+            "node": "WithSlots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FetchCancel": {
+      "main": [
+        [
+          {
+            "node": "WithOutcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FetchBook": {
+      "main": [
+        [
+          {
+            "node": "WithOutcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FetchMove": {
+      "main": [
+        [
+          {
+            "node": "WithOutcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WithAppointment": {
+      "main": [
+        [
+          {
+            "node": "AssembleFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WithReservation": {
+      "main": [
+        [
+          {
+            "node": "AssembleFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WithSlots": {
+      "main": [
+        [
+          {
+            "node": "AssembleFacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WithOutcome": {
       "main": [
         [
           {
@@ -3714,7 +6493,29 @@
         ]
       ]
     },
+    "IdentifyCaller": {
+      "ai_tool": [
+        [
+          {
+            "node": "DialogueAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "FindDealers": {
+      "ai_tool": [
+        [
+          {
+            "node": "DialogueAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CreateReservation": {
       "ai_tool": [
         [
           {
@@ -3737,6 +6538,50 @@
       ]
     },
     "BookAppointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "DialogueAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FindAppointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "DialogueAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CancelAppointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "DialogueAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MoveAppointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "DialogueAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RequestCallback": {
       "ai_tool": [
         [
           {
@@ -3922,7 +6767,7 @@
         ],
         [
           {
-            "node": "PendingSlot",
+            "node": "IdentifyExhausted",
             "type": "main",
             "index": 0
           }
@@ -3930,6 +6775,35 @@
       ]
     },
     "OnCallerRequest": {
+      "main": [
+        [
+          {
+            "node": "IdentifyExhausted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdentifyExhausted": {
+      "main": [
+        [
+          {
+            "node": "OnIdentifyExhausted",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PendingSlot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnIdentifyExhausted": {
       "main": [
         [
           {
@@ -3941,6 +6815,89 @@
       ]
     },
     "PendingSlot": {
+      "main": [
+        [
+          {
+            "node": "OutcomeSync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OutcomeSync": {
+      "main": [
+        [
+          {
+            "node": "OnSyncBooked",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnSyncMoved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnSyncCancelled",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnSyncCallbackLogged",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "FalseConfirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnSyncBooked": {
+      "main": [
+        [
+          {
+            "node": "FalseConfirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnSyncMoved": {
+      "main": [
+        [
+          {
+            "node": "FalseConfirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnSyncCancelled": {
+      "main": [
+        [
+          {
+            "node": "FalseConfirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnSyncCallbackLogged": {
       "main": [
         [
           {
@@ -3962,7 +6919,7 @@
         ],
         [
           {
-            "node": "ForceBooked",
+            "node": "FalseCancellation",
             "type": "main",
             "index": 0
           }
@@ -3973,18 +6930,47 @@
       "main": [
         [
           {
-            "node": "ForceBooked",
+            "node": "FalseCancellation",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "ForceBooked": {
+    "FalseCancellation": {
       "main": [
         [
           {
-            "node": "OnForceBooked",
+            "node": "OnFalseCancellation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SelfServiceLine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnFalseCancellation": {
+      "main": [
+        [
+          {
+            "node": "SelfServiceLine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SelfServiceLine": {
+      "main": [
+        [
+          {
+            "node": "OnSelfService",
             "type": "main",
             "index": 0
           }
@@ -3998,7 +6984,7 @@
         ]
       ]
     },
-    "OnForceBooked": {
+    "OnSelfService": {
       "main": [
         [
           {
@@ -4363,7 +7349,7 @@
     "executionOrder": "v1"
   },
   "meta": {
-    "description": "POST /webhook/ar/v1/session/turn. One call per caller utterance. Loads the session, runs the dialogue agent with its three tools, applies deterministic guards, builds the handoff context when needed, updates the session and logs. Returns speak, action, state and handoff."
+    "description": "POST /webhook/ar/v1/session/turn. One call per caller utterance. Loads the session, runs the dialogue agent with its nine tools (identify, dealers, reservation, slots, book, find, cancel, move, callback), applies deterministic guards, builds the handoff context when needed, updates the session and logs. Returns speak, action, state and handoff."
   },
   "tags": [
     "voice-booking",

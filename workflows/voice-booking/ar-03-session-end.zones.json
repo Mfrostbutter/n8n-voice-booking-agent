@@ -14,7 +14,7 @@
     },
     {
       "title": "Load state",
-      "body": "The confirmation text comes from ar_prompts; the session row decides the outcome.",
+      "body": "Prompts for the spoken lines; the session row decides the outcome.",
       "color": 3,
       "nodes": [
         "LoadPrompts",
@@ -26,15 +26,17 @@
     },
     {
       "title": "Outcome",
-      "body": "CaseOutcome in order: a booking exists (Resolved); ended in HANDOFF or a handoff end reason (Delegated); otherwise Closed. A confirmation goes out when a booking exists.",
+      "body": "CaseOutcome in order: booked, moved or cancelled (Resolved, DealerBook sent the confirmation); callback logged (Delegated to XCCC); self-service (Resolved); ended in HANDOFF or a handoff end reason (Delegated); otherwise Closed.",
       "color": 3,
       "nodes": [
         "CaseOutcome",
         "DecideOutcome",
         "CloseCase",
-        "NeedsConfirmation",
         "OnBooked",
-        "SendConfirmation",
+        "OnMoved",
+        "OnCancelled",
+        "OnCallbackLogged",
+        "OnSelfService",
         "OnHandedOff",
         "OnClosed"
       ]
@@ -54,7 +56,7 @@
   "panels": [
     {
       "title": "AR-03 Session end",
-      "body": "Case outcome from the session state. Chat memory for the session is deleted here: no transcript survives the call.",
+      "body": "Every journey ends with the case closed in CASE. The outcome comes from the session row; DealerBook confirms bookings, cancellations and moves to the customer, so nothing is sent from here. Chat memory for the session is deleted: no transcript survives the call.",
       "color": 6,
       "width": 768
     }

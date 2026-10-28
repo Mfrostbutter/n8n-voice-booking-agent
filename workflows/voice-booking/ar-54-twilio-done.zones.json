@@ -1,0 +1,24 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Dial done",
+      "body": "The Dial action callback: status, SIP response code and duration into ar_events, then hang up.",
+      "color": 5,
+      "nodes": [
+        "ReceiveDone",
+        "ShapeDone",
+        "LogDone",
+        "RespondHangup"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-54 Twilio dial done",
+      "body": "The SIP response code of the Dial Sip leg is the only place a failed INVITE to the vendor ingress shows up.",
+      "color": 6,
+      "width": 704
+    }
+  ]
+}

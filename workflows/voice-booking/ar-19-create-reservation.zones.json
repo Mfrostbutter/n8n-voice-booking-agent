@@ -1,0 +1,38 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Reservation, services, fulfilments",
+      "body": "API V2 order: POST reservations for the session's vehicle at the agreed dealer, then GET services and GET fulfilments for it. A dealer without online booking answers with no reservation and the callback or self-service note.",
+      "color": 3,
+      "nodes": [
+        "ToolInput",
+        "LoadSession",
+        "CallDealerBookReservation",
+        "ReservationOk",
+        "CallDealerBookServices",
+        "CallDealerBookFulfilments",
+        "ReturnReservationError",
+        "ShapeNoReservation"
+      ]
+    },
+    {
+      "title": "Store and return",
+      "body": "Reservation, dealer, services and fulfilments are stored on the session; selected services and offered slots are reset.",
+      "color": 3,
+      "nodes": [
+        "ShapeReservation",
+        "StoreReservation",
+        "ReturnReservation"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-19 CreateReservation",
+      "body": "DealerBook API V2 order (endpoint sheet, 2026-10-23): POST reservations, GET services, GET fulfilments; the selections follow as PATCHes in FindSlots and BookAppointment. A dealer without online booking answers with no reservation and the note to offer a retailer callback or self-service.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

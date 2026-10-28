@@ -2,23 +2,38 @@
   "gutter": 16,
   "zones": [
     {
-      "title": "Mock CRM",
-      "body": "Synthetic customers in ar_mock_customers, keyed by VIN. Lab only; the real build swaps the table read for one HTTP Request.",
+      "title": "Account lookup",
+      "body": "Synthetic customers in ar_mock_customers: by VIN (in-car), then by phone number (IVR). Lab only; the real build is the CASE account search.",
       "color": 7,
       "nodes": [
         "ReceiveLookup",
-        "LookupCustomer",
+        "LookupByVin",
+        "FoundByVin",
         "ShapeFixture",
-        "RespondCustomer"
+        "RespondCustomer",
+        "LookupByPhone"
+      ]
+    },
+    {
+      "title": "Spoken identification",
+      "body": "Registration plate (normalised) plus surname or postcode: the placeholder rule until the identification rule is agreed (question 20).",
+      "color": 7,
+      "nodes": [
+        "ReceiveIdentify",
+        "LookupByPlate",
+        "MatchesIdentity",
+        "ShapeIdentified",
+        "RespondIdentify",
+        "ShapeNotFound"
       ]
     }
   ],
   "panels": [
     {
-      "title": "Mock CRM / customer master",
-      "body": "Synthetic customers in the ar_mock_customers table (seeded by AR-90), keyed by VIN. Unknown VIN returns found:false with HTTP 200. Real build: one HTTP Request to the customer API in place of the table read.",
+      "title": "Mock CASE customer account",
+      "body": "Synthetic customers in ar_mock_customers (seeded by AR-90). Lookup: VIN, then phone number. Identify: registration plate plus surname or postcode, a placeholder until the identification rule is agreed (question 20; CASE holds me ID, name, e-mail, mobile, postcode, VIN or FIN and plate). Real build: CASE account search in place of the table reads.",
       "color": 6,
-      "width": 624
+      "width": 704
     }
   ]
 }

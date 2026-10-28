@@ -1,0 +1,27 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "MCP server",
+      "body": "Bearer-protected MCP trigger at /mcp/ar-proof-tools. The tools are the demo sub-workflows plus ConfirmSlot (the CONFIRM step as a tool); RequestAgent is the REFER path.",
+      "color": 3,
+      "nodes": [
+        "ProofTools",
+        "FindDealers",
+        "FindSlots",
+        "ConfirmSlot",
+        "BookAppointment",
+        "RequestAgent",
+        "EndCall"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-52 MCP tool server",
+      "body": "The Realtime API executes MCP tools itself, so the tools are the sub-workflows behind a bearer-protected MCP trigger. The session id travels in the instructions and comes back as a tool argument.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

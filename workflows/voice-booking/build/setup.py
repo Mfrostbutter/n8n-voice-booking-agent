@@ -40,6 +40,7 @@ import organize_workflows as org  # noqa: E402
 
 DRY = "--dry-run" in sys.argv
 TABLES_ONLY = "--tables-only" in sys.argv  # add new tables or columns to an existing instance; credentials and ids untouched
+CREDS_ONLY = "--creds-only" in sys.argv  # create missing credentials only; tables and the other ids untouched
 IDS_PATH = os.environ.get("AR_IDS_FILE") or os.path.join(OUT, "lab-ids.json")
 
 
@@ -74,7 +75,13 @@ CREDENTIALS = [
               "ssl": os.environ.get("AR_PG_SSL", "disable")}),
     ("credLmStudio", f"{PREFIX} model endpoint", "openAiApi",
      lambda: {"apiKey": need("AR_MODEL_API_KEY"), **({"url": MODEL_URL} if MODEL_URL else {})}),
+    # Twilio transfer proof (AR-50 to AR-55). Created only when the value is in the environment.
+    ("credOpenAi", f"{PREFIX} OpenAI Realtime", "httpHeaderAuth",
+     lambda: {"name": "Authorization", "value": "Bearer " + need("AR_OPENAI_API_KEY")}),
+    ("credMcpBearer", f"{PREFIX} MCP bearer", "httpBearerAuth",
+     lambda: {"token": need("AR_PROOF_MCP_TOKEN")}),
 ]
+OPTIONAL = {"credOpenAi": "AR_OPENAI_API_KEY", "credMcpBearer": "AR_PROOF_MCP_TOKEN"}
 
 
 def project_record():
@@ -102,11 +109,15 @@ def ensure_credentials(project, ids):
         if in_project(c.get("shared"), project):
             have.setdefault(c["name"], c)
     for key, name, ctype, data in CREDENTIALS:
+        if CREDS_ONLY and key not in OPTIONAL and ids.get(key):
+            print(f"credential '{name}': kept ({ids[key]})"); continue
         cur = have.get(name)
         if cur:
             print(f"credential '{name}': exists ({cur['id']})")
             ids[key] = cur["id"]; ids[key + "Name"] = name
             continue
+        if key in OPTIONAL and not os.environ.get(OPTIONAL[key]):
+            print(f"credential '{name}': skipped ({OPTIONAL[key]} not in the environment)"); continue
         if DRY:
             print(f"credential '{name}' ({ctype}): would be created"); continue
         body = {"name": name, "type": ctype, "data": data()}
@@ -157,8 +168,9 @@ def main():
     project = project_record()
     if not TABLES_ONLY:
         ensure_credentials(project, ids)
-    ensure_tables(project, ids)
-    if not TABLES_ONLY:
+    if not CREDS_ONLY:
+        ensure_tables(project, ids)
+    if not TABLES_ONLY and not CREDS_ONLY:
         ids.update({"project": PROJECT, "folder": FOLDER, "selfUrl": SELF_URL})
         if MODEL:
             ids["model"] = MODEL

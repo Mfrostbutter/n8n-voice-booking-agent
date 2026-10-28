@@ -1,0 +1,28 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Find the appointment",
+      "body": "DealerBook bookings by the session's customer id and chassis number, status booked; a spoken reference code narrows. Exactly one match becomes the appointment in hand on the session, with its offer id for the slot search.",
+      "color": 5,
+      "nodes": [
+        "ToolInput",
+        "LoadSession",
+        "CallDealerBookBookings",
+        "ShapeAppointments",
+        "ExactlyOne",
+        "StoreAppointment",
+        "ReturnAppointments",
+        "ReturnAppointmentsError"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-24 FindAppointment",
+      "body": "Lookup keys of the endpoint sheet (2026-10-23): customerId, chassisNumber, offerId, status. The session's customer and vehicle are the keys; a spoken reference code only narrows. Exactly one booked appointment becomes the appointment in hand (DealerBook booking id, offer id, dealer); several are listed for the caller to choose from.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

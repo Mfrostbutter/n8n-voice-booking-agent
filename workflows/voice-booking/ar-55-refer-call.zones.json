@@ -1,0 +1,40 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Refer",
+      "body": "AR-14 builds the UUI; the refer goes to the OpenAI call with the UUI as a Refer-To query parameter. No call id on the session means the call was never accepted through AR-51.",
+      "color": 3,
+      "nodes": [
+        "ToolInput",
+        "LoadSession",
+        "BuildHandoff",
+        "LoadProofConfig",
+        "ProofRows",
+        "ProofConfig",
+        "ReferRequest",
+        "HasCallId",
+        "CallRefer"
+      ]
+    },
+    {
+      "title": "Outcome",
+      "body": "Sent or failed is logged with the target; the tool answer tells the model what to say.",
+      "color": 5,
+      "nodes": [
+        "LogReferSent",
+        "ReturnReferred",
+        "LogReferFailed",
+        "ReturnReferFailed"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-55 Refer call",
+      "body": "Risk 1 and 2 of decision doc 13 in one call: does the REFER reach the carrier, and does the query parameter in Refer-To survive. AR-53 answers both from what Twilio posts.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

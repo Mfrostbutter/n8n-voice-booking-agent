@@ -1,5 +1,5 @@
 {
-  "name": "AR-MOCK-CASE Case system",
+  "name": "AR-MOCK-CASE Case",
   "nodes": [
     {
       "parameters": {
@@ -37,60 +37,199 @@
     },
     {
       "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "caseId",
+              "condition": "eq",
+              "keyValue": "={{ String($('ReceiveCaseOp').first().json.body.caseId || '-') }}"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      },
+      "id": "8ff14f30-24fb-5f65-8175-e4270eef47f5",
+      "name": "LoadCase",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
         "assignments": {
           "assignments": [
             {
               "id": "f70b0bdf-9356-5c31-9690-e0b2ee0169cb",
               "name": "op",
-              "value": "={{ ($json.body.op || 'create') }}",
+              "value": "={{ ($('ReceiveCaseOp').first().json.body.op || 'create') }}",
               "type": "string"
             },
             {
               "id": "8a73d98b-8d70-56b9-9209-4c6b772de302",
               "name": "caseId",
-              "value": "={{ (($json.body.op || 'create') === 'create' || !$json.body.caseId) ? 'CS-' + (10000000 + (parseInt($json.hash.slice(0, 8), 16) % 90000000)) : $json.body.caseId }}",
+              "value": "={{ (($('ReceiveCaseOp').first().json.body.op || 'create') === 'create' || !$('ReceiveCaseOp').first().json.body.caseId) ? 'CS-' + (10000000 + (parseInt($('HashCorrelation').first().json.hash.slice(0, 8), 16) % 90000000)) : $('ReceiveCaseOp').first().json.body.caseId }}",
               "type": "string"
             },
             {
               "id": "87d3d456-d536-5818-9c97-5aabba4b749a",
               "name": "correlationId",
-              "value": "={{ $json.body.correlationId || '' }}",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.correlationId || $json.correlationId || '' }}",
               "type": "string"
             },
             {
               "id": "1e201877-880c-51c0-8c49-e183a5c466e2",
               "name": "status",
-              "value": "={{ $json.body.status || (($json.body.op || 'create') === 'create' ? 'In Progress' : 'Closed') }}",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.status || (($('ReceiveCaseOp').first().json.body.op || 'create') === 'create' ? 'In Progress' : ($('ReceiveCaseOp').first().json.body.op || 'create') === 'delegate' ? 'Delegated' : ($('ReceiveCaseOp').first().json.body.op || 'create') === 'close' ? 'Closed' : ($json.status || 'In Progress')) }}",
               "type": "string"
             },
             {
               "id": "658ece15-dec5-5a4d-8d74-d30a8db0cba7",
               "name": "subject",
-              "value": "={{ $json.body.subject || 'Appointment booking via voice assistant' }}",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.subject || $json.subject || 'Appointment booking via voice assistant' }}",
               "type": "string"
             },
             {
               "id": "6531678e-a374-5bfd-9506-b8d8e1d6be31",
               "name": "classification",
-              "value": "={{ $json.body.classification || 'Appointment Booking' }}",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.classification || $json.classification || 'Appointment Booking' }}",
               "type": "string"
             },
             {
               "id": "c11378f8-e7b4-59ee-a16d-dff6e9375406",
               "name": "solution",
-              "value": "={{ $json.body.solution || '' }}",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.solution || $json.solution || '' }}",
               "type": "string"
             },
             {
               "id": "daffa018-dbaf-5017-9075-e53db3d5815e",
               "name": "delegatedReason",
-              "value": "={{ $json.body.delegatedReason || '' }}",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.delegatedReason || $json.delegatedReason || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "8c644133-90bd-5b9f-bc05-26826ad33d0e",
+              "name": "accountName",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.accountName || $json.accountName || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f3c8eafb-a014-5f72-8110-15541298beff",
+              "name": "caseOrigin",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.caseOrigin || $json.caseOrigin || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "1a1b712c-27a8-5861-a9bd-9a43c03297a0",
+              "name": "description",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.description || $json.description || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "1c9891e0-9481-551c-b95c-d788569f7bfb",
+              "name": "serviceType",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.serviceType || $json.serviceType || 'CS' }}",
+              "type": "string"
+            },
+            {
+              "id": "3d98e379-0fc8-558f-918e-864e95d5782f",
+              "name": "delegatedTo",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.delegatedTo || (($('ReceiveCaseOp').first().json.body.op || 'create') === 'delegate' ? 'XCCC' : ($json.delegatedTo || '')) }}",
+              "type": "string"
+            },
+            {
+              "id": "a92e3379-0117-5459-b39e-0951260dce01",
+              "name": "callbackNote",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.callbackNote || $json.callbackNote || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "483e6865-b929-5299-9de4-bc5ab3954730",
+              "name": "caseCountry",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.caseCountry || $json.caseCountry || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "8a77fd1a-4e6c-57fa-a4fc-b339e52d981f",
+              "name": "accountId",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.accountId || $json.accountId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "6c6a9e94-2d8f-5e26-9c85-af7c79cd49a9",
+              "name": "assetId",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.assetId || $json.assetId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "2f88b54e-9d27-54a1-b672-3f040ed1de81",
+              "name": "vinOrFin",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.vinOrFin || $json.vinOrFin || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "103de49f-8672-5dc7-a645-9a21a0e1e8ef",
+              "name": "licensePlate",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.licensePlate || $json.licensePlate || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "9f79c506-a1b9-50d6-b0a3-c0e9496ff561",
+              "name": "mileage",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.mileage || $json.mileage || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "e4e07158-76ef-568e-940d-2d8c4aca0d63",
+              "name": "mileageUnit",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.mileageUnit || $json.mileageUnit || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "1d9d79b6-7700-5c85-a3d7-74c8cddfe647",
+              "name": "assignedDealerId",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.assignedDealerId || $json.assignedDealerId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "5078041e-88d4-5d75-93cc-7aeb980db9d5",
+              "name": "type",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.type || $json.type || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "5a5a6dae-4a95-5b7b-adde-c5724db30fc9",
+              "name": "topic",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.topic || $json.topic || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "c710fffc-247f-540d-9e5e-e8f90036b975",
+              "name": "reason",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.reason || $json.reason || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "22bce5ce-66c1-5be1-af1a-d3ecba2846fc",
+              "name": "primaryContact",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.primaryContact || $json.primaryContact || '' }}",
               "type": "string"
             },
             {
               "id": "e41a2ffd-43ad-57cc-9f45-a0482c8c70e0",
               "name": "openedAt",
-              "value": "={{ ($json.body.op || 'create') === 'create' ? $now.toUTC().toISO() : ($json.body.openedAt || '') }}",
+              "value": "={{ ($('ReceiveCaseOp').first().json.body.op || 'create') === 'create' ? $now.toUTC().toISO() : ($json.openedAt || '') }}",
               "type": "string"
             },
             {
@@ -108,7 +247,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        416,
+        624,
         0
       ]
     },
@@ -141,7 +280,25 @@
             "solution": "={{ $json.solution }}",
             "delegatedReason": "={{ $json.delegatedReason }}",
             "openedAt": "={{ $json.op === 'create' ? $json.openedAt : undefined }}",
-            "lastUpdate": "={{ $json.lastUpdate }}"
+            "lastUpdate": "={{ $json.lastUpdate }}",
+            "accountName": "={{ $json.accountName }}",
+            "caseOrigin": "={{ $json.caseOrigin }}",
+            "description": "={{ $json.description }}",
+            "serviceType": "={{ $json.serviceType }}",
+            "delegatedTo": "={{ $json.delegatedTo }}",
+            "callbackNote": "={{ $json.callbackNote }}",
+            "caseCountry": "={{ $json.caseCountry }}",
+            "accountId": "={{ $json.accountId }}",
+            "assetId": "={{ $json.assetId }}",
+            "vinOrFin": "={{ $json.vinOrFin }}",
+            "licensePlate": "={{ $json.licensePlate }}",
+            "mileage": "={{ $json.mileage }}",
+            "mileageUnit": "={{ $json.mileageUnit }}",
+            "assignedDealerId": "={{ $json.assignedDealerId }}",
+            "type": "={{ $json.type }}",
+            "topic": "={{ $json.topic }}",
+            "reason": "={{ $json.reason }}",
+            "primaryContact": "={{ $json.primaryContact }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -234,6 +391,186 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "accountName",
+              "displayName": "accountName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "serviceType",
+              "displayName": "serviceType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "delegatedTo",
+              "displayName": "delegatedTo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackNote",
+              "displayName": "callbackNote",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseCountry",
+              "displayName": "caseCountry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "accountId",
+              "displayName": "accountId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assetId",
+              "displayName": "assetId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vinOrFin",
+              "displayName": "vinOrFin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "licensePlate",
+              "displayName": "licensePlate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mileage",
+              "displayName": "mileage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mileageUnit",
+              "displayName": "mileageUnit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assignedDealerId",
+              "displayName": "assignedDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "topic",
+              "displayName": "topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "primaryContact",
+              "displayName": "primaryContact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -245,7 +582,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        624,
+        832,
         0
       ],
       "alwaysOutputData": true
@@ -263,15 +600,95 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        832,
+        1040,
         0
       ]
     },
     {
       "parameters": {
-        "content": "## Mock case system\n\nCase number from a hash of the correlationId; rows in ar_mock_cases.",
-        "width": 1072,
-        "height": 336,
+        "httpMethod": "POST",
+        "path": "ar-mock/casesys/appointments",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "81e1d7b9-e720-5e14-8260-5182cae387d4",
+      "name": "ReceiveAppointments",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        400
+      ],
+      "webhookId": "4d2750f7-74fc-51c6-8aa9-a896d2603258"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/ar-mock/dealerbook/bookings",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ vin: $json.body.vin || '', bookingRef: $json.body.bookingRef || '' }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "2beaff2c-0c31-51bf-aec7-cdd613824e3a",
+      "name": "ForwardToBookings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        400
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "af9f6978-392d-5ac4-9fa5-9a9833e000a7",
+              "name": "appointments",
+              "value": "={{ ($json.bookings || []).map(b => ({ bookingRef: b.bookingRef, confirmationCode: b.confirmationCode, slotId: b.slotId, startsAt: b.startsAt, dealerId: b.dealerId, dealerName: b.dealerName || '', serviceIds: b.serviceIds || b.serviceType || '' })) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8f3b82a0-cf10-50c6-b783-7cbfd8e5d524",
+      "name": "ShapeAppointments",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "c6dbf8e3-7518-5375-8e89-1cf499d94922",
+      "name": "RespondAppointments",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        624,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Mock CASE case\n\nCase number from a hash of the correlationId; the existing row is loaded so an update keeps what it does not name; rows in ar_mock_cases.",
+        "width": 1280,
+        "height": 352,
         "color": 7
       },
       "id": "zone-01",
@@ -280,12 +697,28 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -128
+        -144
       ]
     },
     {
       "parameters": {
-        "content": "## Mock case system\n\nOne endpoint, op in the body. Case numbers are deterministic from the correlation ID (SHA-256), so a re-created case is the same case. Real build: the case system's REST with OAuth2 client credentials.",
+        "content": "## Appointment search\n\nCASE searches account cases, VIN or booking number; the lab forwards to the booking store.",
+        "width": 864,
+        "height": 352,
+        "color": 7
+      },
+      "id": "zone-02",
+      "name": "zone-02",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Mock CASE case\n\nOne endpoint, op in the body. Case numbers are deterministic from the correlation ID (SHA-256), so a re-created case is the same case. delegate sets Delegated and delegatedTo (XCCC for a retailer callback). The appointment search reads the lab booking store. Real build: the case system's REST with OAuth2 client credentials.",
         "width": 704,
         "height": 256,
         "color": 6
@@ -296,7 +729,7 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -400
+        -416
       ]
     }
   ],
@@ -313,6 +746,17 @@
       ]
     },
     "HashCorrelation": {
+      "main": [
+        [
+          {
+            "node": "LoadCase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LoadCase": {
       "main": [
         [
           {
@@ -344,13 +788,46 @@
           }
         ]
       ]
+    },
+    "ReceiveAppointments": {
+      "main": [
+        [
+          {
+            "node": "ForwardToBookings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ForwardToBookings": {
+      "main": [
+        [
+          {
+            "node": "ShapeAppointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ShapeAppointments": {
+      "main": [
+        [
+          {
+            "node": "RespondAppointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1"
   },
   "meta": {
-    "description": "Lab stand-in for the case API. POST ar-mock/casesys/case {op: create|update|close, correlationId, caseId, ...} -> case. Persists in ar_mock_cases."
+    "description": "Lab stand-in for the CASE case API. POST ar-mock/casesys/case {op: create|update|close|delegate, correlationId, caseId, ...} -> case (mandatory fields: accountName, caseOrigin, description, serviceType, plus the CASE booking prerequisites of 2026-10-23). POST ar-mock/casesys/appointments {vin, bookingRef} -> the account's booked appointments. Persists in ar_mock_cases."
   },
   "tags": [
     "voice-booking",

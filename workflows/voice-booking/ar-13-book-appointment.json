@@ -15,10 +15,6 @@
               "type": "string"
             },
             {
-              "name": "serviceType",
-              "type": "string"
-            },
-            {
               "name": "mobility",
               "type": "string"
             },
@@ -108,6 +104,31 @@
                 },
                 "conditions": [
                   {
+                    "id": "39f03531-7f7d-5653-9bdf-c121e1f8f95a",
+                    "leftValue": "={{ $json.reservationId || '' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NoReservation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
                     "id": "8be0f62b-4927-58d6-8c4c-9eb5c9d71f61",
                     "leftValue": "={{ JSON.parse($json.offeredSlots || '[]').some(o => o.slotId === String($('ToolInput').first().json.slotId || '').trim()) }}",
                     "rightValue": "",
@@ -178,6 +199,41 @@
         "assignments": {
           "assignments": [
             {
+              "id": "dbf0b886-9591-5333-bfa2-7411c2354573",
+              "name": "ok",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "e4599c3c-4f1f-58d6-a66f-f177a0b65c6f",
+              "name": "error",
+              "value": "no_reservation",
+              "type": "string"
+            },
+            {
+              "id": "ea6ecaf0-b6a4-5db9-8bb2-510b709e2549",
+              "name": "message",
+              "value": "No DealerBook reservation in hand. Call CreateReservation with the agreed dealerId, then FindSlots, and book only a slot FindSlots offered.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "733e4dcd-aa43-543c-991a-fbaa85ad1eb8",
+      "name": "ReplyNoReservation",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
               "id": "ffee5f97-b293-520c-a155-8261ac6fd174",
               "name": "ok",
               "value": true,
@@ -196,15 +252,15 @@
               "type": "string"
             },
             {
-              "id": "014608ad-15ae-5e03-9c09-70ff651d7558",
-              "name": "bookingRef",
+              "id": "a97744ac-e666-532f-92c9-6af434598897",
+              "name": "bookingId",
               "value": "={{ $json.bookingRef }}",
               "type": "string"
             },
             {
               "id": "5e8f3cd4-cfa6-5827-8806-07f6b6fde88c",
               "name": "message",
-              "value": "An appointment is already booked in this call. Read the existing confirmation code back; do not book again.",
+              "value": "An appointment is already booked in this call. Read the existing reference code back; do not book again.",
               "type": "string"
             }
           ]
@@ -258,7 +314,7 @@
       "typeVersion": 3.4,
       "position": [
         624,
-        544
+        816
       ]
     },
     {
@@ -299,7 +355,7 @@
       "typeVersion": 3.4,
       "position": [
         624,
-        816
+        1088
       ]
     },
     {
@@ -325,15 +381,33 @@
               "type": "string"
             },
             {
+              "id": "b94c1de6-a93a-51e2-b320-1e186c02d1e6",
+              "name": "customerRef",
+              "value": "={{ $json.customerRef || '' }}",
+              "type": "string"
+            },
+            {
               "id": "01ddaf04-0bdf-5ab1-8e1e-b6cf5062e36d",
               "name": "vehicleRef",
               "value": "={{ $json.vehicleRef || '' }}",
               "type": "string"
             },
             {
+              "id": "a33fba2b-6996-5ec0-9309-77491eb14c9e",
+              "name": "reservationId",
+              "value": "={{ $json.reservationId || '' }}",
+              "type": "string"
+            },
+            {
               "id": "9079944f-4064-5d29-bb1c-6b14c59781de",
               "name": "serviceType",
-              "value": "={{ $('ToolInput').first().json.serviceType || '' }}",
+              "value": "={{ $json.selectedServices || 'MAINT' }}",
+              "type": "string"
+            },
+            {
+              "id": "9daec18b-1a60-5771-b219-d4d971ab4fb9",
+              "name": "fulfilmentId",
+              "value": "={{ (m => (/courtesy|replacement|loan|zast[eę]pcz|ersatz|leihwagen|sustitu|cortes[ií]a/.test(m) ? 'COURTESY_CAR' : /pick|collect|odbi[oó]r|abhol|recog/.test(m) ? 'PICKUP' : /wait|czeka|warte|esper/.test(m) ? 'WAIT' : 'NONE'))(String($('ToolInput').first().json.mobility || '').toLowerCase()) }}",
               "type": "string"
             },
             {
@@ -369,11 +443,32 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "http://localhost:5678/webhook/ar-mock/dealerbook/book",
+        "method": "PATCH",
+        "url": "http://localhost:5678/webhook/ar-mock/dealerbook/reservations",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ slotId: $json.slot.slotId, dealerId: $json.slot.dealerId, vin: $json.vehicleRef, serviceType: $json.serviceType, mobility: $json.mobility, notes: $json.notes, idempotencyKey: $json.idempotencyKey, correlationId: $json.correlationId }) }}",
+        "jsonBody": "={{ JSON.stringify({ reservationId: $json.reservationId, timeslotId: $json.slot.slotId, fulfilmentId: $json.fulfilmentId }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "ef89b838-ebcd-55ac-80ee-92ef26513711",
+      "name": "PatchReservation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/ar-mock/dealerbook/bookings",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ reservationId: $('BookingRequest').first().json.reservationId, timeslotId: $('BookingRequest').first().json.slot.slotId, fulfilmentId: $('BookingRequest').first().json.fulfilmentId, dealerId: $('BookingRequest').first().json.slot.dealerId, dealerName: $('BookingRequest').first().json.slot.dealerName || '', customerId: $('BookingRequest').first().json.customerRef, chassisNumber: $('BookingRequest').first().json.vehicleRef, serviceIds: $('BookingRequest').first().json.serviceType, notes: $('BookingRequest').first().json.notes, idempotencyKey: $('BookingRequest').first().json.idempotencyKey, correlationId: $('BookingRequest').first().json.correlationId }) }}",
         "options": {
           "timeout": 15000
         }
@@ -383,7 +478,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        880,
+        1088,
         0
       ],
       "retryOnFail": true,
@@ -416,8 +511,7 @@
             "confirmationCode": "={{ $json.confirmationCode }}",
             "slotId": "={{ $json.slotId }}",
             "state": "BOOKED",
-            "intent": "BOOK",
-            "confirmationChannel": "sms"
+            "intent": "BOOK"
           },
           "matchingColumns": [],
           "schema": [
@@ -690,6 +784,156 @@
               "type": "number",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "identifyAttempts",
+              "displayName": "identifyAttempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reservationId",
+              "displayName": "reservationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "selectedServices",
+              "displayName": "selectedServices",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentRef",
+              "displayName": "appointmentRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentLabel",
+              "displayName": "appointmentLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerId",
+              "displayName": "appointmentDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerName",
+              "displayName": "appointmentDealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cancelledAt",
+              "displayName": "cancelledAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "movedAt",
+              "displayName": "movedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackAt",
+              "displayName": "callbackAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "voiceCallId",
+              "displayName": "voiceCallId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentOfferId",
+              "displayName": "appointmentOfferId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fulfilments",
+              "displayName": "fulfilments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -701,7 +945,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        1088,
+        1296,
         0
       ],
       "alwaysOutputData": true
@@ -723,8 +967,8 @@
               "type": "string"
             },
             {
-              "id": "44626a2b-e756-5a78-bf7a-19305ceeb5fd",
-              "name": "bookingRef",
+              "id": "cddd4c29-7ad4-5e60-b9a8-defe25f877f6",
+              "name": "bookingId",
               "value": "={{ $('CallDealerBookBook').first().json.bookingRef }}",
               "type": "string"
             },
@@ -749,13 +993,13 @@
             {
               "id": "405eb12b-e3c8-54a4-93a2-e42aa4c542bd",
               "name": "mobility",
-              "value": "={{ $('BookingRequest').first().json.mobility }}",
+              "value": "={{ $('BookingRequest').first().json.fulfilmentId }}",
               "type": "string"
             },
             {
               "id": "5654a424-600d-5107-b304-abe00a05d043",
               "name": "note",
-              "value": "Booked. Read the confirmation code back to the caller slowly and tell them a confirmation message will follow.",
+              "value": "Booked. Read the six-letter booking reference back to the caller slowly, letter by letter, and tell them DealerBook sends the confirmation by SMS or email.",
               "type": "string"
             }
           ]
@@ -767,7 +1011,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1296,
+        1504,
         0
       ]
     },
@@ -790,7 +1034,7 @@
             {
               "id": "30194167-8125-5b80-9872-8311c12da15c",
               "name": "message",
-              "value": "={{ JSON.stringify($json.error || {}).includes('409') ? 'That slot was taken in the meantime. Call FindSlots again and offer new options.' : 'The backend system is unavailable. Apologise once and hand the caller to an agent (BACKEND_UNAVAILABLE).' }}",
+              "value": "={{ JSON.stringify($json.error || {}).includes('409') ? 'That slot was taken in the meantime. Call FindSlots again and offer new options.' : 'The booking system did not accept the booking. Tell the caller the appointment cannot be booked right now and that the retailer will call them back: set intent CALLBACK and state CALLBACK, read back the dealer and the reason, and call RequestCallback after the caller says yes. Do not hand off for this.' }}",
               "type": "string"
             },
             {
@@ -808,15 +1052,15 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        880,
+        1088,
         272
       ]
     },
     {
       "parameters": {
-        "content": "## Booking gate\n\nRules in order: a booking already exists; the slot was not offered in this call; the caller has not confirmed it (state CONFIRM with this slotId read back). Only Proceed books.",
+        "content": "## Booking gate\n\nRules in order: a booking already exists; no reservation in hand; the slot was not offered in this call; the caller has not confirmed it (state CONFIRM with this slotId read back). Only Proceed books.",
         "width": 864,
-        "height": 1200,
+        "height": 1472,
         "color": 5
       },
       "id": "zone-01",
@@ -830,9 +1074,9 @@
     },
     {
       "parameters": {
-        "content": "## Book\n\nIdempotency key session:slot. The confirmation code comes from DealerBook, never from the model.",
-        "width": 656,
-        "height": 1200,
+        "content": "## Book\n\nPATCH the timeslot and the fulfilment onto the reservation, then POST the booking with the idempotency key session:slot. The booking id and the six-letter reference code come from DealerBook, never from the model; a booking error becomes a retailer callback.",
+        "width": 864,
+        "height": 1472,
         "color": 3
       },
       "id": "zone-02",
@@ -846,9 +1090,9 @@
     },
     {
       "parameters": {
-        "content": "## AR-13 BookAppointment\n\nBookingGate is the only place a booking can start: the slot must be one offered in this call, read back in CONFIRM, and confirmed in a later turn. Books with an idempotency key, writes bookingRef and confirmationCode to the session, sets state BOOKED. The spoken confirmation is built from this result, never from the model.",
+        "content": "## AR-13 BookAppointment\n\nBookingGate is the only place a booking can start: the slot must be one offered in this call, read back in CONFIRM, and confirmed in a later turn. Then the API V2 order: PATCH the timeslot (and the fulfilment when the caller asked for mobility) onto the reservation, POST the booking with an idempotency key. The booking id goes to the session as bookingRef, the six-letter reference code as confirmationCode; the spoken confirmation is built from this result, never from the model. A booking error is a retailer callback (CAC work instruction), not a handover.",
         "width": 816,
-        "height": 256,
+        "height": 272,
         "color": 6
       },
       "id": "zone-panel-1",
@@ -857,7 +1101,7 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -448
+        -464
       ]
     }
   ],
@@ -895,6 +1139,13 @@
         ],
         [
           {
+            "node": "ReplyNoReservation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
             "node": "ReplySlotNotOffered",
             "type": "main",
             "index": 0
@@ -920,7 +1171,25 @@
       "main": [
         [
           {
+            "node": "PatchReservation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PatchReservation": {
+      "main": [
+        [
+          {
             "node": "CallDealerBookBook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReturnBookError",
             "type": "main",
             "index": 0
           }
@@ -961,7 +1230,7 @@
     "executionOrder": "v1"
   },
   "meta": {
-    "description": "Agent tool. Books one of the slots offered in this call in DealerBook and stores the confirmation on the session. Inputs: sessionId (plumbed), slotId, serviceType, mobility, notes. Returns {ok, confirmationCode, bookingRef, when, dealerName} or {ok:false, error}. Idempotent per session and slot."
+    "description": "Agent tool. Writes the chosen timeslot and fulfilment to the DealerBook reservation (PATCH), submits the booking (POST bookings) and stores the DealerBook booking id and the six-letter reference code on the session. Inputs: sessionId (plumbed), slotId, mobility, notes. Returns {ok, confirmationCode (the reference code), bookingId, when, dealerName} or {ok:false, error}. Idempotent per session and slot."
   },
   "tags": [
     "voice-booking",

@@ -1,0 +1,1524 @@
+{
+  "name": "AR-51 PoC: OpenAI call incoming",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ar/openai/call-incoming",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b96e7365-97d6-5671-9ea7-6b2b481bc817",
+      "name": "ReceiveCallIncoming",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "ffe31a6c-0554-5327-915a-dd47ccfdb064"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cdd33f86-6ccc-5f73-b454-f41f4bc66f32",
+              "leftValue": "={{ String($json.body.type || '') }}",
+              "rightValue": "realtime.call.incoming",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5762a308-4474-591a-a6e7-8238ad72488c",
+      "name": "IsCallIncoming",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "e7e3b0a9-e351-580b-9558-a559da9fdb24",
+      "name": "RespondAck",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        416,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, ignored: $json.body.type || 'unknown' }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "9c77dbf2-ccc1-5042-b28d-7e25c7fc754d",
+      "name": "RespondIgnored",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        416,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "973d7fcb-0ffc-5609-a1c2-ceb42a89f5ca",
+              "name": "callId",
+              "value": "={{ String($('ReceiveCallIncoming').first().json.body.data.call_id || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "b812c585-a4d8-57b2-a73b-e9491a432c42",
+              "name": "startedAt",
+              "value": "={{ Date.now() }}",
+              "type": "number"
+            },
+            {
+              "id": "1aa34070-c26d-5765-bd9f-4a304ec4cc18",
+              "name": "uuiRaw",
+              "value": "={{ (h => (String(h || '').match(/.{2}/g) || []).map(x => String.fromCharCode(parseInt(x, 16))).join(''))(String((name => ((($('ReceiveCallIncoming').first().json.body.data.sip_headers || []).find(h => String(h.name || '').toLowerCase() === name) || {}).value || ''))('user-to-user')).split(';')[0]) }}",
+              "type": "string"
+            },
+            {
+              "id": "c429b3c9-6faa-56ed-8743-ae085935ef69",
+              "name": "correlationId",
+              "value": "={{ ((h => (String(h || '').match(/.{2}/g) || []).map(x => String.fromCharCode(parseInt(x, 16))).join(''))(String((name => ((($('ReceiveCallIncoming').first().json.body.data.sip_headers || []).find(h => String(h.name || '').toLowerCase() === name) || {}).value || ''))('user-to-user')).split(';')[0])).split(';')[1] || ('OA-' + String($('ReceiveCallIncoming').first().json.body.data.call_id || '').slice(-10)) }}",
+              "type": "string"
+            },
+            {
+              "id": "6e852d2b-df1c-5367-87c7-d13cbe5423ad",
+              "name": "vin",
+              "value": "={{ ((h => (String(h || '').match(/.{2}/g) || []).map(x => String.fromCharCode(parseInt(x, 16))).join(''))(String((name => ((($('ReceiveCallIncoming').first().json.body.data.sip_headers || []).find(h => String(h.name || '').toLowerCase() === name) || {}).value || ''))('user-to-user')).split(';')[0])).split(';')[2] || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "933c200c-9aa9-5e48-93aa-b965e88317d7",
+              "name": "msisdn",
+              "value": "={{ ((h => (String(h || '').match(/.{2}/g) || []).map(x => String.fromCharCode(parseInt(x, 16))).join(''))(String((name => ((($('ReceiveCallIncoming').first().json.body.data.sip_headers || []).find(h => String(h.name || '').toLowerCase() === name) || {}).value || ''))('user-to-user')).split(';')[0])).split(';')[3] || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "29878138-8928-546b-bfc3-00be212e5f3b",
+              "name": "language",
+              "value": "={{ (((h => (String(h || '').match(/.{2}/g) || []).map(x => String.fromCharCode(parseInt(x, 16))).join(''))(String((name => ((($('ReceiveCallIncoming').first().json.body.data.sip_headers || []).find(h => String(h.name || '').toLowerCase() === name) || {}).value || ''))('user-to-user')).split(';')[0])).split(';')[4] || 'en').toLowerCase().slice(0, 2) }}",
+              "type": "string"
+            },
+            {
+              "id": "747da74d-04c6-592c-a825-6505e7e6c08d",
+              "name": "sipFrom",
+              "value": "={{ (name => ((($('ReceiveCallIncoming').first().json.body.data.sip_headers || []).find(h => String(h.name || '').toLowerCase() === name) || {}).value || ''))('from') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "95b70d8f-c8c1-559e-85b7-ef0a956f9987",
+      "name": "ShapeCall",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "returnAll": true
+      },
+      "id": "b1882151-3a73-5c5d-b176-407870f911ee",
+      "name": "LoadProofConfig",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        656
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "rows",
+        "options": {}
+      },
+      "id": "9d2b0ad7-be57-58ea-93fe-924603901848",
+      "name": "ProofRows",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        416,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ Object.fromEntries(($json.rows || []).filter(r => r.key).map(r => [r.key, r.value])) }}",
+        "options": {}
+      },
+      "id": "0120d0f0-c7c3-5d7e-a847-392946f06e2e",
+      "name": "ProofConfig",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/ar/v1/session/start",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ correlationId: $('ShapeCall').first().json.correlationId, uui: { version: '1', raw: $('ShapeCall').first().json.uuiRaw, vin: $('ShapeCall').first().json.vin, msisdn: $('ShapeCall').first().json.msisdn, language: $('ShapeCall').first().json.language }, sip: { callId: $('ShapeCall').first().json.callId }, gateway: { vendor: 'openai-realtime-sip' } }) }}",
+        "options": {
+          "timeout": 15000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "81be1da5-e80d-5bd9-95b3-4f33766b3c11",
+      "name": "StartSession",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        656
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "PENDING",
+          "name": "Gateway bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b7c630b8-eaf0-5f08-849a-9f1be7f1dbf2",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "0e9cd9b5-c247-51c8-971b-ae8da5704404",
+              "name": "caseId",
+              "value": "={{ $json.caseId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "32b5909a-8a8f-5cde-8e2c-14c5f3b11ef0",
+              "name": "speak",
+              "value": "={{ $json.speak || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "1b19a5c5-3f79-5ac1-8996-b3159b2c49ba",
+              "name": "language",
+              "value": "={{ $json.language || $('ShapeCall').first().json.language }}",
+              "type": "string"
+            },
+            {
+              "id": "3fff9ef5-d005-59de-9e5a-d197de9a13a5",
+              "name": "callId",
+              "value": "={{ $('ShapeCall').first().json.callId }}",
+              "type": "string"
+            },
+            {
+              "id": "a5cdd237-d64e-53d7-92d9-fe1707c68ebc",
+              "name": "instructions",
+              "value": "={{ ['You are the workshop appointment assistant of a car brand, on a live phone call. Speak ' + ({ pl: 'Polish', es: 'Spanish', de: 'German' }[$json.language] || 'English') + '.', 'One message per turn: one or two short sentences ending in one question, then stop and wait for the caller. Never say two messages in a row. Never narrate what you are doing or thinking.', 'Internal reference, never spoken: sessionId ' + $json.sessionId + '. Pass it as sessionId to every tool, unchanged. Never say a sessionId or a slotId aloud.', 'Flow, one step per turn: confirm the identity; ask for consent; ask what the caller needs; FindSlots and offer at most two slots by day and time; when the caller picks one, ConfirmSlot and read back exactly what it returns, then ask for a yes; after the yes, BookAppointment with the same slotId and read the confirmation code back slowly.', 'Only say what a tool returned. Never invent a dealer, a time or a booking. If a tool fails, say the booking system is unavailable right now and offer a colleague.', 'After the confirmation code, ask once whether the caller needs anything else. When they say no or say goodbye, call EndCall, say exactly the line it returns, and stop talking.', 'If the caller asks for a person, call RequestAgent with a one-line summary, then say: I am connecting you to a colleague now, and stop talking.'].join(' ') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ad8db62d-ffef-5c0b-bcb7-0dc5befc1047",
+      "name": "ComposeAccept",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        1088
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.openai.com/v1/realtime/calls/' + $json.callId + '/accept' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ type: 'realtime', model: $('ProofConfig').first().json.model || 'gpt-realtime-2.1-mini', instructions: $json.instructions, audio: { input: { transcription: { model: 'gpt-4o-mini-transcribe' }, turn_detection: { type: 'server_vad', threshold: Number($('ProofConfig').first().json.vadThreshold || 0.7), prefix_padding_ms: 300, silence_duration_ms: Number($('ProofConfig').first().json.vadSilenceMs || 700), create_response: true, interrupt_response: true }, noise_reduction: { type: 'far_field' } }, output: { voice: $('ProofConfig').first().json.voice || 'marin' } }, tools: [{ type: 'mcp', server_label: 'n8n', server_url: String($('ProofConfig').first().json.publicBase || '').replace(/\\/$/, '') + '/mcp/ar-proof-tools', authorization: $('ProofConfig').first().json.mcpToken || '', require_approval: 'never' }], tool_choice: 'auto', max_output_tokens: 600 }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "8daac21e-5a77-529f-baf6-ad4cb56235fa",
+      "name": "AcceptCall",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        1088
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ String($('ProofConfig').first().json.sidebandBase || 'http://host.docker.internal:8790').replace(/\\/$/, '') + '/attach' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ callId: $('ComposeAccept').first().json.callId, sessionId: $('ComposeAccept').first().json.sessionId, correlationId: $('ShapeCall').first().json.correlationId, language: $('ComposeAccept').first().json.language, speak: $('ComposeAccept').first().json.speak, vadThreshold: $('ProofConfig').first().json.vadThreshold || '', vadSilenceMs: $('ProofConfig').first().json.vadSilenceMs || '' }) }}",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "0a74e54f-2264-5160-aa14-3a3e64c11b70",
+      "name": "NotifySideband",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        1088
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "sessionId",
+              "condition": "eq",
+              "keyValue": "={{ $('ComposeAccept').first().json.sessionId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "voiceCallId": "={{ $('ComposeAccept').first().json.callId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "market",
+              "displayName": "market",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customerRef",
+              "displayName": "customerRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vehicleRef",
+              "displayName": "vehicleRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "greetingName",
+              "displayName": "greetingName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vehicleLabel",
+              "displayName": "vehicleLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerId",
+              "displayName": "dealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerName",
+              "displayName": "dealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "offeredSlots",
+              "displayName": "offeredSlots",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slotId",
+              "displayName": "slotId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bookingRef",
+              "displayName": "bookingRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationCode",
+              "displayName": "confirmationCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationChannel",
+              "displayName": "confirmationChannel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationSent",
+              "displayName": "confirmationSent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffReason",
+              "displayName": "handoffReason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffResult",
+              "displayName": "handoffResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffSummary",
+              "displayName": "handoffSummary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "turns",
+              "displayName": "turns",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "endedAt",
+              "displayName": "endedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "endReason",
+              "displayName": "endReason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lastLatencyMs",
+              "displayName": "lastLatencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "identifyAttempts",
+              "displayName": "identifyAttempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reservationId",
+              "displayName": "reservationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "selectedServices",
+              "displayName": "selectedServices",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentRef",
+              "displayName": "appointmentRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentLabel",
+              "displayName": "appointmentLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerId",
+              "displayName": "appointmentDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerName",
+              "displayName": "appointmentDealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cancelledAt",
+              "displayName": "cancelledAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "movedAt",
+              "displayName": "movedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackAt",
+              "displayName": "callbackAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "voiceCallId",
+              "displayName": "voiceCallId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentOfferId",
+              "displayName": "appointmentOfferId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fulfilments",
+              "displayName": "fulfilments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "ba79d80c-6070-5581-a0da-f31cfe118d9a",
+      "name": "StoreCallId",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        1088
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-17-log-event",
+          "mode": "list",
+          "cachedResultName": "AR-17 Log event"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "correlationId": "={{ $('ShapeCall').first().json.correlationId }}",
+            "sessionId": "={{ $('ComposeAccept').first().json.sessionId }}",
+            "caseId": "={{ $('ComposeAccept').first().json.caseId }}",
+            "workflow": "AR-51",
+            "event": "call_accepted",
+            "state": "",
+            "tool": "",
+            "latencyMs": "={{ Date.now() - $('ShapeCall').first().json.startedAt }}",
+            "outcome": "accepted",
+            "errorCode": "",
+            "detail": "={{ 'callId=' + $('ShapeCall').first().json.callId + ' from=' + $('ShapeCall').first().json.sipFrom }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event",
+              "displayName": "event",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tool",
+              "displayName": "tool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "latencyMs",
+              "displayName": "latencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "outcome",
+              "displayName": "outcome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "errorCode",
+              "displayName": "errorCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "detail",
+              "displayName": "detail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "2aa8e1d5-ef34-5951-a080-a88c25e82592",
+      "name": "LogAccept",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        832,
+        1088
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-17-log-event",
+          "mode": "list",
+          "cachedResultName": "AR-17 Log event"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "correlationId": "={{ $('ShapeCall').first().json.correlationId }}",
+            "sessionId": "={{ $('ComposeAccept').first().json.sessionId }}",
+            "caseId": "",
+            "workflow": "AR-51",
+            "event": "call_accept_failed",
+            "state": "",
+            "tool": "",
+            "latencyMs": "={{ Date.now() - $('ShapeCall').first().json.startedAt }}",
+            "outcome": "failed",
+            "errorCode": "accept_failed",
+            "detail": "={{ String(($json.error || {}).message || '').slice(0, 200) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event",
+              "displayName": "event",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tool",
+              "displayName": "tool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "latencyMs",
+              "displayName": "latencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "outcome",
+              "displayName": "outcome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "errorCode",
+              "displayName": "errorCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "detail",
+              "displayName": "detail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "47f3989b-c901-504a-9120-b23a341b9cb8",
+      "name": "LogAcceptFailed",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.openai.com/v1/realtime/calls/' + $('ShapeCall').first().json.callId + '/reject' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ status_code: 486 }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "34dfe270-9d34-5145-8721-2a56542c3bf3",
+      "name": "RejectCall",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        656
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-17-log-event",
+          "mode": "list",
+          "cachedResultName": "AR-17 Log event"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "correlationId": "={{ $('ShapeCall').first().json.correlationId }}",
+            "sessionId": "",
+            "caseId": "",
+            "workflow": "AR-51",
+            "event": "session_start_failed",
+            "state": "",
+            "tool": "",
+            "latencyMs": 0,
+            "outcome": "rejected",
+            "errorCode": "start_failed",
+            "detail": "={{ String(($json.error || {}).message || '').slice(0, 200) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event",
+              "displayName": "event",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tool",
+              "displayName": "tool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "latencyMs",
+              "displayName": "latencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "outcome",
+              "displayName": "outcome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "errorCode",
+              "displayName": "errorCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "detail",
+              "displayName": "detail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "2f7139ca-830d-5c0f-90fb-b216c50e12b9",
+      "name": "LogStartFailed",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1248,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Receive and acknowledge\n\nOnly realtime.call.incoming is handled; everything else is acknowledged and ignored. The 200 goes out before any work.",
+        "width": 656,
+        "height": 624,
+        "color": 4
+      },
+      "id": "zone-01",
+      "name": "zone-01",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Session start\n\nThe UUI comes out of the INVITE headers (User-to-User, hex). AR-01 starts the n8n session as the gateway would; a failed start rejects the call with 486.",
+        "width": 1488,
+        "height": 336,
+        "color": 5
+      },
+      "id": "zone-02",
+      "name": "zone-02",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Accept\n\nThe accept body carries the greeting, the session id, the proof prompt and the MCP tool server on n8n. The sideband sidecar (scripts/ar-sideband.mjs) is told the call id and sends the greeting response.create; a sidecar that is down does not block the store. The call id is stored on the session for the REFER.",
+        "width": 1072,
+        "height": 656,
+        "color": 3
+      },
+      "id": "zone-03",
+      "name": "zone-03",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        912
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## AR-51 OpenAI call incoming\n\nAccept within two seconds: the 200 goes first, then AR-01 and the accept. The prompt is a short proof prompt, not the AR-02 turn prompt. Webhook signature (Standard Webhooks HMAC) is not verified on the lab: a forged call id fails at the accept.",
+        "width": 768,
+        "height": 256,
+        "color": 6
+      },
+      "id": "zone-panel-1",
+      "name": "zone-panel-1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -416
+      ]
+    }
+  ],
+  "connections": {
+    "LoadProofConfig": {
+      "main": [
+        [
+          {
+            "node": "ProofRows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProofRows": {
+      "main": [
+        [
+          {
+            "node": "ProofConfig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReceiveCallIncoming": {
+      "main": [
+        [
+          {
+            "node": "IsCallIncoming",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IsCallIncoming": {
+      "main": [
+        [
+          {
+            "node": "RespondAck",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RespondIgnored",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RespondAck": {
+      "main": [
+        [
+          {
+            "node": "ShapeCall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ShapeCall": {
+      "main": [
+        [
+          {
+            "node": "LoadProofConfig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProofConfig": {
+      "main": [
+        [
+          {
+            "node": "StartSession",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StartSession": {
+      "main": [
+        [
+          {
+            "node": "ComposeAccept",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RejectCall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RejectCall": {
+      "main": [
+        [
+          {
+            "node": "LogStartFailed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LogStartFailed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ComposeAccept": {
+      "main": [
+        [
+          {
+            "node": "AcceptCall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AcceptCall": {
+      "main": [
+        [
+          {
+            "node": "NotifySideband",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LogAcceptFailed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NotifySideband": {
+      "main": [
+        [
+          {
+            "node": "StoreCallId",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "StoreCallId",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StoreCallId": {
+      "main": [
+        [
+          {
+            "node": "LogAccept",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "POST /webhook/ar/openai/call-incoming, the OpenAI webhook for realtime.call.incoming. Reads the UUI from the SIP headers, starts the n8n session (AR-01), accepts the call with the greeting, the session id and the n8n MCP tool server, and stores the call id on the session for the REFER. Responds 200 before the accept; signature verification is a PoC exception."
+  },
+  "tags": [
+    "voice-booking",
+    "poc"
+  ],
+  "project": "Voice Booking",
+  "folder": "Voice Booking Agent"
+}

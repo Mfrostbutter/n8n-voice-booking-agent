@@ -3,7 +3,7 @@
   "zones": [
     {
       "title": "Seed",
-      "body": "Rows live in the Edit Fields nodes as JSON; Split Out makes one item per row; upserts are keyed on the natural key. Run once per environment; safe to re-run.",
+      "body": "Rows live in the Edit Fields nodes as JSON, plus the mock rows of the request body (test identities, gitignored); Split Out makes one item per row; upserts are keyed on the natural key. Run once per environment; safe to re-run (re-seeding restores the two fixture appointments).",
       "color": 6,
       "nodes": [
         "ReceiveSeed",
@@ -22,6 +22,9 @@
         "MockDealerRows",
         "SplitMockDealers",
         "UpsertMockDealer",
+        "MockBookingRows",
+        "SplitMockBookings",
+        "UpsertMockBooking",
         "RespondSeeded"
       ]
     }
@@ -29,7 +32,7 @@
   "panels": [
     {
       "title": "AR-90 Seed config",
-      "body": "Markets, codes and prompts are data, not code: a new market is one row, a wording change is one cell. Disclosure texts are placeholders until Legal supplies the market wording.",
+      "body": "Markets, codes and prompts are data, not code: a new market is one row, a wording change is one cell. Disclosure texts are placeholders until Legal supplies the market wording. The mock rows in the body (the engagement's test identities, gitignored, sent by ar-seed.py) are upserted after the synthetic fixtures; missing columns are filled from the fixture shape.",
       "color": 6,
       "width": 768
     }

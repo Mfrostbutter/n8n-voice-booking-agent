@@ -1,0 +1,39 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Move gate",
+      "body": "Rules in order: already moved; no appointment in hand; the slot was not offered in this call; not confirmed (state CONFIRM with this slotId read back). Only Proceed moves.",
+      "color": 5,
+      "nodes": [
+        "ToolInput",
+        "LoadSession",
+        "MoveGate",
+        "MoveRequest",
+        "ReplyAlreadyMoved",
+        "ReplyNotInHand",
+        "ReplySlotNotOffered",
+        "ReplyNotConfirmed"
+      ]
+    },
+    {
+      "title": "Move",
+      "body": "POST reschedule on the DealerBook booking id keeps the id and the reference code; movedAt, the new slot and state MOVED on the session.",
+      "color": 3,
+      "nodes": [
+        "CallDealerBookReschedule",
+        "StoreMoved",
+        "ReturnMoved",
+        "ReturnMoveError"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-26 MoveAppointment",
+      "body": "Rescheduling keeps the DealerBook booking id and the reference code and moves the timeslot (endpoint sheet, 2026-10-23: timeslots for the booking's offer, then POST reschedule; host api-dev there, open). Same two-turn gate as a booking. DealerBook confirms the move to the customer.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

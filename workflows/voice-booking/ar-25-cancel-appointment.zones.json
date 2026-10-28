@@ -1,0 +1,38 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Cancel gate",
+      "body": "Rules in order: already cancelled; no appointment in hand; a different reference; not confirmed (state CONFIRM_CANCEL from the previous turn). Only Proceed cancels.",
+      "color": 5,
+      "nodes": [
+        "ToolInput",
+        "LoadSession",
+        "CancelGate",
+        "ReplyAlreadyCancelled",
+        "ReplyNotInHand",
+        "ReplyWrongAppointment",
+        "ReplyNotConfirmed"
+      ]
+    },
+    {
+      "title": "Cancel",
+      "body": "POST cancel on the DealerBook booking id; cancelledAt and state CANCELLED on the session. DealerBook confirms to the customer.",
+      "color": 3,
+      "nodes": [
+        "CallDealerBookCancel",
+        "StoreCancelled",
+        "ReturnCancelled",
+        "ReturnCancelError"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-25 CancelAppointment",
+      "body": "Same two-turn rule as a booking: read-back in CONFIRM_CANCEL, cancellation only after the caller's yes in the next turn. The call is a POST on the DealerBook booking id (endpoint sheet, 2026-10-23; host api-dev there, open). DealerBook confirms the cancellation to the customer.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

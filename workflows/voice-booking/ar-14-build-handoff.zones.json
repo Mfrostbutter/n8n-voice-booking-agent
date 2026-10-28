@@ -15,13 +15,14 @@
     },
     {
       "title": "Return UUI",
-      "body": "AssemblePayload builds version;correlationId;sessionId;intent;reason;language plus caseId. FitsBudget checks 64 bytes; DropCaseId removes the case id first and logs it. EncodeUui hex-encodes and builds the Refer-To, stored on the session for the lookup endpoint.",
+      "body": "AssemblePayload builds version;correlationId;sessionId;intent;reason;language plus caseId. FitsBudget checks 64 bytes; DropCaseId removes the case id first and logs it. EncodeUui hex-encodes and builds the Refer-To, stored on the session for the lookup endpoint. UpdateCaseContext prepopulates the CASE case with the full context before the transfer (joint scope step 8).",
       "color": 3,
       "nodes": [
         "AssemblePayload",
         "FitsBudget",
         "EncodeUui",
         "StoreHandoff",
+        "UpdateCaseContext",
         "ReturnHandoff",
         "DropCaseId"
       ]

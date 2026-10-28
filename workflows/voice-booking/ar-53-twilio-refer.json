@@ -1,0 +1,1028 @@
+{
+  "name": "AR-53 PoC: Twilio refer received",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ar/twilio/refer",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a2f8be92-8451-5c23-9866-e451d3406a38",
+      "name": "ReceiveRefer",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "edd6ea46-46f1-5a33-bc08-82c32fcd93c1"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "returnAll": true
+      },
+      "id": "39aec905-0db4-5c4c-a200-0abfedf59bdf",
+      "name": "LoadProofConfig",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "rows",
+        "options": {}
+      },
+      "id": "b6991d09-b93d-5055-a253-8c3e344076a3",
+      "name": "ProofRows",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ Object.fromEntries(($json.rows || []).filter(r => r.key).map(r => [r.key, r.value])) }}",
+        "options": {}
+      },
+      "id": "8e7b44ee-d11a-5e14-be41-fc7b0435c5c1",
+      "name": "ProofConfig",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "96633ec9-f2b0-517a-b794-a432c0e71ebb",
+              "name": "callSid",
+              "value": "={{ String($('ReceiveRefer').first().json.body.CallSid || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "8e0add7f-d714-545c-b026-244fcc3ae177",
+              "name": "target",
+              "value": "={{ String($('ReceiveRefer').first().json.body.ReferTransferTarget || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "d43b6d14-a4d6-55dd-9e51-669dcbfd44e1",
+              "name": "uuiHex",
+              "value": "={{ ((String($('ReceiveRefer').first().json.body.ReferTransferTarget || '')).match(/User-to-User=([0-9A-Fa-f]+)/i) || [])[1] || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "391a2d7b-dd54-5683-8549-d4a81896c119",
+              "name": "uuiRaw",
+              "value": "={{ (h => (String(h || '').match(/.{2}/g) || []).map(x => String.fromCharCode(parseInt(x, 16))).join(''))(((String($('ReceiveRefer').first().json.body.ReferTransferTarget || '')).match(/User-to-User=([0-9A-Fa-f]+)/i) || [])[1] || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "86376c43-1b01-57ff-a2e5-d212f6a728a6",
+              "name": "correlationId",
+              "value": "={{ ((h => (String(h || '').match(/.{2}/g) || []).map(x => String.fromCharCode(parseInt(x, 16))).join(''))(((String($('ReceiveRefer').first().json.body.ReferTransferTarget || '')).match(/User-to-User=([0-9A-Fa-f]+)/i) || [])[1] || '')).split(';')[1] || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "3f04a1c7-5e2b-535c-b6d1-7f9b89ac2d9e",
+              "name": "sessionId",
+              "value": "={{ ((h => (String(h || '').match(/.{2}/g) || []).map(x => String.fromCharCode(parseInt(x, 16))).join(''))(((String($('ReceiveRefer').first().json.body.ReferTransferTarget || '')).match(/User-to-User=([0-9A-Fa-f]+)/i) || [])[1] || '')).split(';')[2] || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "69f05b05-e50d-5313-8c45-e504a2f05d02",
+              "name": "humanNumber",
+              "value": "={{ String($('ProofConfig').first().json.humanNumber || '') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e9864bb8-4645-5845-a2b5-76bb3693fe1e",
+      "name": "ShapeRefer",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "sessionId",
+              "condition": "eq",
+              "keyValue": "={{ $json.sessionId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "handoffResult": "={{ 'refer_received:' + $json.target.slice(0, 160) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "market",
+              "displayName": "market",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customerRef",
+              "displayName": "customerRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vehicleRef",
+              "displayName": "vehicleRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "greetingName",
+              "displayName": "greetingName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vehicleLabel",
+              "displayName": "vehicleLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerId",
+              "displayName": "dealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerName",
+              "displayName": "dealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "offeredSlots",
+              "displayName": "offeredSlots",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slotId",
+              "displayName": "slotId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bookingRef",
+              "displayName": "bookingRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationCode",
+              "displayName": "confirmationCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationChannel",
+              "displayName": "confirmationChannel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationSent",
+              "displayName": "confirmationSent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffReason",
+              "displayName": "handoffReason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffResult",
+              "displayName": "handoffResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffSummary",
+              "displayName": "handoffSummary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "turns",
+              "displayName": "turns",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "endedAt",
+              "displayName": "endedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "endReason",
+              "displayName": "endReason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lastLatencyMs",
+              "displayName": "lastLatencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "identifyAttempts",
+              "displayName": "identifyAttempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reservationId",
+              "displayName": "reservationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "selectedServices",
+              "displayName": "selectedServices",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentRef",
+              "displayName": "appointmentRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentLabel",
+              "displayName": "appointmentLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerId",
+              "displayName": "appointmentDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerName",
+              "displayName": "appointmentDealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cancelledAt",
+              "displayName": "cancelledAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "movedAt",
+              "displayName": "movedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackAt",
+              "displayName": "callbackAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "voiceCallId",
+              "displayName": "voiceCallId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentOfferId",
+              "displayName": "appointmentOfferId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fulfilments",
+              "displayName": "fulfilments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "59489947-fca0-5ff0-a79d-54a0012cfb47",
+      "name": "StoreReferReceived",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-17-log-event",
+          "mode": "list",
+          "cachedResultName": "AR-17 Log event"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "correlationId": "={{ $('ShapeRefer').first().json.correlationId }}",
+            "sessionId": "={{ $('ShapeRefer').first().json.sessionId }}",
+            "caseId": "",
+            "workflow": "AR-53",
+            "event": "refer_received",
+            "state": "",
+            "tool": "",
+            "latencyMs": 0,
+            "outcome": "={{ $('ShapeRefer').first().json.uuiHex ? 'uui_present' : 'uui_missing' }}",
+            "errorCode": "",
+            "detail": "={{ 'target=' + $('ShapeRefer').first().json.target + ' uui=' + $('ShapeRefer').first().json.uuiRaw }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event",
+              "displayName": "event",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tool",
+              "displayName": "tool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "latencyMs",
+              "displayName": "latencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "outcome",
+              "displayName": "outcome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "errorCode",
+              "displayName": "errorCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "detail",
+              "displayName": "detail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "b0768aff-70af-5bdc-8a63-599599d13005",
+      "name": "LogReferReceived",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1248,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "99012a9e-319b-5d15-8445-2050485ae9f9",
+              "leftValue": "={{ $('ShapeRefer').first().json.humanNumber }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c2099163-7359-5a76-abd0-348c8a87e42d",
+      "name": "HasHuman",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1456,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bcc6851d-f46e-5e4f-b2bf-077c8c12f10f",
+              "name": "twiml",
+              "value": "={{ '<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Say voice=\"Polly.Amy\">Transfer received with the context. Connecting you to a colleague.</Say><Dial answerOnBridge=\"true\"><Number>' + $('ShapeRefer').first().json.humanNumber + '</Number></Dial></Response>' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f91c4a52-40a4-5123-9df3-ffa899fc88ea",
+      "name": "TwimlDialHuman",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6f4219d1-d71b-58bd-b9db-c5dda350bdb3",
+              "name": "twiml",
+              "value": "={{ '<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Say voice=\"Polly.Amy\">Transfer received. The context was ' + ($('ShapeRefer').first().json.uuiRaw ? 'decoded' : 'missing') + '. No human number is configured. Goodbye.</Say><Hangup/></Response>' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6432f3bd-2703-59b6-bb5e-b914406220c9",
+      "name": "TwimlNoHuman",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.twiml }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml"
+              }
+            ]
+          }
+        }
+      },
+      "id": "8c1bdd7e-6fa4-5fab-aa78-309c957d4be4",
+      "name": "RespondReferTwiml",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        208,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Refer received\n\nReferTransferTarget is the Refer-To Twilio received. The UUI hex is decoded, the session gets refer_received, the event carries the target byte-exact.",
+        "width": 1696,
+        "height": 336,
+        "color": 4
+      },
+      "id": "zone-01",
+      "name": "zone-01",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Dial the human\n\nWith humanNumber in the config the caller is bridged to the phone; without it the line says whether the context was decoded and ends.",
+        "width": 448,
+        "height": 672,
+        "color": 3
+      },
+      "id": "zone-02",
+      "name": "zone-02",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## AR-53 Twilio refer received\n\nThe proof's pass condition lives here: ReferTransferTarget carries the UUI query parameter, n8n decodes it, the human phone rings. No Twilio signature check on the lab (PoC exception).",
+        "width": 768,
+        "height": 256,
+        "color": 6
+      },
+      "id": "zone-panel-1",
+      "name": "zone-panel-1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -400
+      ]
+    }
+  ],
+  "connections": {
+    "LoadProofConfig": {
+      "main": [
+        [
+          {
+            "node": "ProofRows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProofRows": {
+      "main": [
+        [
+          {
+            "node": "ProofConfig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReceiveRefer": {
+      "main": [
+        [
+          {
+            "node": "LoadProofConfig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProofConfig": {
+      "main": [
+        [
+          {
+            "node": "ShapeRefer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ShapeRefer": {
+      "main": [
+        [
+          {
+            "node": "StoreReferReceived",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StoreReferReceived": {
+      "main": [
+        [
+          {
+            "node": "LogReferReceived",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LogReferReceived": {
+      "main": [
+        [
+          {
+            "node": "HasHuman",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HasHuman": {
+      "main": [
+        [
+          {
+            "node": "TwimlDialHuman",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TwimlNoHuman",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TwimlDialHuman": {
+      "main": [
+        [
+          {
+            "node": "RespondReferTwiml",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TwimlNoHuman": {
+      "main": [
+        [
+          {
+            "node": "RespondReferTwiml",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "POST /webhook/ar/twilio/refer, Twilio's referUrl: the Refer-To of the REFER arrives as ReferTransferTarget. Decodes the UUI, stores refer_received on the session, logs the target byte-exact, and answers TwiML that dials the human number from ar_proof_config (or says the context and hangs up)."
+  },
+  "tags": [
+    "voice-booking",
+    "poc"
+  ],
+  "project": "Voice Booking",
+  "folder": "Voice Booking Agent"
+}

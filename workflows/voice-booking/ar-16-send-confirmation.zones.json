@@ -3,7 +3,7 @@
   "zones": [
     {
       "title": "Send confirmation",
-      "body": "SMS or e-mail through the communication service; the destination is resolved from the CRM reference.",
+      "body": "Retired 2026-10-22: DealerBook sends the confirmation via Cusmes in every journey. Kept for a market where the solution must send; not called by AR-03.",
       "color": 4,
       "nodes": [
         "ToolInput",

@@ -1,5 +1,5 @@
 {
-  "name": "AR-15 Case create, update or close",
+  "name": "AR-15 CASE case create, update, close or delegate",
   "nodes": [
     {
       "parameters": {
@@ -37,6 +37,78 @@
             {
               "name": "delegatedReason",
               "type": "string"
+            },
+            {
+              "name": "accountName",
+              "type": "string"
+            },
+            {
+              "name": "caseOrigin",
+              "type": "string"
+            },
+            {
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "name": "serviceType",
+              "type": "string"
+            },
+            {
+              "name": "delegatedTo",
+              "type": "string"
+            },
+            {
+              "name": "callbackNote",
+              "type": "string"
+            },
+            {
+              "name": "caseCountry",
+              "type": "string"
+            },
+            {
+              "name": "accountId",
+              "type": "string"
+            },
+            {
+              "name": "assetId",
+              "type": "string"
+            },
+            {
+              "name": "vinOrFin",
+              "type": "string"
+            },
+            {
+              "name": "licensePlate",
+              "type": "string"
+            },
+            {
+              "name": "mileage",
+              "type": "string"
+            },
+            {
+              "name": "mileageUnit",
+              "type": "string"
+            },
+            {
+              "name": "assignedDealerId",
+              "type": "string"
+            },
+            {
+              "name": "type",
+              "type": "string"
+            },
+            {
+              "name": "topic",
+              "type": "string"
+            },
+            {
+              "name": "reason",
+              "type": "string"
+            },
+            {
+              "name": "primaryContact",
+              "type": "string"
             }
           ]
         }
@@ -47,6 +119,48 @@
       "typeVersion": 1.2,
       "position": [
         0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5daf408a-fe61-5f1d-bcdf-be427257e725",
+              "name": "description",
+              "value": "={{ String($json.description || '').replace(/[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+/g, '[email]').replace(/(?<![\\w-])(?:\\+|0)\\d[\\d\\s().-]{6,}\\d(?![\\w-])/g, '[phone]').replace(/\\b[A-HJ-NPR-Z0-9]{17}\\b/g, '[vin]').replace(/\\b[A-Z]{1,2}\\d[A-Z\\d]? ?\\d[A-Z]{2}\\b/g, '[postcode]').replace(/(?<![\\w-])\\d{2}-\\d{3}(?![\\w-])/g, '[postcode]') }}",
+              "type": "string"
+            },
+            {
+              "id": "df30d83f-73af-5bcb-88b3-709740f20bb0",
+              "name": "solution",
+              "value": "={{ String($json.solution || '').replace(/[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+/g, '[email]').replace(/(?<![\\w-])(?:\\+|0)\\d[\\d\\s().-]{6,}\\d(?![\\w-])/g, '[phone]').replace(/\\b[A-HJ-NPR-Z0-9]{17}\\b/g, '[vin]').replace(/\\b[A-Z]{1,2}\\d[A-Z\\d]? ?\\d[A-Z]{2}\\b/g, '[postcode]').replace(/(?<![\\w-])\\d{2}-\\d{3}(?![\\w-])/g, '[postcode]') }}",
+              "type": "string"
+            },
+            {
+              "id": "e151bb41-6357-56d6-a26f-a76938b20444",
+              "name": "delegatedReason",
+              "value": "={{ String($json.delegatedReason || '').replace(/[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+/g, '[email]').replace(/(?<![\\w-])(?:\\+|0)\\d[\\d\\s().-]{6,}\\d(?![\\w-])/g, '[phone]').replace(/\\b[A-HJ-NPR-Z0-9]{17}\\b/g, '[vin]').replace(/\\b[A-Z]{1,2}\\d[A-Z\\d]? ?\\d[A-Z]{2}\\b/g, '[postcode]').replace(/(?<![\\w-])\\d{2}-\\d{3}(?![\\w-])/g, '[postcode]') }}",
+              "type": "string"
+            },
+            {
+              "id": "e6607fd1-62aa-58f8-ad0d-4e92cc7a9a2d",
+              "name": "callbackNote",
+              "value": "={{ String($json.callbackNote || '').replace(/[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+/g, '[email]').replace(/(?<![\\w-])(?:\\+|0)\\d[\\d\\s().-]{6,}\\d(?![\\w-])/g, '[phone]').replace(/\\b[A-HJ-NPR-Z0-9]{17}\\b/g, '[vin]').replace(/\\b[A-Z]{1,2}\\d[A-Z\\d]? ?\\d[A-Z]{2}\\b/g, '[postcode]').replace(/(?<![\\w-])\\d{2}-\\d{3}(?![\\w-])/g, '[postcode]') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "66194192-101e-5880-8cc8-2648112550ea",
+      "name": "ScrubFreeText",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
         0
       ]
     },
@@ -66,7 +180,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        208,
+        416,
         0
       ],
       "retryOnFail": true,
@@ -105,7 +219,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        416,
+        624,
         0
       ]
     },
@@ -146,15 +260,15 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        416,
+        624,
         272
       ]
     },
     {
       "parameters": {
-        "content": "## case\n\nCreate at start, close at end. Standard CRM case REST behind the mock.",
-        "width": 656,
-        "height": 624,
+        "content": "## CASE case\n\nCreate at entry with the mandatory fields and the CASE booking prerequisites, update with the handover context, delegate to XCCC for a callback, close at the end. ScrubFreeText masks e-mail, phone, VIN and postcode in the free-text fields. Standard CRM case REST behind the mock.",
+        "width": 864,
+        "height": 672,
         "color": 3
       },
       "id": "zone-01",
@@ -163,14 +277,14 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -144
+        -192
       ]
     },
     {
       "parameters": {
-        "content": "## AR-15 Case\n\nOne case per call, created at session start, updated at the end. A standard REST API behind the mock.",
-        "width": 704,
-        "height": 256,
+        "content": "## AR-15 CASE case\n\nOne case per call, created at entry with the mandatory fields and the booking prerequisites of the CASE case data (2026-10-23): country, account, asset (CVR), VIN or FIN, plate, mileage, assigned dealer, status In Progress, type, topic, reason and the primary contact. Updated with the context before a handover, delegated to XCCC for a retailer callback, closed at the end. ScrubFreeText masks e-mail addresses, phone numbers, VINs and postcodes in the free-text fields (CAC rule: never personal data in free text). A standard REST API behind the mock.",
+        "width": 768,
+        "height": 288,
         "color": 6
       },
       "id": "zone-panel-1",
@@ -179,12 +293,23 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -416
+        -496
       ]
     }
   ],
   "connections": {
     "ToolInput": {
+      "main": [
+        [
+          {
+            "node": "ScrubFreeText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ScrubFreeText": {
       "main": [
         [
           {
@@ -218,7 +343,7 @@
     "executionOrder": "v1"
   },
   "meta": {
-    "description": "Writes the case. Inputs: op (create|update|close), correlationId, caseId, subject, classification, status, solution, delegatedReason. Returns {ok, caseId, status} or {ok:false, error}."
+    "description": "Writes the CASE (CRM) case. Inputs: op (create|update|close|delegate), correlationId, caseId, subject, classification, status, solution, delegatedReason, accountName, caseOrigin (IN_CAR|IVR), description, serviceType (CS|DMS|RSA), delegatedTo (XCCC for a retailer callback), callbackNote, and the booking prerequisites of the CASE case data (caseCountry, accountId, assetId, vinOrFin, licensePlate, mileage, mileageUnit, assignedDealerId, type, topic, reason, primaryContact). Free text is scrubbed of personal data before the write. Returns {ok, caseId, status} or {ok:false, error}."
   },
   "tags": [
     "voice-booking",

@@ -1,0 +1,471 @@
+{
+  "name": "AR-52 PoC: MCP tool server",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "ar-proof-tools",
+        "authentication": "bearerAuth",
+        "instructions": "Appointment booking tools for one phone call. Always pass the sessionId from the instructions. Order: FindSlots, ConfirmSlot when the caller picks one, BookAppointment after the caller says yes, EndCall when the caller is done. Call RequestAgent when the caller asks for a person."
+      },
+      "id": "a0260351-738c-53c0-997b-4886f2b8fc1b",
+      "name": "ProofTools",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Dealers in the caller's market, nearest first. Call when the caller names a city or asks where to go.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-11-find-dealers",
+          "mode": "list",
+          "cachedResultName": "AR-11 Tool: Find dealers"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $fromAI('sessionId', 'The session id given in the instructions, unchanged', 'string') }}",
+            "city": "={{ $fromAI('city', 'City the caller named, as spoken, or empty for all dealers', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "b2a79f52-1ffb-57ac-b879-b689e33c0de4",
+      "name": "FindDealers",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Free workshop slots at the agreed dealer. Returns slotIds with labels; read at most three back.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-12-find-slots",
+          "mode": "list",
+          "cachedResultName": "AR-12 Tool: Find appointment slots"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $fromAI('sessionId', 'The session id given in the instructions, unchanged', 'string') }}",
+            "serviceIds": "={{ $fromAI('serviceIds', 'Service ids the caller chose, comma separated, for example MAINT; default MAINT', 'string') }}",
+            "fromDate": "={{ $fromAI('fromDate', 'Earliest acceptable date as YYYY-MM-DD, or empty for the earliest available', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "serviceIds",
+              "displayName": "serviceIds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fromDate",
+              "displayName": "fromDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "7d2c7d60-5a17-5aa2-951f-9afe636c0ca4",
+      "name": "FindSlots",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Marks the slot the caller picked as read back. Call it as soon as the caller chooses a day and time, then read back what it returns and ask for a yes.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-56-confirm-slot",
+          "mode": "list",
+          "cachedResultName": "AR-56 PoC: Confirm slot"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $fromAI('sessionId', 'The session id given in the instructions, unchanged', 'string') }}",
+            "slotId": "={{ $fromAI('slotId', 'The slotId of the slot the caller picked, from FindSlots', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slotId",
+              "displayName": "slotId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "5324f494-18b0-5647-a8ce-0f0376e0de82",
+      "name": "ConfirmSlot",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Books the slot after ConfirmSlot and the caller's yes. Returns the confirmation code; only this code may be read out.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-13-book-appointment",
+          "mode": "list",
+          "cachedResultName": "AR-13 Tool: Book appointment"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $fromAI('sessionId', 'The session id given in the instructions, unchanged', 'string') }}",
+            "slotId": "={{ $fromAI('slotId', 'The slotId the caller confirmed, the same one given to ConfirmSlot', 'string') }}",
+            "mobility": "={{ $fromAI('mobility', 'Courtesy car or taxi if asked for, else empty', 'string') }}",
+            "notes": "={{ $fromAI('notes', 'Anything the workshop should know, or empty', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slotId",
+              "displayName": "slotId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mobility",
+              "displayName": "mobility",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "7d6a1688-f37b-5721-b4f5-87a3675ca974",
+      "name": "BookAppointment",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Transfers the call to a human agent with the context. Call only when the caller asks for a person or the request cannot be served; then say the handover line and stop.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-55-refer-call",
+          "mode": "list",
+          "cachedResultName": "AR-55 PoC: Refer call to agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $fromAI('sessionId', 'The session id given in the instructions, unchanged', 'string') }}",
+            "summary": "={{ $fromAI('summary', 'One line on what the caller wanted and how far the call got', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "cb735809-fb5a-5a94-a23b-422bce1939b4",
+      "name": "RequestAgent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Ends the call. Call it when the caller says they need nothing else, or says goodbye; then say exactly the line it returns and stop.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-57-end-call",
+          "mode": "list",
+          "cachedResultName": "AR-57 PoC: End call"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $fromAI('sessionId', 'The session id given in the instructions, unchanged', 'string') }}",
+            "reason": "={{ $fromAI('reason', 'caller_done, booked, or declined', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "ed52df65-7a2d-5c27-8826-e91240bfc614",
+      "name": "EndCall",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## MCP server\n\nBearer-protected MCP trigger at /mcp/ar-proof-tools. The tools are the demo sub-workflows plus ConfirmSlot (the CONFIRM step as a tool); RequestAgent is the REFER path.",
+        "width": 1248,
+        "height": 624,
+        "color": 3
+      },
+      "id": "zone-01",
+      "name": "zone-01",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## AR-52 MCP tool server\n\nThe Realtime API executes MCP tools itself, so the tools are the sub-workflows behind a bearer-protected MCP trigger. The session id travels in the instructions and comes back as a tool argument.",
+        "width": 768,
+        "height": 256,
+        "color": 6
+      },
+      "id": "zone-panel-1",
+      "name": "zone-panel-1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -416
+      ]
+    }
+  ],
+  "connections": {
+    "FindDealers": {
+      "ai_tool": [
+        [
+          {
+            "node": "ProofTools",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FindSlots": {
+      "ai_tool": [
+        [
+          {
+            "node": "ProofTools",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConfirmSlot": {
+      "ai_tool": [
+        [
+          {
+            "node": "ProofTools",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BookAppointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "ProofTools",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RequestAgent": {
+      "ai_tool": [
+        [
+          {
+            "node": "ProofTools",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EndCall": {
+      "ai_tool": [
+        [
+          {
+            "node": "ProofTools",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "MCP Server Trigger at /mcp/ar-proof-tools (bearer auth) exposing FindDealers, FindSlots, BookAppointment and RequestAgent to the OpenAI Realtime session. The same sub-workflows the demo agent uses; RequestAgent is the REFER path (AR-55)."
+  },
+  "tags": [
+    "voice-booking",
+    "poc"
+  ],
+  "project": "Voice Booking",
+  "folder": "Voice Booking Agent"
+}

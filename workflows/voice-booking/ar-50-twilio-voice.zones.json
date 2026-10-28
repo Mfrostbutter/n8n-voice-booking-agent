@@ -1,0 +1,50 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Twilio voice entry",
+      "body": "Twilio posts the inbound call. The config rows and the first GB fixture customer shape the synthetic UUI; with an OpenAI project the TwiML dials the SIP ingress (referUrl AR-53, action AR-54), without it the caller hears the lab line.",
+      "color": 4,
+      "nodes": [
+        "ReceiveTwilioCall",
+        "LoadProofConfig",
+        "ProofRows",
+        "ProofConfig",
+        "PickCustomer",
+        "ShapeUui",
+        "HasOpenAi",
+        "TwimlDial",
+        "TwimlLabLine"
+      ]
+    },
+    {
+      "title": "Respond and log",
+      "body": "TwiML as text/xml, then the call is logged with the UUI it was given.",
+      "color": 3,
+      "nodes": [
+        "RespondTwiml",
+        "LogTwilioCall"
+      ]
+    },
+    {
+      "title": "Config admin",
+      "body": "POST ar/proof/config {rows: [{key, value}]} with the gateway bearer: upsert on key. Values come from the seed script, never from a node field.",
+      "color": 6,
+      "nodes": [
+        "ReceiveProofConfig",
+        "SplitRows",
+        "UpsertProofConfig",
+        "ConfigRows",
+        "RespondConfig"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-50 Twilio voice entry",
+      "body": "Proof of decision doc 13: Twilio stands in for the contact center trunk. No Twilio signature check on the lab (PoC exception, test plan). The UUI is the first GB fixture customer, hex-encoded as contact center would send it.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

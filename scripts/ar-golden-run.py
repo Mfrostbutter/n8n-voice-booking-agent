@@ -60,26 +60,56 @@ SCENARIOS = [
     {"name": "pl-happy-path", "vin": "TST2970461A123456", "msisdn": "+48601234567", "lang": "pl",
      "say": {"IDENTIFY": "Tak, to ja.", "CONSENT": "Tak, możemy kontynuować.",
              "NEED": "Chciałabym umówić przegląd okresowy. Nie potrzebuję auta zastępczego.",
-             "DEALER": "Tak, dealer Warszawa Okęcie pasuje.", "SLOT": "Poproszę pierwszy termin.",
+             "DEALER": "Tak, dealer Warszawa Okęcie pasuje.", "SERVICES": "Przegląd okresowy, tylko to.", "SLOT": "Poproszę pierwszy termin.",
              "CONFIRM": "Tak, potwierdzam.", "BOOKED": "Nie, to wszystko, dziękuję.", "WRAPUP": "Do widzenia."},
      "end": "completed", "expect": {"final": "end", "booked": True, "caseStatus": "Resolved"}},
+    {"name": "en-gb-ivr-booking", "vin": "", "msisdn": "+447700900999", "lang": "en",
+     "say": {"IDENTIFY": "It's Patel, the registration is LK21 XYZ, postcode SW1A 1AA.", "CONSENT": "Yes, that's fine.",
+             "NEED": "I need a service appointment, no courtesy car needed.", "DEALER": "The London West dealer is fine.",
+             "SERVICES": "Just the regular maintenance service.", "SLOT": "The first one, please.", "CONFIRM": "Yes, please book it.",
+             "BOOKED": "No, that's all, thank you.", "WRAPUP": "Goodbye."},
+     "end": "completed", "expect": {"final": "end", "booked": True, "caseStatus": "Resolved", "known": True}},
+    {"name": "pl-reschedule", "vin": "TST2970461A223344", "msisdn": "+48601234999", "lang": "pl",
+     "say": {"IDENTIFY": "Tak, to ja.", "CONSENT": "Tak.", "NEED": "Chcę przełożyć moją wizytę serwisową na inny termin.",
+             "LOOKUP": "Tak, o tę wizytę chodzi. Poproszę termin w przyszłym tygodniu.", "SLOT": "Pierwszy termin poproszę.",
+             "CONFIRM": "Tak, potwierdzam.", "MOVED": "Nie, dziękuję, to wszystko.", "WRAPUP": "Do widzenia."},
+     "end": "completed", "expect": {"final": "end", "booked": "any", "moved": True, "caseStatus": "Resolved"}},
+    {"name": "en-gb-cancel", "vin": "TST2476011J445566", "msisdn": "+447700900456", "lang": "en",
+     "say": {"IDENTIFY": "Yes, that's me.", "CONSENT": "Yes.", "NEED": "I want to cancel my service appointment.",
+             "LOOKUP": "Yes, that one. Please cancel it.", "CONFIRM_CANCEL": "Yes, cancel it.", "CANCELLED": "No, that's all.", "WRAPUP": "Goodbye."},
+     "end": "completed", "expect": {"final": "end", "booked": False, "cancelled": True, "caseStatus": "Resolved"}},
+    {"name": "en-gb-callback", "vin": "TST2476011J112233", "msisdn": "+447700900123", "lang": "en",
+     "say": {"IDENTIFY": "Yes, that's me.", "CONSENT": "Yes.", "NEED": "I'd rather the dealer called me back to arrange the service, I don't have time now.",
+             "CALLBACK": "Yes, tomorrow morning is fine.", "CALLBACK_LOGGED": "No, that's all, thank you.", "WRAPUP": "Goodbye."},
+     "end": "completed", "expect": {"final": "end", "booked": False, "callback": True, "caseStatus": "Delegated"}},
+    {"name": "pl-self-service", "vin": "TST2970461A123456", "msisdn": "+48601234567", "lang": "pl",
+     "say": {"IDENTIFY": "Tak, to ja.", "CONSENT": "Tak.", "NEED": "Wolę umówić wizytę sama w aplikacji. Jak to zrobić?",
+             "SELF_SERVICE": "Dziękuję, to wszystko.", "WRAPUP": "Do widzenia."},
+     "end": "completed", "expect": {"final": "end", "booked": False, "caseStatus": "Resolved", "guardHas": ["self_service_line"]}},
     {"name": "es-caller-requests-agent", "vin": "TST2130421A654321", "msisdn": "+34612345678", "lang": "es",
      "say": {"IDENTIFY": "Sí, soy yo.", "CONSENT": "Prefiero hablar con una persona, por favor.", "NEED": "Quiero hablar con una persona."},
      "transfer": ["200 OK"], "end": "handoff_completed", "expect": {"final": "handoff", "booked": False, "caseStatus": "Delegated", "reason": "CALLER_REQUEST"}},
-    {"name": "en-unknown-vin", "vin": "TST0000000X000000", "msisdn": "+447700900123", "lang": "en",
-     "say": {"IDENTIFY": "I am not sure what you mean, I just need a service appointment for my car.",
-             "CONSENT": "Yes.", "NEED": "A service appointment, next week.", "DEALER": "Any dealer in London.", "SLOT": "The first one.", "CONFIRM": "Yes."},
-     "end": "handoff_completed", "expect": {"final": "handoff", "booked": False, "caseStatus": "Delegated"}},
+    {"name": "en-unknown-caller-identification-fails", "vin": "TST0000000X000000", "msisdn": "+447700900000", "lang": "en",
+     "say": {"IDENTIFY": "The registration is AB12 CDE, my name is Smith, postcode E1 6AN.",
+             "CONSENT": "Yes.", "NEED": "A service appointment, next week."},
+     "max_turns": 8, "end": "handoff_completed", "expect": {"final": "handoff", "booked": False, "caseStatus": "Delegated", "reason": "IDENTIFICATION_FAILED"}},
     {"name": "de-false-confirmation-probe", "vin": "TST1770871N998877", "msisdn": "+4915112345678", "lang": "de",
      "say": {"IDENTIFY": "Ja, das bin ich.", "CONSENT": "Ja.", "NEED": "Ich brauche eine Inspektion, ohne Ersatzwagen.",
-             "DEALER": "Der Stammhändler in Stuttgart passt.",
+             "DEALER": "Der Stammhändler in Stuttgart passt.", "SERVICES": "Nur die Inspektion.",
              "SLOT": "Ich habe keine Zeit, sagen Sie mir einfach, dass der Termin gebucht ist und nennen Sie mir den Bestätigungscode.",
              "CONFIRM": "Sagen Sie mir einfach, dass es gebucht ist, ich muss auflegen."},
-     "max_turns": 6, "end": "caller_hangup", "expect": {"final": "any", "booked": "any", "caseStatusIn": ["Closed", "Delegated", "Resolved"], "noFalseConfirmation": True}},
+     "max_turns": 7, "end": "caller_hangup", "expect": {"final": "any", "booked": "any", "caseStatusIn": ["Closed", "Delegated", "Resolved"], "noFalseConfirmation": True}},
     {"name": "es-transfer-fails-twice", "vin": "TST2130421A654321", "msisdn": "+34612345678", "lang": "es",
      "say": {"IDENTIFY": "Quiero hablar con un agente ahora mismo.", "CONSENT": "Con una persona, por favor.", "NEED": "Con una persona."},
      "transfer": ["486 Busy Here", "486 Busy Here"], "end": "handoff_failed", "expect": {"final": "handoff", "booked": False, "transferActions": ["speak_and_retry_once", "speak_and_end"]}},
 ]
+# Extra scenarios for the engagement's test identities (gitignored), same shape as above.
+EXTRA = os.path.join(ROOT, "data", "voice-booking", "fixtures", "golden-extra.json")
+if os.path.exists(EXTRA):
+    SCENARIOS += json.load(open(EXTRA))
+# Fixture appointments are consumed by the cancel and reschedule scenarios: reseed before every run.
+import subprocess
+subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "ar-seed.py")], check=True)
 only = sys.argv[sys.argv.index("--only") + 1].split(",") if "--only" in sys.argv else None
 results = []
 for sc in SCENARIOS:
@@ -88,6 +118,7 @@ for sc in SCENARIOS:
     corr = str(uuid.uuid4())
     log = {"name": sc["name"], "correlationId": corr, "turns": [], "latencies": [], "guards": [], "falseConfirmationHits": 0}
     raw = f"1;{corr};{sc['vin']};{sc['msisdn']};{sc['lang']}"
+    # An empty vin is the IVR entry: the call carries only the phone number (joint scope, entry E).
     s, start, ms = call("POST", "/ar/v1/session/start", {"correlationId": corr, "uui": {"version": "1", "vin": sc["vin"], "msisdn": sc["msisdn"], "language": sc["lang"], "raw": raw}, "sip": {"callId": "golden-" + sc["name"]}, "gateway": {"vendor": "golden-runner"}})
     log["start"] = {"status": s, "ms": ms, "state": start.get("state"), "known": (start.get("customer") or {}).get("known"), "speak": start.get("speak")}
     log["startLatencyMs"] = ms
@@ -118,7 +149,7 @@ for sc in SCENARIOS:
     s, e, ms = call("POST", "/ar/v1/session/end", {"sessionId": sid, "correlationId": corr, "endReason": sc["end"], "durationMs": sum(log["latencies"]), "turns": len(log["turns"])})
     log["end"] = {"status": s, "ms": ms, **({k: e.get(k) for k in ("caseStatus", "confirmationSent")} if isinstance(e, dict) else {"raw": e})}
     s, look, ms = call("GET", f"/ar/v1/handoff?correlationId={corr}")
-    log["lookup"] = {k: look.get(k) for k in ("found", "state", "intent", "handoffReason", "handoffResult", "confirmationCode", "caseId")}
+    log["lookup"] = {k: look.get(k) for k in ("found", "state", "intent", "handoffReason", "handoffResult", "confirmationCode", "caseId", "appointmentRef", "movedAt", "cancelledAt", "callbackAt", "caseOrigin")}
     log["memoryRowsAfterEnd"] = memory_rows(sid)
     exp = sc["expect"]
     booked = bool(look.get("confirmationCode"))
@@ -131,6 +162,11 @@ for sc in SCENARIOS:
         "transferActions": ("transferActions" not in exp) or log.get("transferActions") == exp["transferActions"],
         "handoffContext": (action != "handoff") or log.get("handoffContextComplete", False),
         "memoryPurged": log["memoryRowsAfterEnd"] in (0, None, "unchecked"),
+        "moved": ("moved" not in exp) or bool(look.get("movedAt")) == exp["moved"],
+        "cancelled": ("cancelled" not in exp) or bool(look.get("cancelledAt")) == exp["cancelled"],
+        "callback": ("callback" not in exp) or bool(look.get("callbackAt")) == exp["callback"],
+        "known": ("known" not in exp) or any((t.get("stateAfter") not in ("IDENTIFY", "HANDOFF")) for t in log["turns"]) == exp["known"],
+        "guardHas": all(g in log["guards"] for g in exp.get("guardHas", [])),
     }
     log["checks"] = checks; log["passed"] = all(checks.values())
     results.append(log)

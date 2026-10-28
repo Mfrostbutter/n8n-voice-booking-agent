@@ -26,40 +26,74 @@
       ]
     },
     {
-      "title": "Gates and prompt",
-      "body": "YesNoGate: a deterministic yes or no in IDENTIFY, CONSENT and DEALER moves the state before the model runs, so a small model cannot loop on a confirmed question. The system prompt is rebuilt every turn from ar_prompts and the facts.",
+      "title": "Gates",
+      "body": "YesNoGate: a deterministic yes or no in IDENTIFY (identified caller), CONSENT, DEALER, CONFIRM and CONFIRM_CANCEL, a spoken journey in NEED (cancel, reschedule, callback, self-service), a chosen service in SERVICES and a date in LOOKUP move the state before the model runs, so a small model cannot loop on a confirmed question or forget a tool call.",
       "color": 5,
       "nodes": [
         "TurnFacts",
         "YesNoGate",
+        "OnIdentityFailed",
+        "OnNeedCancel",
+        "OnRescheduleDate",
+        "OnIdentityConfirmed",
+        "OnNeedReschedule",
+        "OnCancelInLookup",
+        "OnConsentDeclined",
+        "OnNeedCallback",
+        "OnCancelConfirmed",
+        "OnConsentGiven",
+        "OnNeedSelfService",
+        "OnSlotConfirmed",
+        "OnDealerAgreed",
+        "OnServicesChosen"
+      ]
+    },
+    {
+      "title": "Prefetch and prompt",
+      "body": "The sub-workflow a gate implies runs here, deterministically: the appointment search on cancel or reschedule, the reservation on dealer agreed, the slot search on services chosen or a new date, the cancel, book or move on the caller's yes. Its result goes into the facts and the model reads it out instead of calling the tool. Then the system prompt is composed.",
+      "color": 5,
+      "nodes": [
+        "GateFacts",
+        "Prefetch",
+        "FetchAppointment",
+        "WithAppointment",
         "AssembleFacts",
         "ComposeFacts",
         "PrepareTurn",
-        "OnIdentityFailed",
-        "OnIdentityConfirmed",
-        "OnConsentDeclined",
-        "OnConsentGiven",
-        "OnDealerAgreed"
+        "FetchReservation",
+        "WithReservation",
+        "FetchSlots",
+        "WithSlots",
+        "FetchCancel",
+        "WithOutcome",
+        "FetchBook",
+        "FetchMove"
       ]
     },
     {
       "title": "Reason",
-      "body": "The agent has three tools, Postgres memory and a structured parser with auto-fix.",
+      "body": "The agent has nine tools (one per joint-scope step), Postgres memory and a structured parser with auto-fix.",
       "color": 5,
       "nodes": [
         "DialogueAgent",
         "DialogueModel",
         "TurnMemory",
         "TurnOutputShape",
+        "ParserFixerModel",
+        "IdentifyCaller",
         "FindDealers",
+        "CreateReservation",
         "FindSlots",
         "BookAppointment",
-        "ParserFixerModel"
+        "FindAppointment",
+        "CancelAppointment",
+        "MoveAppointment",
+        "RequestCallback"
       ]
     },
     {
       "title": "Guards 1: gates",
-      "body": "The model's output is clamped to the allowed values, then each rule is an If (the condition) and an Edit Fields (what it changes). Gates: a deterministic yes or no in IDENTIFY and CONSENT wins over the model.",
+      "body": "ClampOutput: only values the schema allows, only a state transition the table allows (illegal_transition), a journey intent sticks for the call. Then each rule is an If (the condition) and an Edit Fields (what it changes). Gates: a deterministic yes or no in IDENTIFY and CONSENT wins over the model.",
       "color": 5,
       "nodes": [
         "ReloadSession",
@@ -74,22 +108,31 @@
       ]
     },
     {
-      "title": "Guards 2: caller and booking",
-      "body": "Caller asks for a person: handoff. A booking claim without a confirmation code is replaced by a question. A booking made by a tool forces BOOKED.",
+      "title": "Guards 2: caller, identification and outcomes",
+      "body": "Caller asks for a person: handoff. Two failed identifications: handoff. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
       "color": 5,
       "nodes": [
         "CallerAsksForHuman",
+        "IdentifyExhausted",
         "PendingSlot",
+        "OutcomeSync",
         "FalseConfirmation",
-        "ForceBooked",
+        "FalseCancellation",
+        "SelfServiceLine",
         "OnCallerRequest",
+        "OnIdentifyExhausted",
+        "OnSyncBooked",
         "OnFalseConfirmation",
-        "OnForceBooked"
+        "OnFalseCancellation",
+        "OnSelfService",
+        "OnSyncMoved",
+        "OnSyncCancelled",
+        "OnSyncCallbackLogged"
       ]
     },
     {
       "title": "Guards 3: reply and end",
-      "body": "Empty or over-long replies are fixed. A handoff always speaks the market's handover line. No end before BOOKED or WRAPUP.",
+      "body": "Empty or over-long replies are fixed. A handoff always speaks the market's handover line. No end before a journey outcome (BOOKED, MOVED, CANCELLED, CALLBACK_LOGGED, SELF_SERVICE) or WRAPUP.",
       "color": 5,
       "nodes": [
         "EmptyReply",
@@ -137,7 +180,7 @@
     },
     {
       "title": "Tools",
-      "body": "FindDealers, FindSlots, BookAppointment. sessionId is plumbed, never a model parameter. Handoff is not a tool: it is a deterministic consequence of action=handoff.",
+      "body": "IdentifyCaller, FindDealers, CreateReservation, FindSlots, BookAppointment, FindAppointment, CancelAppointment, MoveAppointment, RequestCallback. sessionId is plumbed, never a model parameter. Handoff is not a tool: it is a deterministic consequence of action=handoff.",
       "color": 6,
       "width": 704
     }

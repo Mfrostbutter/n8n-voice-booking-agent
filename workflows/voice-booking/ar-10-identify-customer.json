@@ -77,6 +77,12 @@
               "type": "string"
             },
             {
+              "id": "d06059e1-3a2e-5399-8e83-c6dc7221ab74",
+              "name": "accountName",
+              "value": "={{ $json.accountName || '' }}",
+              "type": "string"
+            },
+            {
               "id": "42e01b15-da34-52cc-a5ae-2591167cdb61",
               "name": "vehicleRef",
               "value": "={{ $json.vin || '' }}",
@@ -116,6 +122,30 @@
               "id": "98769343-f0eb-5c96-a0bd-10f1d44596c9",
               "name": "language",
               "value": "={{ $json.language || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ce93468a-c748-5832-96ef-2f738c2b83fb",
+              "name": "meId",
+              "value": "={{ $json.meId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "d9638d9b-1c6f-5585-a881-816fa0e104b4",
+              "name": "cvrId",
+              "value": "={{ $json.cvrId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "c66c4bc8-9152-5a61-bdba-89e9556bd268",
+              "name": "fin",
+              "value": "={{ $json.fin || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "aa537e05-975a-5bca-842b-492ab44dd2ee",
+              "name": "plate",
+              "value": "={{ $json.plate || '' }}",
               "type": "string"
             }
           ]
@@ -190,7 +220,7 @@
     },
     {
       "parameters": {
-        "content": "## AR-10 Identify customer\n\nIdentity is plumbed from the UUI, never from speech. The model never sees the VIN or the phone number.",
+        "content": "## AR-10 Identify customer\n\nIdentity from the UUI: VIN for an in-car call, the phone number for an IVR call. The model never sees either. An unknown caller is identified by spoken data points through IdentifyCaller (AR-18).",
         "width": 704,
         "height": 256,
         "color": 6
@@ -240,7 +270,7 @@
     "executionOrder": "v1"
   },
   "meta": {
-    "description": "Looks the caller up in CRM / customer master from the UUI identifiers. Inputs: vin, msisdn, correlationId. Returns {ok, known, customerRef, greetingName, vehicleLabel, preferredDealerId, preferredDealerName, market, language}. Called by AR-01, never by the model."
+    "description": "Looks the caller up in the CASE customer account from the UUI identifiers (VIN first, then the phone number). Inputs: vin, msisdn, correlationId. Returns {ok, known, customerRef, accountName, greetingName, vehicleLabel, preferredDealerId, preferredDealerName, market, language}. Called by AR-01, never by the model."
   },
   "tags": [
     "voice-booking",

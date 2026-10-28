@@ -1,0 +1,37 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Callback gate",
+      "body": "Already logged, or not yet confirmed (state CALLBACK from the previous turn). Only Proceed delegates.",
+      "color": 5,
+      "nodes": [
+        "ToolInput",
+        "LoadSession",
+        "CallbackGate",
+        "ReplyAlreadyLogged",
+        "ReplyNotConfirmed"
+      ]
+    },
+    {
+      "title": "Delegate",
+      "body": "The CASE case is delegated to XCCC with the callback note; callbackAt and state CALLBACK_LOGGED on the session. No DealerBook.",
+      "color": 3,
+      "nodes": [
+        "DelegateCase",
+        "DelegateOk",
+        "StoreCallback",
+        "ReturnLogged",
+        "ReturnDelegateError"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-27 RequestCallback",
+      "body": "The callback is a case delegation, not a transfer: the dealer calls the customer back. Used when the caller asks for it or when the dealer cannot be booked online.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

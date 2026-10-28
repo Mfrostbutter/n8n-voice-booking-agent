@@ -1,0 +1,804 @@
+{
+  "name": "AR-50 PoC: Twilio voice entry",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ar/twilio/voice",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "0bd68402-b09c-552b-9ba4-8c71c7311f0c",
+      "name": "ReceiveTwilioCall",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "58ee1755-dea5-59e0-bb63-665cb7995f61"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "returnAll": true
+      },
+      "id": "d144e895-83ef-5dac-b542-c471b658263c",
+      "name": "LoadProofConfig",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "rows",
+        "options": {}
+      },
+      "id": "5c176abd-a58f-5bbb-be60-8f583af0ef87",
+      "name": "ProofRows",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ Object.fromEntries(($json.rows || []).filter(r => r.key).map(r => [r.key, r.value])) }}",
+        "options": {}
+      },
+      "id": "3be080f7-4907-5d67-8ef8-4963d648f38b",
+      "name": "ProofConfig",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "market",
+              "condition": "eq",
+              "keyValue": "GB"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      },
+      "id": "c22d0eb8-b53d-5da2-b748-606831adb4bc",
+      "name": "PickCustomer",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "62378ff8-96cc-5b01-82da-9b07fb4ba3a8",
+              "name": "callSid",
+              "value": "={{ String($('ReceiveTwilioCall').first().json.body.CallSid || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "ca06d072-75bf-5e4f-8f93-785193a39487",
+              "name": "from",
+              "value": "={{ String($('ReceiveTwilioCall').first().json.body.From || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "aa86dd57-66b9-5d6e-aa1a-fa9941385ed7",
+              "name": "to",
+              "value": "={{ String($('ReceiveTwilioCall').first().json.body.To || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "083b17d7-8882-592a-9d48-b8bd11f45a8d",
+              "name": "correlationId",
+              "value": "={{ ('TW-' + String($('ReceiveTwilioCall').first().json.body.CallSid || Date.now()).slice(-10)) }}",
+              "type": "string"
+            },
+            {
+              "id": "32db7cde-9633-5422-b87a-b486104b16a4",
+              "name": "uuiRaw",
+              "value": "={{ ['1', ('TW-' + String($('ReceiveTwilioCall').first().json.body.CallSid || Date.now()).slice(-10)), $('PickCustomer').first().json.vin || '', $('PickCustomer').first().json.msisdn || '', $('PickCustomer').first().json.language || 'en'].join(';') }}",
+              "type": "string"
+            },
+            {
+              "id": "6be4e4ce-82f3-58d6-835b-6d2067acd363",
+              "name": "uuiHex",
+              "value": "={{ (t => String(t || '').split('').map(ch => ch.charCodeAt(0).toString(16).padStart(2, '0')).join('').toUpperCase())(['1', ('TW-' + String($('ReceiveTwilioCall').first().json.body.CallSid || Date.now()).slice(-10)), $('PickCustomer').first().json.vin || '', $('PickCustomer').first().json.msisdn || '', $('PickCustomer').first().json.language || 'en'].join(';')) }}",
+              "type": "string"
+            },
+            {
+              "id": "53c29122-6f1d-5d45-b194-5837231871d9",
+              "name": "sipUri",
+              "value": "={{ 'sip:' + ($('ProofConfig').first().json.openaiProjectId || '') + '@' + ($('ProofConfig').first().json.openaiSipHost || 'sip-eu.api.openai.com') + ';transport=tls' + ($('ProofConfig').first().json.sipSecure === 'true' ? ';secure=true' : '') }}",
+              "type": "string"
+            },
+            {
+              "id": "8f352772-9202-5dbd-8592-97890d114a0f",
+              "name": "publicBase",
+              "value": "={{ String($('ProofConfig').first().json.publicBase || '').replace(/\\/$/, '') }}",
+              "type": "string"
+            },
+            {
+              "id": "6ae7d1ec-45de-5158-9162-d0194675eb72",
+              "name": "hasOpenAi",
+              "value": "={{ !!($('ProofConfig').first().json.openaiProjectId) }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5c4fb0ec-9306-51e3-8bd8-10cc498a26ac",
+      "name": "ShapeUui",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a7460777-c386-5707-9ada-278895e05bb7",
+              "leftValue": "={{ $json.hasOpenAi }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6cb3020b-0b30-52a6-8d09-478071e167cb",
+      "name": "HasOpenAi",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d52b73e-f312-5337-9b57-5c4b2927eb6e",
+              "name": "twiml",
+              "value": "={{ '<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Dial referUrl=\"' + $json.publicBase + '/webhook/ar/twilio/refer\" referMethod=\"POST\" action=\"' + $json.publicBase + '/webhook/ar/twilio/done\" method=\"POST\" answerOnBridge=\"true\"><Sip>' + $json.sipUri + '?User-to-User=' + $json.uuiHex + '%3Bencoding%3Dhex</Sip></Dial></Response>' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "e1b53860-b35f-5deb-8b44-0d0205f736d5",
+      "name": "TwimlDial",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1456,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a93e5847-e031-5a1a-9682-06411d0e153e",
+              "name": "twiml",
+              "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Say voice=\"Polly.Amy\">This is the n8n lab for the agentic race. Your call reached n8n through the tunnel. The AI leg is not configured yet. Goodbye.</Say><Hangup/></Response>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "09f83357-4387-5fef-b53b-d48ea71e5cb5",
+      "name": "TwimlLabLine",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1456,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.twiml }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml"
+              }
+            ]
+          }
+        }
+      },
+      "id": "0b78b249-2729-5169-8207-e92b1cabc586",
+      "name": "RespondTwiml",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-17-log-event",
+          "mode": "list",
+          "cachedResultName": "AR-17 Log event"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "correlationId": "={{ $('ShapeUui').first().json.correlationId }}",
+            "sessionId": "",
+            "caseId": "",
+            "workflow": "AR-50",
+            "event": "twilio_call",
+            "state": "",
+            "tool": "",
+            "latencyMs": 0,
+            "outcome": "={{ $('ShapeUui').first().json.hasOpenAi ? 'dial_sip' : 'lab_line' }}",
+            "errorCode": "",
+            "detail": "={{ 'callSid=' + $('ShapeUui').first().json.callSid + ' from=' + $('ShapeUui').first().json.from + ' uui=' + $('ShapeUui').first().json.uuiRaw }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event",
+              "displayName": "event",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tool",
+              "displayName": "tool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "latencyMs",
+              "displayName": "latencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "outcome",
+              "displayName": "outcome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "errorCode",
+              "displayName": "errorCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "detail",
+              "displayName": "detail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "33245ac7-0257-5969-b62b-3df3ac35a9af",
+      "name": "LogTwilioCall",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ar/proof/config",
+        "responseMode": "responseNode",
+        "options": {},
+        "authentication": "headerAuth"
+      },
+      "id": "62681fa9-8793-5b45-8a55-32308f6b1fd7",
+      "name": "ReceiveProofConfig",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        464,
+        672
+      ],
+      "webhookId": "beb8813b-7565-5277-9160-3fddf0199a7f",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "PENDING",
+          "name": "Gateway bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.rows",
+        "options": {}
+      },
+      "id": "276dec9b-2f6a-5841-9da1-765cd22c1a05",
+      "name": "SplitRows",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        672,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "key",
+              "condition": "eq",
+              "keyValue": "={{ $json.key }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "key": "={{ $json.key }}",
+            "value": "={{ String($json.value ?? '') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "key",
+              "displayName": "key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "value",
+              "displayName": "value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "a5ad2aec-860d-5d0a-926b-f2b0d7170b6d",
+      "name": "UpsertProofConfig",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        672
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "rows",
+        "options": {}
+      },
+      "id": "286d575f-a94e-5eb4-8006-13ce1ad4c4b1",
+      "name": "ConfigRows",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, keys: ($json.rows || []).map(r => r.key) }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "88c6e990-0450-5f41-9d18-9dd0b948a24a",
+      "name": "RespondConfig",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1296,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Twilio voice entry\n\nTwilio posts the inbound call. The config rows and the first GB fixture customer shape the synthetic UUI; with an OpenAI project the TwiML dials the SIP ingress (referUrl AR-53, action AR-54), without it the caller hears the lab line.",
+        "width": 1696,
+        "height": 624,
+        "color": 4
+      },
+      "id": "zone-01",
+      "name": "zone-01",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Respond and log\n\nTwiML as text/xml, then the call is logged with the UUI it was given.",
+        "width": 448,
+        "height": 352,
+        "color": 3
+      },
+      "id": "zone-02",
+      "name": "zone-02",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Config admin\n\nPOST ar/proof/config {rows: [{key, value}]} with the gateway bearer: upsert on key. Values come from the seed script, never from a node field.",
+        "width": 1072,
+        "height": 352,
+        "color": 6
+      },
+      "id": "zone-03",
+      "name": "zone-03",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## AR-50 Twilio voice entry\n\nProof of decision doc 13: Twilio stands in for the contact center trunk. No Twilio signature check on the lab (PoC exception, test plan). The UUI is the first GB fixture customer, hex-encoded as contact center would send it.",
+        "width": 768,
+        "height": 256,
+        "color": 6
+      },
+      "id": "zone-panel-1",
+      "name": "zone-panel-1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -416
+      ]
+    }
+  ],
+  "connections": {
+    "LoadProofConfig": {
+      "main": [
+        [
+          {
+            "node": "ProofRows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProofRows": {
+      "main": [
+        [
+          {
+            "node": "ProofConfig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReceiveTwilioCall": {
+      "main": [
+        [
+          {
+            "node": "LoadProofConfig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProofConfig": {
+      "main": [
+        [
+          {
+            "node": "PickCustomer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PickCustomer": {
+      "main": [
+        [
+          {
+            "node": "ShapeUui",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ShapeUui": {
+      "main": [
+        [
+          {
+            "node": "HasOpenAi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HasOpenAi": {
+      "main": [
+        [
+          {
+            "node": "TwimlDial",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TwimlLabLine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TwimlDial": {
+      "main": [
+        [
+          {
+            "node": "RespondTwiml",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TwimlLabLine": {
+      "main": [
+        [
+          {
+            "node": "RespondTwiml",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RespondTwiml": {
+      "main": [
+        [
+          {
+            "node": "LogTwilioCall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReceiveProofConfig": {
+      "main": [
+        [
+          {
+            "node": "SplitRows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitRows": {
+      "main": [
+        [
+          {
+            "node": "UpsertProofConfig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpsertProofConfig": {
+      "main": [
+        [
+          {
+            "node": "ConfigRows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConfigRows": {
+      "main": [
+        [
+          {
+            "node": "RespondConfig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "POST /webhook/ar/twilio/voice, called by Twilio Programmable Voice on an inbound call. Answers TwiML: Dial Sip to the OpenAI Realtime SIP ingress with a synthetic in-car UUI, referUrl on AR-53, action on AR-54. Without openaiProjectId in ar_proof_config the caller hears a lab line (Twilio-only smoke test). POST /webhook/ar/proof/config (gateway auth) upserts the config rows."
+  },
+  "tags": [
+    "voice-booking",
+    "poc"
+  ],
+  "project": "Voice Booking",
+  "folder": "Voice Booking Agent"
+}

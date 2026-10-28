@@ -100,6 +100,8 @@ TERMS = [
     ("Sirius case", "case"),
     ("Sirius", "case system"),
     ("SIRIUS", "CASE"),
+    ("ar-mock/sirius", "ar-mock/casesys"),
+    ("sirius", "casesys"),
     ("Standard Salesforce REST", "A standard REST API"),
     ("Salesforce REST", "the case system's REST"),
     ("Salesforce", "CRM"),
@@ -148,12 +150,15 @@ TERMS = [
     ("service: 'agentic-race'", "service: 'voice-booking'"),
     ("Agentic Race", "Voice Booking Agent"),
     ("agentic-race", "voice-booking"),
+    ("The proof's pass criterion lives here", "The proof's pass condition lives here"),
     # synthetic VINs on the brand's manufacturer codes
     ("W1K2970461A123456", "TST2970461A123456"),
     ("WDD2130421A654321", "TST2130421A654321"),
     ("W1K1770871N998877", "TST1770871N998877"),
     ("W1N2476011J112233", "TST2476011J112233"),
     ("WDB0000000X000000", "TST0000000X000000"),
+    ("W1K2970461A223344", "TST2970461A223344"),
+    ("W1N2476011J445566", "TST2476011J445566"),
     # personal tooling
     ("(engagement copy first, then the harness, then ~/.claude)", "(scripts/canvas next to the repository, or N8N_CANVAS_SCRIPTS)"),
     ("per the n8n-canvas-docs\nskill", "per the canvas layout\nscripts"),
@@ -253,7 +258,7 @@ AR_FOLDER=Voice Booking Agent
 EOF
 
 # Nothing customer-specific, personal or lab-bound may remain.
-PATTERN='[Mm]ercedes|MERCEDES|Benz|BENZ|\bMB\b|[Ss]irius|SIRIUS|[Dd]sd|DSD|[Gg]enesys|GENESYS|Nexus|Model Garden|Salesforce|\bGIS\b|Daimler|Agentic Race|agentic-race|\bRace\b|jury|Jury|criteri|W1K|WDD|W1N|WDB|Frosty|frosty|Marta|Vivek|Dawid|Biniam|Eitler|Malaika|Daniele|Rajeshwari|Preeth|Zacharias|MASSP4AI|infisical|Infisical|podman|pg-lab|netbird|ag-ingest|10\.10\.|n8n-fde-harness|\.claude'
+PATTERN='[Mm]ercedes|MERCEDES|Benz|BENZ|\bMB\b|[Ss]irius|SIRIUS|[Dd]sd|DSD|[Gg]enesys|GENESYS|Nexus|Model Garden|Salesforce|\bGIS\b|Daimler|Agentic Race|agentic-race|\bRace\b|jury|Jury|criteri|W1K|WDD|W1N|WDB|Frosty|frosty|Marta|Vivek|Dawid|Biniam|Eitler|Malaika|Daniele|Rajeshwari|Preeth|Zacharias|MASSP4AI|infisical|Infisical|podman|pg-lab|netbird|ag-ingest|10\.10\.|n8n-fde-harness|[a-z]+labs\.com|\.claude'
 if grep -rnE "$PATTERN" "$DST" --exclude-dir=.git --exclude-dir=.agents --exclude=sync-from-engagement.sh --exclude=secrets_env.py; then
   echo "sync refused: customer or private terms above" >&2; exit 1
 fi

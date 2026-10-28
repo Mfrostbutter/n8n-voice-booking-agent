@@ -1,0 +1,326 @@
+{
+  "name": "AR-54 PoC: Twilio dial done",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ar/twilio/done",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4ae68ddc-786e-5343-8633-eb46e0cf0f32",
+      "name": "ReceiveDone",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "fb538563-07f3-5021-9d06-cefe0a3ff43c"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4834d26b-04d7-5c8f-8a53-38a4dd31f9e3",
+              "name": "callSid",
+              "value": "={{ String($json.body.CallSid || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "7f6e538d-1988-5817-ae9d-908cd489c478",
+              "name": "dialStatus",
+              "value": "={{ String($json.body.DialCallStatus || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "c80a60dd-ca12-5046-a995-a4be6e9adb57",
+              "name": "sipCode",
+              "value": "={{ String($json.body.DialSipResponseCode || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "63b74c5d-9736-5b3d-92e7-211bdc4ccbe9",
+              "name": "duration",
+              "value": "={{ Number($json.body.DialCallDuration || 0) }}",
+              "type": "number"
+            },
+            {
+              "id": "f2d9f6a9-9720-5fa8-b6ed-ce35fcc27420",
+              "name": "bridged",
+              "value": "={{ String($json.body.DialBridged || '') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "39fba018-bba5-569e-bd60-7297b207db1e",
+      "name": "ShapeDone",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-17-log-event",
+          "mode": "list",
+          "cachedResultName": "AR-17 Log event"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "correlationId": "",
+            "sessionId": "",
+            "caseId": "",
+            "workflow": "AR-54",
+            "event": "twilio_dial_done",
+            "state": "",
+            "tool": "",
+            "latencyMs": "={{ $json.duration * 1000 }}",
+            "outcome": "={{ $json.dialStatus || 'unknown' }}",
+            "errorCode": "={{ /^[45]/.test($json.sipCode) ? 'sip_' + $json.sipCode : '' }}",
+            "detail": "={{ 'callSid=' + $json.callSid + ' sip=' + $json.sipCode + ' bridged=' + $json.bridged }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event",
+              "displayName": "event",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tool",
+              "displayName": "tool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "latencyMs",
+              "displayName": "latencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "outcome",
+              "displayName": "outcome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "errorCode",
+              "displayName": "errorCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "detail",
+              "displayName": "detail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "43092d46-1278-5afb-aa40-883d3364191b",
+      "name": "LogDone",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Hangup/></Response>",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml"
+              }
+            ]
+          }
+        }
+      },
+      "id": "b5f01421-670a-5614-8b21-f05cd405c924",
+      "name": "RespondHangup",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        624,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Dial done\n\nThe Dial action callback: status, SIP response code and duration into ar_events, then hang up.",
+        "width": 864,
+        "height": 352,
+        "color": 5
+      },
+      "id": "zone-01",
+      "name": "zone-01",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## AR-54 Twilio dial done\n\nThe SIP response code of the Dial Sip leg is the only place a failed INVITE to the vendor ingress shows up.",
+        "width": 704,
+        "height": 256,
+        "color": 6
+      },
+      "id": "zone-panel-1",
+      "name": "zone-panel-1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -416
+      ]
+    }
+  ],
+  "connections": {
+    "ReceiveDone": {
+      "main": [
+        [
+          {
+            "node": "ShapeDone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ShapeDone": {
+      "main": [
+        [
+          {
+            "node": "LogDone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LogDone": {
+      "main": [
+        [
+          {
+            "node": "RespondHangup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "POST /webhook/ar/twilio/done, the Dial action callback: logs DialCallStatus, DialSipResponseCode and the duration, then hangs up."
+  },
+  "tags": [
+    "voice-booking",
+    "poc"
+  ],
+  "project": "Voice Booking",
+  "folder": "Voice Booking Agent"
+}

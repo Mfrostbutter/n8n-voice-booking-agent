@@ -1,0 +1,27 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Confirm",
+      "body": "The picked slot must be one FindSlots offered in this call. State CONFIRM and the slotId go on the session; BookingGate books the same slotId in the next turn.",
+      "color": 5,
+      "nodes": [
+        "ToolInput",
+        "LoadSession",
+        "IsOffered",
+        "PickSlot",
+        "StoreConfirm",
+        "ReturnConfirm",
+        "ReturnNotOffered"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-56 ConfirmSlot",
+      "body": "The CONFIRM step AR-02 performs in the demo, as a tool: the model calls it with the slot the caller picked, reads back what it returns, and books only after the yes. A slot not offered in this call is refused.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Receive and acknowledge",
+      "body": "Only realtime.call.incoming is handled; everything else is acknowledged and ignored. The 200 goes out before any work.",
+      "color": 4,
+      "nodes": [
+        "ReceiveCallIncoming",
+        "IsCallIncoming",
+        "RespondAck",
+        "RespondIgnored"
+      ]
+    },
+    {
+      "title": "Session start",
+      "body": "The UUI comes out of the INVITE headers (User-to-User, hex). AR-01 starts the n8n session as the gateway would; a failed start rejects the call with 486.",
+      "color": 5,
+      "nodes": [
+        "ShapeCall",
+        "LoadProofConfig",
+        "ProofRows",
+        "ProofConfig",
+        "StartSession",
+        "RejectCall",
+        "LogStartFailed"
+      ]
+    },
+    {
+      "title": "Accept",
+      "body": "The accept body carries the greeting, the session id, the proof prompt and the MCP tool server on n8n. The sideband sidecar (scripts/ar-sideband.mjs) is told the call id and sends the greeting response.create; a sidecar that is down does not block the store. The call id is stored on the session for the REFER.",
+      "color": 3,
+      "nodes": [
+        "ComposeAccept",
+        "AcceptCall",
+        "NotifySideband",
+        "StoreCallId",
+        "LogAccept",
+        "LogAcceptFailed"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-51 OpenAI call incoming",
+      "body": "Accept within two seconds: the 200 goes first, then AR-01 and the accept. The prompt is a short proof prompt, not the AR-02 turn prompt. Webhook signature (Standard Webhooks HMAC) is not verified on the lab: a forged call id fails at the accept.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

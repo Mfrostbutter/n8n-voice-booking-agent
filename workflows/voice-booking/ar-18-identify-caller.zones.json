@@ -1,0 +1,30 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Identify by spoken data",
+      "body": "Plate plus surname or postcode against the CASE account (placeholder rule until question 20 is agreed). A match stores the customer on the session and account, asset, VIN or FIN, plate and dealer on the case; a miss counts an attempt.",
+      "color": 3,
+      "nodes": [
+        "ToolInput",
+        "LoadSession",
+        "CallIdentify",
+        "Identified",
+        "StoreIdentity",
+        "UpdateCaseAccount",
+        "ReturnIdentified",
+        "ReturnIdentifyError",
+        "CountAttempt",
+        "ReturnNotIdentified"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-18 IdentifyCaller",
+      "body": "For IVR calls (no VIN) and unknown VINs. The data points are a placeholder until the identification rule is agreed (question 20; no document holds it); the rule lives in the mock and this tool, nowhere else. A match also writes account, asset, VIN or FIN, plate and dealer to the case. Attempts are counted on the session; the IdentifyExhausted guard in AR-02 hands off after two.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

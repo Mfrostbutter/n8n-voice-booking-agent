@@ -14,11 +14,49 @@
       ]
     },
     {
-      "title": "Slots",
-      "body": "Dealer row from ar_mock_dealers; slots deterministic from dealerId and date so tests repeat (the one Code node kept in the mocks).",
+      "title": "Reservation",
+      "body": "POST reservations: vehicle plus dealer give a reservation id that carries the dealer; a dealer without online booking answers dealer_not_dealerbook_enabled.",
       "color": 7,
       "nodes": [
-        "ReceiveSlots",
+        "ReceiveReservation",
+        "LoadReservationDealer",
+        "HashReservation",
+        "ComputeReservation",
+        "RespondReservation"
+      ]
+    },
+    {
+      "title": "Services and fulfilments",
+      "body": "GET services and GET fulfilments of a reservation (POST on the lab): the catalogues, 404 for an unknown reservation id.",
+      "color": 7,
+      "nodes": [
+        "ReceiveServices",
+        "LoadServicesDealer",
+        "ComputeServices",
+        "RespondServices",
+        "ReceiveFulfilments",
+        "LoadFulfilmentsDealer",
+        "ComputeFulfilments",
+        "RespondFulfilments"
+      ]
+    },
+    {
+      "title": "Patch",
+      "body": "PATCH reservations: the selected services, fulfilment or timeslot. Acknowledged with what was patched, not stored; 404 for an unknown reservation id.",
+      "color": 7,
+      "nodes": [
+        "ReceivePatch",
+        "LoadPatchDealer",
+        "ComputePatch",
+        "RespondPatch"
+      ]
+    },
+    {
+      "title": "Timeslots",
+      "body": "GET timeslots in fromDateTime..toDateTime; dealer from the reservation id or the request; deterministic from dealerId and date so tests repeat (the one Code node kept in the mocks).",
+      "color": 7,
+      "nodes": [
+        "ReceiveTimeslots",
         "LoadDealer",
         "GenerateSlots",
         "RespondSlots"
@@ -26,7 +64,7 @@
     },
     {
       "title": "Book",
-      "body": "Required fields, then the FULL probe (409), then a confirmation code hashed from the idempotency key. Bookings persist in ar_mock_bookings.",
+      "body": "POST bookings: required fields, then the FULL probe (409), then the DealerBook booking id and the six-letter reference code hashed from the idempotency key. Bookings persist in ar_mock_bookings.",
       "color": 7,
       "nodes": [
         "ReceiveBook",
@@ -43,8 +81,20 @@
       ]
     },
     {
+      "title": "Bookings lookup",
+      "body": "GET bookings by customerId, chassisNumber, offerId or status (POST on the lab); a referenceCode narrows to the spoken code.",
+      "color": 7,
+      "nodes": [
+        "ReceiveSearch",
+        "LoadAllBookings",
+        "AllBookings",
+        "FilterBookings",
+        "RespondBookings"
+      ]
+    },
+    {
       "title": "Cancel",
-      "body": "Marks the booking cancelled.",
+      "body": "POST bookings/{bookingId}: marks the booking cancelled.",
       "color": 7,
       "nodes": [
         "ReceiveCancel",
@@ -53,22 +103,23 @@
       ]
     },
     {
-      "title": "Bookings by VIN",
-      "body": "Lists bookings for reschedule and cancel flows.",
+      "title": "Reschedule",
+      "body": "POST bookings/{bookingId}/reschedule: the booking keeps its id and reference code and gets the new timeslot; movedFrom records the old one.",
       "color": 7,
       "nodes": [
-        "ReceiveBookings",
-        "FindBookingsByVin",
-        "AllBookings",
-        "ShapeBookings",
-        "RespondBookings"
+        "ReceiveReschedule",
+        "LoadBookingToMove",
+        "BookingFound",
+        "RescheduleBooking",
+        "RespondRescheduled",
+        "RespondNoBooking"
       ]
     }
   ],
   "panels": [
     {
       "title": "Mock DealerBook",
-      "body": "Five endpoints under ar-mock/dealerbook/*. Dealers are rows in ar_mock_dealers (seeded by AR-90). Slots are deterministic per dealer and date. A slotId containing FULL returns 409. Bookings persist in ar_mock_bookings.",
+      "body": "Endpoints under ar-mock/dealerbook/* follow the API V2 lifecycle of the endpoint sheet (2026-10-23): a reservation (vehicle and dealer), its services and fulfilments, a PATCH per selection, timeslots in a window, then the booking. The reservation id carries the dealer so the mock stays stateless; a PATCH is acknowledged, not stored. A slotId containing FULL returns 409. Lookup keys are customerId, chassisNumber, offerId and status; a booking has a DealerBook booking id and a six-letter reference code. Bookings persist in ar_mock_bookings. Payload shapes are the mock's own until question 23 is answered.",
       "color": 6,
       "width": 768
     }

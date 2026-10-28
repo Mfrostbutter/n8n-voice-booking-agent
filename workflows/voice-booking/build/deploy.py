@@ -27,8 +27,10 @@ CREDS = org.credentials_index(TARGET)
 TABLES = org.data_tables_index(TARGET)
 ORDER = ["ar-17-log-event","ar-20-mock-crm","ar-21-mock-dealerbook","ar-22-mock-case-system","ar-23-mock-comms",
          "ar-10-identify-customer","ar-11-find-dealers","ar-12-find-slots","ar-13-book-appointment","ar-14-build-handoff",
-         "ar-15-case-system","ar-16-send-confirmation","ar-01-session-start","ar-02-dialogue-turn","ar-03-session-end",
-         "ar-04-transfer-result","ar-05-health-and-handoff-lookup","ar-30-error-workflow","ar-90-seed-config"]
+         "ar-15-case-system","ar-16-send-confirmation","ar-18-identify-caller","ar-19-create-reservation","ar-24-find-appointment",
+         "ar-25-cancel-appointment","ar-26-move-appointment","ar-27-request-callback","ar-01-session-start","ar-02-dialogue-turn","ar-03-session-end",
+         "ar-04-transfer-result","ar-05-health-and-handoff-lookup","ar-30-error-workflow","ar-90-seed-config",
+         "ar-56-confirm-slot","ar-57-end-call","ar-55-refer-call","ar-50-twilio-voice","ar-51-openai-call-in","ar-52-proof-tools","ar-53-twilio-refer","ar-54-twilio-done"]
 only = None
 if "--only" in sys.argv:
     only = sys.argv[sys.argv.index("--only") + 1].split(",")

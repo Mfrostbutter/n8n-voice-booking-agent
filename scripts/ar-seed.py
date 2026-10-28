@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Seed the AR configuration tables (ar_markets, ar_codes, ar_prompts) through AR-90's admin webhook.
+"""Seed the AR configuration tables (ar_markets, ar_codes, ar_prompts) and the mock fixtures through AR-90's admin webhook,
+plus the gitignored overlay data/voice-booking/fixtures/mock-overlay.json (test identities) when present.
 Reads .env.lab like the golden runner: AR_GATEWAY_TOKEN or N8N_LAB_AR_GATEWAY_TOKEN, N8N_LAB_URL. Safe to re-run."""
 import json, os, sys, urllib.request
 
@@ -19,7 +20,13 @@ BASE = (os.environ.get("N8N_LAB_URL") or os.environ.get("N8N_URL") or "http://lo
 TOK = os.environ.get("AR_GATEWAY_TOKEN") or os.environ.get("N8N_LAB_AR_GATEWAY_TOKEN")
 if not TOK:
     sys.exit("gateway token missing (AR_GATEWAY_TOKEN)")
-req = urllib.request.Request(BASE + "/webhook/ar/v1/admin/seed", data=b"{}", method="POST")
+# Overlay rows (the engagement's test identities, gitignored): {"mockCustomers": [...], "mockDealers": [...], "mockBookings": [...]}.
+OVERLAY = os.path.join(os.path.dirname(HERE), "data", "voice-booking", "fixtures", "mock-overlay.json")
+body = {}
+if os.path.exists(OVERLAY):
+    body = {k: v for k, v in json.load(open(OVERLAY)).items() if k in ("mockCustomers", "mockDealers", "mockBookings")}
+    print("overlay rows:", {k: len(v) for k, v in body.items()})
+req = urllib.request.Request(BASE + "/webhook/ar/v1/admin/seed", data=json.dumps(body).encode(), method="POST")
 req.add_header("Authorization", "Bearer " + TOK)
 req.add_header("Content-Type", "application/json")
 with urllib.request.urlopen(req, timeout=120) as r:

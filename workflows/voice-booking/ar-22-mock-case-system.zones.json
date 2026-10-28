@@ -2,22 +2,34 @@
   "gutter": 16,
   "zones": [
     {
-      "title": "Mock case system",
-      "body": "Case number from a hash of the correlationId; rows in ar_mock_cases.",
+      "title": "Mock CASE case",
+      "body": "Case number from a hash of the correlationId; the existing row is loaded so an update keeps what it does not name; rows in ar_mock_cases.",
       "color": 7,
       "nodes": [
         "ReceiveCaseOp",
         "HashCorrelation",
+        "LoadCase",
         "ComputeCase",
         "UpsertCase",
         "RespondCase"
+      ]
+    },
+    {
+      "title": "Appointment search",
+      "body": "CASE searches account cases, VIN or booking number; the lab forwards to the booking store.",
+      "color": 7,
+      "nodes": [
+        "ReceiveAppointments",
+        "ForwardToBookings",
+        "ShapeAppointments",
+        "RespondAppointments"
       ]
     }
   ],
   "panels": [
     {
-      "title": "Mock case system",
-      "body": "One endpoint, op in the body. Case numbers are deterministic from the correlation ID (SHA-256), so a re-created case is the same case. Real build: the case system's REST with OAuth2 client credentials.",
+      "title": "Mock CASE case",
+      "body": "One endpoint, op in the body. Case numbers are deterministic from the correlation ID (SHA-256), so a re-created case is the same case. delegate sets Delegated and delegatedTo (XCCC for a retailer callback). The appointment search reads the lab booking store. Real build: the case system's REST with OAuth2 client credentials.",
       "color": 6,
       "width": 704
     }

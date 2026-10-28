@@ -1,0 +1,25 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "End",
+      "body": "State ENDED and the reason on the session; the closing line from the market row. The sidecar hangs up after the goodbye audio stops.",
+      "color": 5,
+      "nodes": [
+        "ToolInput",
+        "LoadSession",
+        "LoadMarket",
+        "StoreEnded",
+        "ReturnEnd"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-57 EndCall",
+      "body": "The model calls it when the caller is done. The session gets state ENDED and the reason; the closing line comes from the market row, never from the model. The hangup itself is the sidecar's, after the audio of the goodbye has stopped.",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

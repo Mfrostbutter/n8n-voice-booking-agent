@@ -2,11 +2,12 @@
   "gutter": 16,
   "zones": [
     {
-      "title": "case",
-      "body": "Create at start, close at end. Standard CRM case REST behind the mock.",
+      "title": "CASE case",
+      "body": "Create at entry with the mandatory fields and the CASE booking prerequisites, update with the handover context, delegate to XCCC for a callback, close at the end. ScrubFreeText masks e-mail, phone, VIN and postcode in the free-text fields. Standard CRM case REST behind the mock.",
       "color": 3,
       "nodes": [
         "ToolInput",
+        "ScrubFreeText",
         "CallCaseSystem",
         "ShapeCase",
         "ReturnCaseError"
@@ -15,10 +16,10 @@
   ],
   "panels": [
     {
-      "title": "AR-15 Case",
-      "body": "One case per call, created at session start, updated at the end. A standard REST API behind the mock.",
+      "title": "AR-15 CASE case",
+      "body": "One case per call, created at entry with the mandatory fields and the booking prerequisites of the CASE case data (2026-10-23): country, account, asset (CVR), VIN or FIN, plate, mileage, assigned dealer, status In Progress, type, topic, reason and the primary contact. Updated with the context before a handover, delegated to XCCC for a retailer callback, closed at the end. ScrubFreeText masks e-mail addresses, phone numbers, VINs and postcodes in the free-text fields (CAC rule: never personal data in free text). A standard REST API behind the mock.",
       "color": 6,
-      "width": 704
+      "width": 768
     }
   ]
 }

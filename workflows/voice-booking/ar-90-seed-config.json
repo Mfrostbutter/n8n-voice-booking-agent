@@ -251,7 +251,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "{\n  \"rows\": [\n    {\n      \"kind\": \"intent\",\n      \"code\": \"BOOK\",\n      \"short\": \"B\",\n      \"ccValue\": \"APPT_BOOK\",\n      \"description\": \"New service appointment\"\n    },\n    {\n      \"kind\": \"intent\",\n      \"code\": \"RESCHEDULE\",\n      \"short\": \"R\",\n      \"ccValue\": \"APPT_RESCHEDULE\",\n      \"description\": \"Move an existing appointment\"\n    },\n    {\n      \"kind\": \"intent\",\n      \"code\": \"CANCEL\",\n      \"short\": \"C\",\n      \"ccValue\": \"APPT_CANCEL\",\n      \"description\": \"Cancel an existing appointment\"\n    },\n    {\n      \"kind\": \"intent\",\n      \"code\": \"OTHER\",\n      \"short\": \"O\",\n      \"ccValue\": \"OTHER\",\n      \"description\": \"Outside appointment booking\"\n    },\n    {\n      \"kind\": \"intent\",\n      \"code\": \"UNKNOWN\",\n      \"short\": \"U\",\n      \"ccValue\": \"unknown\",\n      \"description\": \"Intent not identified\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"CALLER_REQUEST\",\n      \"short\": \"CR\",\n      \"ccValue\": \"CUSTOMER_REQUEST\",\n      \"description\": \"Caller asked for a person\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"SCENARIO_REQUIRES_AGENT\",\n      \"short\": \"SA\",\n      \"ccValue\": \"PROCESS\",\n      \"description\": \"Non-bookable dealer, callback or out-of-scope request\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"NOT_UNDERSTOOD\",\n      \"short\": \"NU\",\n      \"ccValue\": \"LOW_CONFIDENCE\",\n      \"description\": \"Two consecutive turns not understood\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"BACKEND_UNAVAILABLE\",\n      \"short\": \"BU\",\n      \"ccValue\": \"SYSTEM_ERROR\",\n      \"description\": \"CRM, DealerBook or case system unavailable\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"IDENTIFICATION_FAILED\",\n      \"short\": \"IF\",\n      \"ccValue\": \"IDENTIFICATION\",\n      \"description\": \"Customer or vehicle could not be confirmed\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"NO_SLOT\",\n      \"short\": \"NS\",\n      \"ccValue\": \"NO_AVAILABILITY\",\n      \"description\": \"No acceptable slot found\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"POLICY\",\n      \"short\": \"PO\",\n      \"ccValue\": \"CONSENT\",\n      \"description\": \"Caller declined the assistant or a policy trigger fired\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"PLATFORM_ERROR\",\n      \"short\": \"PE\",\n      \"ccValue\": \"SYSTEM_ERROR\",\n      \"description\": \"Dialogue platform failure\"\n    }\n  ]\n}",
+        "jsonOutput": "{\n  \"rows\": [\n    {\n      \"kind\": \"intent\",\n      \"code\": \"BOOK\",\n      \"short\": \"B\",\n      \"ccValue\": \"APPT_BOOK\",\n      \"description\": \"New service appointment\"\n    },\n    {\n      \"kind\": \"intent\",\n      \"code\": \"RESCHEDULE\",\n      \"short\": \"R\",\n      \"ccValue\": \"APPT_RESCHEDULE\",\n      \"description\": \"Move an existing appointment\"\n    },\n    {\n      \"kind\": \"intent\",\n      \"code\": \"CANCEL\",\n      \"short\": \"C\",\n      \"ccValue\": \"APPT_CANCEL\",\n      \"description\": \"Cancel an existing appointment\"\n    },\n    {\n      \"kind\": \"intent\",\n      \"code\": \"CALLBACK\",\n      \"short\": \"K\",\n      \"ccValue\": \"RETAILER_CALLBACK\",\n      \"description\": \"Retailer callback via the case (XCCC)\"\n    },\n    {\n      \"kind\": \"intent\",\n      \"code\": \"SELF_SERVICE\",\n      \"short\": \"S\",\n      \"ccValue\": \"SELF_SERVICE\",\n      \"description\": \"Assisted self-service instructions\"\n    },\n    {\n      \"kind\": \"intent\",\n      \"code\": \"OTHER\",\n      \"short\": \"O\",\n      \"ccValue\": \"OTHER\",\n      \"description\": \"Outside appointment booking\"\n    },\n    {\n      \"kind\": \"intent\",\n      \"code\": \"UNKNOWN\",\n      \"short\": \"U\",\n      \"ccValue\": \"unknown\",\n      \"description\": \"Intent not identified\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"CALLER_REQUEST\",\n      \"short\": \"CR\",\n      \"ccValue\": \"CUSTOMER_REQUEST\",\n      \"description\": \"Caller asked for a person\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"SCENARIO_REQUIRES_AGENT\",\n      \"short\": \"SA\",\n      \"ccValue\": \"PROCESS\",\n      \"description\": \"Non-bookable dealer, callback or out-of-scope request\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"NOT_UNDERSTOOD\",\n      \"short\": \"NU\",\n      \"ccValue\": \"LOW_CONFIDENCE\",\n      \"description\": \"Two consecutive turns not understood\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"BACKEND_UNAVAILABLE\",\n      \"short\": \"BU\",\n      \"ccValue\": \"SYSTEM_ERROR\",\n      \"description\": \"CRM, DealerBook or case system unavailable\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"IDENTIFICATION_FAILED\",\n      \"short\": \"IF\",\n      \"ccValue\": \"IDENTIFICATION\",\n      \"description\": \"Customer or vehicle could not be confirmed\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"NO_SLOT\",\n      \"short\": \"NS\",\n      \"ccValue\": \"NO_AVAILABILITY\",\n      \"description\": \"No acceptable slot found\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"POLICY\",\n      \"short\": \"PO\",\n      \"ccValue\": \"CONSENT\",\n      \"description\": \"Caller declined the assistant or a policy trigger fired\"\n    },\n    {\n      \"kind\": \"reason\",\n      \"code\": \"PLATFORM_ERROR\",\n      \"short\": \"PE\",\n      \"ccValue\": \"SYSTEM_ERROR\",\n      \"description\": \"Dialogue platform failure\"\n    }\n  ]\n}",
         "options": {}
       },
       "id": "6e7f3cca-6b2d-59f1-afac-f4556d27e3ab",
@@ -380,7 +380,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "{\n  \"rows\": [\n    {\n      \"key\": \"persona\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"You are the workshop service appointment assistant on a live phone call. Speak {language} only. Keep every reply under 45 words, one question at a time, no lists, no markdown; say numbers, dates and times the way a person would on the phone.\",\n      \"note\": \"First paragraph of the system prompt. {language} is the session language name.\"\n    },\n    {\n      \"key\": \"rules\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"- Never invent a dealer, a time slot, a confirmation code or any customer data. Dealers come from FindDealers, slots from FindSlots, confirmation codes from BookAppointment.\\n- Never say an appointment is booked, confirmed or reserved unless BookAppointment returned a confirmation code in this call.\\n- If the caller asks for a person at any point, set action handoff with handoffReason CALLER_REQUEST.\\n- If you could not understand the caller twice in a row, set action handoff with handoffReason NOT_UNDERSTOOD.\\n- If a tool reports it is unavailable, apologise once and set action handoff with handoffReason BACKEND_UNAVAILABLE.\\n- Move the state forward only when its goal is met. Allowed states: IDENTIFY, CONSENT, NEED, DEALER, SLOT, CONFIRM, BOOKED, WRAPUP, HANDOFF.\\n- Return only json matching the schema. The speak field is read aloud to the caller.\",\n      \"note\": \"Rules block of the system prompt, one bullet per line.\"\n    },\n    {\n      \"key\": \"languageName\",\n      \"pl\": \"Polish\",\n      \"es\": \"Spanish\",\n      \"de\": \"German\",\n      \"en\": \"English\",\n      \"note\": \"Language name spoken into the persona line.\"\n    },\n    {\n      \"key\": \"goal_IDENTIFY\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Confirm you are speaking with the customer named in the facts about the vehicle named in the facts, in one short question. Never read out a VIN or a phone number. If the caller says it is not them, or no customer is known, set action handoff with handoffReason IDENTIFICATION_FAILED. When confirmed, move to CONSENT.\",\n      \"note\": \"Goal for state IDENTIFY\"\n    },\n    {\n      \"key\": \"goal_CONSENT\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"The AI disclosure was already spoken. Ask once whether the caller is happy to continue with the assistant. Yes: move to NEED. No: set action handoff with handoffReason POLICY.\",\n      \"note\": \"Goal for state CONSENT\"\n    },\n    {\n      \"key\": \"goal_NEED\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Find out what the caller needs: a new appointment (intent BOOK), moving an existing one (RESCHEDULE), cancelling (CANCEL) or something else (OTHER, then action handoff with SCENARIO_REQUIRES_AGENT). For BOOK, collect the service type (inspection, regular service, tyre change, repair, warning light, other) and whether replacement mobility is needed, then move to DEALER.\",\n      \"note\": \"Goal for state NEED\"\n    },\n    {\n      \"key\": \"goal_DEALER\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Propose the preferred dealer from the facts; it can be booked here. If the caller wants a different one, ask for the city and call FindDealers. Only a dealer that FindDealers returned with bookable false cannot be booked here: then set action handoff with SCENARIO_REQUIRES_AGENT. When a dealer is agreed, move to SLOT and call FindSlots.\",\n      \"note\": \"Goal for state DEALER\"\n    },\n    {\n      \"key\": \"goal_SLOT\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Call FindSlots for the agreed dealer and the earliest date the caller wants, then offer at most three options by day and time, never by slotId. If none fits, call FindSlots once more with a later fromDate; if still none, set action handoff with NO_SLOT. When the caller picks one, move to CONFIRM.\",\n      \"note\": \"Goal for state SLOT\"\n    },\n    {\n      \"key\": \"goal_CONFIRM\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Read back dealer, day, time, service type and mobility, put the slotId of that option in the slotId field, and ask for an explicit yes. Booking is only possible in the turn after the read-back, once the caller has said yes: then call BookAppointment with the same slotId. If BookAppointment answers not_confirmed, read the slot back again and ask for a yes. Never say the appointment is booked before BookAppointment returns a confirmation code. After a confirmation code, move to BOOKED and read the code back.\",\n      \"note\": \"Goal for state CONFIRM\"\n    },\n    {\n      \"key\": \"goal_BOOKED\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Tell the caller the confirmation code slowly, that a confirmation message will follow, ask if there is anything else. If nothing else, say goodbye with action end and state WRAPUP.\",\n      \"note\": \"Goal for state BOOKED\"\n    },\n    {\n      \"key\": \"goal_WRAPUP\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Close politely with action end.\",\n      \"note\": \"Goal for state WRAPUP\"\n    },\n    {\n      \"key\": \"goal_HANDOFF\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Say a colleague will take over and set action handoff.\",\n      \"note\": \"Goal for state HANDOFF\"\n    },\n    {\n      \"key\": \"greeting\",\n      \"pl\": \"Dzień dobry{name}. W czym mogę pomóc w związku z wizytą serwisową{vehicle}?\",\n      \"es\": \"Buenos días{name}. ¿En qué puedo ayudarle con su cita de taller{vehicle}?\",\n      \"de\": \"Guten Tag{name}. Wie kann ich Ihnen bei Ihrem Werkstatttermin{vehicle} helfen?\",\n      \"en\": \"Hello{name}. How can I help with your service appointment{vehicle}?\",\n      \"note\": \"Spoken after the disclosure. {name} becomes ', <name>' and {vehicle} the vehiclePhrase when known.\"\n    },\n    {\n      \"key\": \"vehiclePhrase\",\n      \"pl\": \" dla Państwa {vehicle}\",\n      \"es\": \" para su {vehicle}\",\n      \"de\": \" für Ihren {vehicle}\",\n      \"en\": \" for your {vehicle}\",\n      \"note\": \"Inserted into the greeting when the vehicle is known.\"\n    },\n    {\n      \"key\": \"notBooked\",\n      \"pl\": \"Jeszcze nie zarezerwowałem terminu. Czy mam go teraz zarezerwować?\",\n      \"es\": \"Todavía no he reservado la cita. ¿Quiere que la reserve ahora?\",\n      \"de\": \"Ich habe den Termin noch nicht gebucht. Soll ich ihn jetzt buchen?\",\n      \"en\": \"I have not booked the appointment yet. Shall I book it now?\",\n      \"note\": \"Replaces a booking claim made without a confirmation code (guard false_confirmation).\"\n    },\n    {\n      \"key\": \"repeat\",\n      \"pl\": \"Przepraszam, czy mogą Państwo powtórzyć?\",\n      \"es\": \"Disculpe, ¿puede repetirlo?\",\n      \"de\": \"Entschuldigung, können Sie das wiederholen?\",\n      \"en\": \"Sorry, could you repeat that?\",\n      \"note\": \"Spoken when the model returned an empty reply.\"\n    },\n    {\n      \"key\": \"techError\",\n      \"pl\": \"Przepraszam, mam problem techniczny. Połączę Państwa z konsultantem.\",\n      \"es\": \"Disculpe, tengo un problema técnico. Le paso con un agente.\",\n      \"de\": \"Entschuldigung, ich habe ein technisches Problem. Ich verbinde Sie mit einem Mitarbeiter.\",\n      \"en\": \"Sorry, I have a technical problem. I will connect you to a colleague.\",\n      \"note\": \"Spoken when the dialogue agent fails (PLATFORM_ERROR handoff).\"\n    },\n    {\n      \"key\": \"confirmation\",\n      \"pl\": \"Serwis: wizyta serwisowa potwierdzona. Kod {code}, {dealer}, termin {slot}.\",\n      \"es\": \"Taller: cita de taller confirmada. Código {code}, {dealer}, cita {slot}.\",\n      \"de\": \"Werkstatt: Werkstatttermin bestätigt. Code {code}, {dealer}, Termin {slot}.\",\n      \"en\": \"Workshop: service appointment confirmed. Code {code}, {dealer}, slot {slot}.\",\n      \"note\": \"SMS or e-mail text sent at session end when a booking exists.\"\n    },\n    {\n      \"key\": \"retryTransfer\",\n      \"pl\": \"Chwileczkę, próbuję ponownie połączyć z konsultantem.\",\n      \"es\": \"Un momento, vuelvo a intentar pasarle con un agente.\",\n      \"de\": \"Einen Moment, ich versuche die Weiterleitung noch einmal.\",\n      \"en\": \"One moment, I am trying the transfer again.\",\n      \"note\": \"First REFER failure.\"\n    },\n    {\n      \"key\": \"transferFailed\",\n      \"pl\": \"Nie udało mi się połączyć. Konsultant oddzwoni do Państwa. Do widzenia.\",\n      \"es\": \"No he podido transferirle. Un agente le devolverá la llamada. Adiós.\",\n      \"de\": \"Die Weiterleitung ist fehlgeschlagen. Ein Mitarbeiter ruft Sie zurück. Auf Wiederhören.\",\n      \"en\": \"I could not transfer you. A colleague will call you back. Goodbye.\",\n      \"note\": \"Second REFER failure: the call ends.\"\n    }\n  ]\n}",
+        "jsonOutput": "{\n  \"rows\": [\n    {\n      \"key\": \"persona\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"You are the workshop service appointment assistant on a live phone call. Speak {language} only. Keep every reply under 45 words, one question at a time, no lists, no markdown; say numbers, dates and times the way a person would on the phone.\",\n      \"note\": \"First paragraph of the system prompt. {language} is the session language name.\"\n    },\n    {\n      \"key\": \"rules\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"- Never invent a dealer, a time slot, a confirmation code or any customer data. Dealers come from FindDealers, slots from FindSlots, confirmation codes from BookAppointment.\\n- Never say an appointment is booked, confirmed or reserved unless BookAppointment returned a confirmation code in this call; never say it is moved unless MoveAppointment returned ok; never say it is cancelled unless CancelAppointment returned ok.\\n- If the caller asks for a person at any point, set action handoff with handoffReason CALLER_REQUEST.\\n- If you could not understand the caller twice in a row, set action handoff with handoffReason NOT_UNDERSTOOD.\\n- If a tool reports it is unavailable, apologise once and set action handoff with handoffReason BACKEND_UNAVAILABLE.\\n- Move the state forward only when its goal is met. Allowed states: IDENTIFY, CONSENT, NEED, DEALER, SERVICES, SLOT, CONFIRM, BOOKED, LOOKUP, CONFIRM_CANCEL, CANCELLED, MOVED, CALLBACK, CALLBACK_LOGGED, SELF_SERVICE, WRAPUP, HANDOFF. Allowed intents: BOOK, RESCHEDULE, CANCEL, CALLBACK, SELF_SERVICE, OTHER, UNKNOWN.\\n- Return only json matching the schema. The speak field is read aloud to the caller.\",\n      \"note\": \"Rules block of the system prompt, one bullet per line.\"\n    },\n    {\n      \"key\": \"languageName\",\n      \"pl\": \"Polish\",\n      \"es\": \"Spanish\",\n      \"de\": \"German\",\n      \"en\": \"English\",\n      \"note\": \"Language name spoken into the persona line.\"\n    },\n    {\n      \"key\": \"goal_IDENTIFY\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"If the facts say the customer is identified: confirm in one short question that you are speaking with the customer named in the facts about the vehicle named in the facts. Never read out a VIN or a phone number. If the caller says it is not them, set action handoff with handoffReason IDENTIFICATION_FAILED. If the customer is not identified: ask for the vehicle registration plate and the surname (a postcode also works), then call IdentifyCaller with what the caller gave. Do not ask for a VIN. When confirmed or identified, move to CONSENT.\",\n      \"note\": \"Goal for state IDENTIFY\"\n    },\n    {\n      \"key\": \"goal_CONSENT\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"The AI disclosure was already spoken. Ask once whether the caller is happy to continue with the assistant. Yes: move to NEED. No: set action handoff with handoffReason POLICY.\",\n      \"note\": \"Goal for state CONSENT\"\n    },\n    {\n      \"key\": \"goal_NEED\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Find out what the caller needs: a new appointment (intent BOOK, move to DEALER), moving an existing one (RESCHEDULE, move to LOOKUP and call FindAppointment), cancelling one (CANCEL, move to LOOKUP and call FindAppointment), a call back from the dealer (CALLBACK, move to CALLBACK), instructions to book themselves in the app or on the website (SELF_SERVICE, move to SELF_SERVICE), or something else (OTHER, then action handoff with SCENARIO_REQUIRES_AGENT). For BOOK also ask whether replacement mobility is needed.\",\n      \"note\": \"Goal for state NEED\"\n    },\n    {\n      \"key\": \"goal_DEALER\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"If the facts say a tool was already called this turn, use its result and do not call that tool again. Propose the preferred dealer from the facts. If the caller wants a different one, ask for the city and call FindDealers. When a dealer is agreed, call CreateReservation with its dealerId and move to SERVICES. If CreateReservation says the dealer cannot be booked online, offer a retailer callback (CALLBACK) or self-service instructions (SELF_SERVICE).\",\n      \"note\": \"Goal for state DEALER\"\n    },\n    {\n      \"key\": \"goal_SERVICES\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"If the facts say a tool was already called this turn, use its result and do not call that tool again. Offer the services from the reservation by name, maintenance service first (it is the usual case). When the caller has chosen, call FindSlots with the chosen serviceIds and the earliest date the caller wants, then move to SLOT.\",\n      \"note\": \"Goal for state SERVICES\"\n    },\n    {\n      \"key\": \"goal_SLOT\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"If the facts say a tool was already called this turn, use its result and do not call that tool again. Offer at most three of the slots FindSlots returned, by day and time, never by slotId. If none fits, call FindSlots once more with a later fromDate; if still none, set action handoff with NO_SLOT. When the caller picks one, move to CONFIRM.\",\n      \"note\": \"Goal for state SLOT\"\n    },\n    {\n      \"key\": \"goal_CONFIRM\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"If the facts say a tool was already called this turn, use its result and do not call that tool again. Read back dealer, day, time and services (for a new booking also mobility), put the slotId of that option in the slotId field, and ask for an explicit yes. The booking or the move is only possible in the turn after the read-back, once the caller has said yes: then call BookAppointment (new appointment) or MoveAppointment (existing appointment in hand) with the same slotId. If the tool answers not_confirmed, read the slot back again and ask for a yes. Never say the appointment is booked or moved before the tool returns ok. After ok, move to BOOKED or MOVED.\",\n      \"note\": \"Goal for state CONFIRM\"\n    },\n    {\n      \"key\": \"goal_BOOKED\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Tell the caller the confirmation code slowly, that DealerBook sends a confirmation by SMS or email, and ask if there is anything else. If nothing else, say goodbye with action end and state WRAPUP.\",\n      \"note\": \"Goal for state BOOKED\"\n    },\n    {\n      \"key\": \"goal_LOOKUP\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"If the facts say a tool was already called this turn, use its result and do not call that tool again. Call FindAppointment if not done yet. Read the appointment in hand back (day, time, dealer). To cancel: move to CONFIRM_CANCEL and ask for an explicit yes. To reschedule: ask for the earliest new date, call FindSlots, then move to SLOT. If several appointments were found, ask which one and call FindAppointment again with its bookingRef. If none, offer a new appointment or hand off with SCENARIO_REQUIRES_AGENT.\",\n      \"note\": \"Goal for state LOOKUP\"\n    },\n    {\n      \"key\": \"goal_CONFIRM_CANCEL\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"If the facts say a tool was already called this turn, use its result and do not call that tool again. The appointment was read back. Only when the caller says yes in this turn, call CancelAppointment with its bookingRef. If the caller hesitates, offer to keep or move it instead. Never say it is cancelled before CancelAppointment returns ok; then move to CANCELLED.\",\n      \"note\": \"Goal for state CONFIRM_CANCEL\"\n    },\n    {\n      \"key\": \"goal_CANCELLED\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Tell the caller the appointment is cancelled and that a confirmation by SMS or email follows. Ask if there is anything else; if not, say goodbye with action end and state WRAPUP.\",\n      \"note\": \"Goal for state CANCELLED\"\n    },\n    {\n      \"key\": \"goal_MOVED\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Read the new day and time back, say that a confirmation by SMS or email follows, ask if there is anything else. If nothing else, say goodbye with action end and state WRAPUP.\",\n      \"note\": \"Goal for state MOVED\"\n    },\n    {\n      \"key\": \"goal_CALLBACK\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Read back the dealer that will call, the reason and the preferred time, and ask for an explicit yes. Only in the turn after the yes, call RequestCallback. Then move to CALLBACK_LOGGED.\",\n      \"note\": \"Goal for state CALLBACK\"\n    },\n    {\n      \"key\": \"goal_CALLBACK_LOGGED\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Tell the caller the dealer will call them back at the preferred time. Ask if there is anything else; if not, say goodbye with action end and state WRAPUP.\",\n      \"note\": \"Goal for state CALLBACK_LOGGED\"\n    },\n    {\n      \"key\": \"goal_SELF_SERVICE\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"The self-service instructions are read out automatically when you enter this state; set intent SELF_SERVICE and state SELF_SERVICE with a short lead-in. Nothing is sent to the caller. Afterwards ask if there is anything else; if not, say goodbye with action end and state WRAPUP.\",\n      \"note\": \"Goal for state SELF_SERVICE\"\n    },\n    {\n      \"key\": \"goal_WRAPUP\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Close politely with action end.\",\n      \"note\": \"Goal for state WRAPUP\"\n    },\n    {\n      \"key\": \"goal_HANDOFF\",\n      \"pl\": \"\",\n      \"es\": \"\",\n      \"de\": \"\",\n      \"en\": \"Say a colleague will take over and set action handoff.\",\n      \"note\": \"Goal for state HANDOFF\"\n    },\n    {\n      \"key\": \"greeting\",\n      \"pl\": \"Dzień dobry{name}. W czym mogę pomóc w związku z wizytą serwisową{vehicle}?\",\n      \"es\": \"Buenos días{name}. ¿En qué puedo ayudarle con su cita de taller{vehicle}?\",\n      \"de\": \"Guten Tag{name}. Wie kann ich Ihnen bei Ihrem Werkstatttermin{vehicle} helfen?\",\n      \"en\": \"Hello{name}. How can I help with your service appointment{vehicle}?\",\n      \"note\": \"Spoken after the disclosure. {name} becomes ', <name>' and {vehicle} the vehiclePhrase when known.\"\n    },\n    {\n      \"key\": \"vehiclePhrase\",\n      \"pl\": \" dla Państwa {vehicle}\",\n      \"es\": \" para su {vehicle}\",\n      \"de\": \" für Ihren {vehicle}\",\n      \"en\": \" for your {vehicle}\",\n      \"note\": \"Inserted into the greeting when the vehicle is known.\"\n    },\n    {\n      \"key\": \"notBooked\",\n      \"pl\": \"Jeszcze nie zarezerwowałem terminu. Czy mam go teraz zarezerwować?\",\n      \"es\": \"Todavía no he reservado la cita. ¿Quiere que la reserve ahora?\",\n      \"de\": \"Ich habe den Termin noch nicht gebucht. Soll ich ihn jetzt buchen?\",\n      \"en\": \"I have not booked the appointment yet. Shall I book it now?\",\n      \"note\": \"Replaces a booking or move claim made without a tool result (guard false_confirmation).\"\n    },\n    {\n      \"key\": \"notCancelled\",\n      \"pl\": \"Jeszcze nie odwołałem wizyty. Czy mam ją teraz odwołać?\",\n      \"es\": \"Todavía no he cancelado la cita. ¿Quiere que la cancele ahora?\",\n      \"de\": \"Ich habe den Termin noch nicht storniert. Soll ich ihn jetzt stornieren?\",\n      \"en\": \"I have not cancelled the appointment yet. Shall I cancel it now?\",\n      \"note\": \"Replaces a cancellation claim made before CancelAppointment returned ok (guard false_cancellation).\"\n    },\n    {\n      \"key\": \"selfService\",\n      \"pl\": \"Wizytę mogą Państwo umówić samodzielnie w aplikacji the manufacturer me w sekcji Serwis lub na stronie the manufacturer w zakładce Umów wizytę serwisową: wystarczy wybrać pojazd, dealera, rodzaj usługi i termin, a potwierdzenie przyjdzie e-mailem lub SMS-em.\",\n      \"es\": \"Puede reservar la cita usted mismo en la aplicación the manufacturer me, en Servicio, o en la web de the manufacturer en Reservar cita de taller: elija su vehículo, su concesionario, el servicio y una hora, y recibirá la confirmación por correo o SMS.\",\n      \"de\": \"Sie können den Termin selbst in der the manufacturer me App unter Service oder auf der the manufacturer Website unter Werkstatttermin buchen: Fahrzeug, Händler, Leistung und Zeit wählen, die Bestätigung kommt per E-Mail oder SMS.\",\n      \"en\": \"You can book the appointment yourself in the the manufacturer me app under Service, or on the the manufacturer website under Book a service appointment: choose your vehicle, your dealer, the service and a time, and you receive the confirmation by email or SMS.\",\n      \"note\": \"Assisted self-service instructions, read out verbatim when the state becomes SELF_SERVICE (guard self_service_line). Placeholder until the CAC work instruction text arrives (question 27).\"\n    },\n    {\n      \"key\": \"repeat\",\n      \"pl\": \"Przepraszam, czy mogą Państwo powtórzyć?\",\n      \"es\": \"Disculpe, ¿puede repetirlo?\",\n      \"de\": \"Entschuldigung, können Sie das wiederholen?\",\n      \"en\": \"Sorry, could you repeat that?\",\n      \"note\": \"Spoken when the model returned an empty reply.\"\n    },\n    {\n      \"key\": \"techError\",\n      \"pl\": \"Przepraszam, mam problem techniczny. Połączę Państwa z konsultantem.\",\n      \"es\": \"Disculpe, tengo un problema técnico. Le paso con un agente.\",\n      \"de\": \"Entschuldigung, ich habe ein technisches Problem. Ich verbinde Sie mit einem Mitarbeiter.\",\n      \"en\": \"Sorry, I have a technical problem. I will connect you to a colleague.\",\n      \"note\": \"Spoken when the dialogue agent fails (PLATFORM_ERROR handoff).\"\n    },\n    {\n      \"key\": \"confirmation\",\n      \"pl\": \"Serwis: wizyta serwisowa potwierdzona. Kod {code}, {dealer}, termin {slot}.\",\n      \"es\": \"Taller: cita de taller confirmada. Código {code}, {dealer}, cita {slot}.\",\n      \"de\": \"Werkstatt: Werkstatttermin bestätigt. Code {code}, {dealer}, Termin {slot}.\",\n      \"en\": \"Workshop: service appointment confirmed. Code {code}, {dealer}, slot {slot}.\",\n      \"note\": \"Retired 2026-10-22: DealerBook sends the confirmation via Cusmes. Kept for AR-16, which is no longer called.\"\n    },\n    {\n      \"key\": \"retryTransfer\",\n      \"pl\": \"Chwileczkę, próbuję ponownie połączyć z konsultantem.\",\n      \"es\": \"Un momento, vuelvo a intentar pasarle con un agente.\",\n      \"de\": \"Einen Moment, ich versuche die Weiterleitung noch einmal.\",\n      \"en\": \"One moment, I am trying the transfer again.\",\n      \"note\": \"First REFER failure.\"\n    },\n    {\n      \"key\": \"transferFailed\",\n      \"pl\": \"Nie udało mi się połączyć. Konsultant oddzwoni do Państwa. Do widzenia.\",\n      \"es\": \"No he podido transferirle. Un agente le devolverá la llamada. Adiós.\",\n      \"de\": \"Die Weiterleitung ist fehlgeschlagen. Ein Mitarbeiter ruft Sie zurück. Auf Wiederhören.\",\n      \"en\": \"I could not transfer you. A colleague will call you back. Goodbye.\",\n      \"note\": \"Second REFER failure: the call ends.\"\n    }\n  ]\n}",
         "options": {}
       },
       "id": "33953941-fd97-5311-9bc4-de4994cb62b0",
@@ -515,7 +515,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "{\n  \"rows\": [\n    {\n      \"vin\": \"TST2970461A123456\",\n      \"customerRef\": \"C-PL-004711\",\n      \"greetingName\": \"Pani Kowalska\",\n      \"vehicleLabel\": \"GLC 300 4MATIC\",\n      \"preferredDealerId\": \"PL-WAW-01\",\n      \"preferredDealerName\": \"Dealer Warszawa Okęcie\",\n      \"market\": \"PL\",\n      \"language\": \"pl\"\n    },\n    {\n      \"vin\": \"TST2130421A654321\",\n      \"customerRef\": \"C-ES-002310\",\n      \"greetingName\": \"Señor García\",\n      \"vehicleLabel\": \"Clase E 220 d\",\n      \"preferredDealerId\": \"ES-MAD-02\",\n      \"preferredDealerName\": \"Dealer Madrid Castellana\",\n      \"market\": \"ES\",\n      \"language\": \"es\"\n    },\n    {\n      \"vin\": \"TST1770871N998877\",\n      \"customerRef\": \"C-DE-009902\",\n      \"greetingName\": \"Herr Weber\",\n      \"vehicleLabel\": \"A 200\",\n      \"preferredDealerId\": \"DE-STR-01\",\n      \"preferredDealerName\": \"Dealer Stuttgart Mitte\",\n      \"market\": \"DE\",\n      \"language\": \"de\"\n    },\n    {\n      \"vin\": \"TST2476011J112233\",\n      \"customerRef\": \"C-GB-001177\",\n      \"greetingName\": \"Ms Patel\",\n      \"vehicleLabel\": \"EQB 300\",\n      \"preferredDealerId\": \"GB-LON-01\",\n      \"preferredDealerName\": \"Dealer London West\",\n      \"market\": \"GB\",\n      \"language\": \"en\"\n    }\n  ]\n}",
+        "jsonOutput": "={{ (s => ({ rows: s.concat((($('ReceiveSeed').first().json.body || {}).mockCustomers || []).map(r => Object.fromEntries(Object.keys(s[0]).map(k => [k, r[k] !== undefined ? r[k] : (typeof s[0][k] === 'boolean' ? false : '')])))) }))([{\"vin\": \"TST2970461A123456\", \"customerRef\": \"C-PL-004711\", \"accountName\": \"Anna Kowalska\", \"greetingName\": \"Pani Kowalska\", \"vehicleLabel\": \"GLC 300 4MATIC\", \"preferredDealerId\": \"PL-WAW-01\", \"preferredDealerName\": \"Dealer Warszawa Okęcie\", \"market\": \"PL\", \"language\": \"pl\", \"msisdn\": \"+48601234567\", \"plate\": \"WA12345\", \"postcode\": \"00-001\", \"meId\": \"\", \"cvrId\": \"\", \"fin\": \"\"}, {\"vin\": \"TST2970461A223344\", \"customerRef\": \"C-PL-004812\", \"accountName\": \"Piotr Nowak\", \"greetingName\": \"Panie Nowak\", \"vehicleLabel\": \"C 200\", \"preferredDealerId\": \"PL-WAW-02\", \"preferredDealerName\": \"Dealer Warszawa Wola\", \"market\": \"PL\", \"language\": \"pl\", \"msisdn\": \"+48601234999\", \"plate\": \"WB98765\", \"postcode\": \"01-100\", \"meId\": \"\", \"cvrId\": \"\", \"fin\": \"\"}, {\"vin\": \"TST2130421A654321\", \"customerRef\": \"C-ES-002310\", \"accountName\": \"Luis García\", \"greetingName\": \"Señor García\", \"vehicleLabel\": \"Clase E 220 d\", \"preferredDealerId\": \"ES-MAD-02\", \"preferredDealerName\": \"Dealer Madrid Castellana\", \"market\": \"ES\", \"language\": \"es\", \"msisdn\": \"+34612345678\", \"plate\": \"1234ABC\", \"postcode\": \"28001\", \"meId\": \"\", \"cvrId\": \"\", \"fin\": \"\"}, {\"vin\": \"TST1770871N998877\", \"customerRef\": \"C-DE-009902\", \"accountName\": \"Thomas Weber\", \"greetingName\": \"Herr Weber\", \"vehicleLabel\": \"A 200\", \"preferredDealerId\": \"DE-STR-01\", \"preferredDealerName\": \"Dealer Stuttgart Mitte\", \"market\": \"DE\", \"language\": \"de\", \"msisdn\": \"+4915112345678\", \"plate\": \"SAB1234\", \"postcode\": \"70173\", \"meId\": \"\", \"cvrId\": \"\", \"fin\": \"\"}, {\"vin\": \"TST2476011J112233\", \"customerRef\": \"C-GB-001177\", \"accountName\": \"Priya Patel\", \"greetingName\": \"Ms Patel\", \"vehicleLabel\": \"EQB 300\", \"preferredDealerId\": \"GB-LON-01\", \"preferredDealerName\": \"Dealer London West\", \"market\": \"GB\", \"language\": \"en\", \"msisdn\": \"+447700900123\", \"plate\": \"LK21XYZ\", \"postcode\": \"SW1A 1AA\", \"meId\": \"\", \"cvrId\": \"\", \"fin\": \"\"}, {\"vin\": \"TST2476011J445566\", \"customerRef\": \"C-GB-001290\", \"accountName\": \"David Hughes\", \"greetingName\": \"Mr Hughes\", \"vehicleLabel\": \"GLA 200\", \"preferredDealerId\": \"GB-LON-01\", \"preferredDealerName\": \"Dealer London West\", \"market\": \"GB\", \"language\": \"en\", \"msisdn\": \"+447700900456\", \"plate\": \"LM70ABC\", \"postcode\": \"W1A 1AA\", \"meId\": \"\", \"cvrId\": \"\", \"fin\": \"\"}]) }}",
         "options": {}
       },
       "id": "4e64dba5-e28a-5931-b902-e558a069870e",
@@ -565,12 +565,19 @@
           "value": {
             "vin": "={{ $json.vin }}",
             "customerRef": "={{ $json.customerRef }}",
+            "accountName": "={{ $json.accountName }}",
             "greetingName": "={{ $json.greetingName }}",
             "vehicleLabel": "={{ $json.vehicleLabel }}",
             "preferredDealerId": "={{ $json.preferredDealerId }}",
             "preferredDealerName": "={{ $json.preferredDealerName }}",
             "market": "={{ $json.market }}",
-            "language": "={{ $json.language }}"
+            "language": "={{ $json.language }}",
+            "msisdn": "={{ $json.msisdn }}",
+            "plate": "={{ $json.plate }}",
+            "postcode": "={{ $json.postcode }}",
+            "meId": "={{ $json.meId }}",
+            "cvrId": "={{ $json.cvrId }}",
+            "fin": "={{ $json.fin }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -587,6 +594,16 @@
             {
               "id": "customerRef",
               "displayName": "customerRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "accountName",
+              "displayName": "accountName",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -653,6 +670,66 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "msisdn",
+              "displayName": "msisdn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "plate",
+              "displayName": "plate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "postcode",
+              "displayName": "postcode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "meId",
+              "displayName": "meId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cvrId",
+              "displayName": "cvrId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fin",
+              "displayName": "fin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -672,7 +749,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "{\n  \"rows\": [\n    {\n      \"dealerId\": \"PL-WAW-01\",\n      \"name\": \"Dealer Warszawa Okęcie\",\n      \"city\": \"Warszawa\",\n      \"market\": \"PL\",\n      \"bookable\": true\n    },\n    {\n      \"dealerId\": \"PL-WAW-02\",\n      \"name\": \"Dealer Warszawa Wola\",\n      \"city\": \"Warszawa\",\n      \"market\": \"PL\",\n      \"bookable\": true\n    },\n    {\n      \"dealerId\": \"PL-KRK-01\",\n      \"name\": \"Dealer Kraków\",\n      \"city\": \"Kraków\",\n      \"market\": \"PL\",\n      \"bookable\": true\n    },\n    {\n      \"dealerId\": \"PL-GDA-01\",\n      \"name\": \"Dealer Gdańsk\",\n      \"city\": \"Gdańsk\",\n      \"market\": \"PL\",\n      \"bookable\": false\n    },\n    {\n      \"dealerId\": \"ES-MAD-02\",\n      \"name\": \"Dealer Madrid Castellana\",\n      \"city\": \"Madrid\",\n      \"market\": \"ES\",\n      \"bookable\": true\n    },\n    {\n      \"dealerId\": \"ES-BCN-01\",\n      \"name\": \"Dealer Barcelona\",\n      \"city\": \"Barcelona\",\n      \"market\": \"ES\",\n      \"bookable\": true\n    },\n    {\n      \"dealerId\": \"DE-STR-01\",\n      \"name\": \"Dealer Stuttgart Mitte\",\n      \"city\": \"Stuttgart\",\n      \"market\": \"DE\",\n      \"bookable\": true\n    },\n    {\n      \"dealerId\": \"GB-LON-01\",\n      \"name\": \"Dealer London West\",\n      \"city\": \"London\",\n      \"market\": \"GB\",\n      \"bookable\": true\n    }\n  ]\n}",
+        "jsonOutput": "={{ (s => ({ rows: s.concat((($('ReceiveSeed').first().json.body || {}).mockDealers || []).map(r => Object.fromEntries(Object.keys(s[0]).map(k => [k, r[k] !== undefined ? r[k] : (typeof s[0][k] === 'boolean' ? false : '')])))) }))([{\"dealerId\": \"PL-WAW-01\", \"name\": \"Dealer Warszawa Okęcie\", \"city\": \"Warszawa\", \"market\": \"PL\", \"bookable\": true}, {\"dealerId\": \"PL-WAW-02\", \"name\": \"Dealer Warszawa Wola\", \"city\": \"Warszawa\", \"market\": \"PL\", \"bookable\": true}, {\"dealerId\": \"PL-KRK-01\", \"name\": \"Dealer Kraków\", \"city\": \"Kraków\", \"market\": \"PL\", \"bookable\": true}, {\"dealerId\": \"PL-GDA-01\", \"name\": \"Dealer Gdańsk\", \"city\": \"Gdańsk\", \"market\": \"PL\", \"bookable\": false}, {\"dealerId\": \"ES-MAD-02\", \"name\": \"Dealer Madrid Castellana\", \"city\": \"Madrid\", \"market\": \"ES\", \"bookable\": true}, {\"dealerId\": \"ES-BCN-01\", \"name\": \"Dealer Barcelona\", \"city\": \"Barcelona\", \"market\": \"ES\", \"bookable\": true}, {\"dealerId\": \"DE-STR-01\", \"name\": \"Dealer Stuttgart Mitte\", \"city\": \"Stuttgart\", \"market\": \"DE\", \"bookable\": true}, {\"dealerId\": \"GB-LON-01\", \"name\": \"Dealer London West\", \"city\": \"London\", \"market\": \"GB\", \"bookable\": true}]) }}",
         "options": {}
       },
       "id": "d78583a5-4140-5db0-9740-f1fdf40465e4",
@@ -795,8 +872,253 @@
     },
     {
       "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ (s => ({ rows: s.concat((($('ReceiveSeed').first().json.body || {}).mockBookings || []).map(r => Object.fromEntries(Object.keys(s[0]).map(k => [k, r[k] !== undefined ? r[k] : (typeof s[0][k] === 'boolean' ? false : '')])))) }))([{\"bookingRef\": \"f1a00001-0000-4000-a000-000000000001\", \"confirmationCode\": \"FIXPLA\", \"slotId\": \"PL-WAW-02-20261126-1030\", \"dealerId\": \"PL-WAW-02\", \"dealerName\": \"Dealer Warszawa Wola\", \"vin\": \"TST2970461A223344\", \"serviceType\": \"MAINT\", \"mobility\": \"NONE\", \"startsAt\": \"2026-11-26T10:30:00\", \"status\": \"booked\", \"bookedAt\": \"2026-10-20T09:00:00Z\", \"reservationId\": \"RSV-f1a001-PL-WAW-02\", \"serviceIds\": \"MAINT\", \"movedFrom\": \"\", \"customerRef\": \"C-PL-004812\", \"fulfilmentId\": \"NONE\"}, {\"bookingRef\": \"f1a00002-0000-4000-a000-000000000002\", \"confirmationCode\": \"FIXGBA\", \"slotId\": \"GB-LON-01-20261127-1400\", \"dealerId\": \"GB-LON-01\", \"dealerName\": \"Dealer London West\", \"vin\": \"TST2476011J445566\", \"serviceType\": \"MAINT\", \"mobility\": \"NONE\", \"startsAt\": \"2026-11-27T14:00:00\", \"status\": \"booked\", \"bookedAt\": \"2026-10-20T09:00:00Z\", \"reservationId\": \"RSV-f1a002-GB-LON-01\", \"serviceIds\": \"MAINT\", \"movedFrom\": \"\", \"customerRef\": \"C-GB-001290\", \"fulfilmentId\": \"NONE\"}]) }}",
+        "options": {}
+      },
+      "id": "339d4a4c-5b17-531f-94b7-f043156c05c6",
+      "name": "MockBookingRows",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        1360
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "id": "31010e6a-98cf-5ff4-a9b1-2811131123a2",
+      "name": "SplitMockBookings",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        416,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "bookingRef",
+              "condition": "eq",
+              "keyValue": "={{ $json.bookingRef }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "bookingRef": "={{ $json.bookingRef }}",
+            "confirmationCode": "={{ $json.confirmationCode }}",
+            "slotId": "={{ $json.slotId }}",
+            "dealerId": "={{ $json.dealerId }}",
+            "dealerName": "={{ $json.dealerName }}",
+            "vin": "={{ $json.vin }}",
+            "serviceType": "={{ $json.serviceType }}",
+            "mobility": "={{ $json.mobility }}",
+            "startsAt": "={{ $json.startsAt }}",
+            "status": "={{ $json.status }}",
+            "bookedAt": "={{ $json.bookedAt }}",
+            "reservationId": "={{ $json.reservationId }}",
+            "serviceIds": "={{ $json.serviceIds }}",
+            "movedFrom": "={{ $json.movedFrom }}",
+            "customerRef": "={{ $json.customerRef }}",
+            "fulfilmentId": "={{ $json.fulfilmentId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "bookingRef",
+              "displayName": "bookingRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationCode",
+              "displayName": "confirmationCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slotId",
+              "displayName": "slotId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerId",
+              "displayName": "dealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerName",
+              "displayName": "dealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vin",
+              "displayName": "vin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "serviceType",
+              "displayName": "serviceType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mobility",
+              "displayName": "mobility",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "startsAt",
+              "displayName": "startsAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bookedAt",
+              "displayName": "bookedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reservationId",
+              "displayName": "reservationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "serviceIds",
+              "displayName": "serviceIds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "movedFrom",
+              "displayName": "movedFrom",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customerRef",
+              "displayName": "customerRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fulfilmentId",
+              "displayName": "fulfilmentId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "8ffa7caf-51ac-595b-96b1-befca46f1037",
+      "name": "UpsertMockBooking",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        1360
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ ok: true, markets: 4, codes: 13, prompts: 20, mockCustomers: 4, mockDealers: 8 }) }}",
+        "responseBody": "={{ JSON.stringify({ ok: true, markets: 4, codes: 15, prompts: 30, mockCustomers: 6 + (($('ReceiveSeed').first().json.body || {}).mockCustomers || []).length, mockDealers: 8 + (($('ReceiveSeed').first().json.body || {}).mockDealers || []).length, mockBookings: 2 + (($('ReceiveSeed').first().json.body || {}).mockBookings || []).length }) }}",
         "options": {
           "responseCode": 200
         }
@@ -807,14 +1129,14 @@
       "typeVersion": 1.5,
       "position": [
         832,
-        1088
+        1360
       ]
     },
     {
       "parameters": {
-        "content": "## Seed\n\nRows live in the Edit Fields nodes as JSON; Split Out makes one item per row; upserts are keyed on the natural key. Run once per environment; safe to re-run.",
+        "content": "## Seed\n\nRows live in the Edit Fields nodes as JSON, plus the mock rows of the request body (test identities, gitignored); Split Out makes one item per row; upserts are keyed on the natural key. Run once per environment; safe to re-run (re-seeding restores the two fixture appointments).",
         "width": 1072,
-        "height": 1440,
+        "height": 1744,
         "color": 6
       },
       "id": "zone-01",
@@ -823,12 +1145,12 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -144
+        -176
       ]
     },
     {
       "parameters": {
-        "content": "## AR-90 Seed config\n\nMarkets, codes and prompts are data, not code: a new market is one row, a wording change is one cell. Disclosure texts are placeholders until Legal supplies the market wording.",
+        "content": "## AR-90 Seed config\n\nMarkets, codes and prompts are data, not code: a new market is one row, a wording change is one cell. Disclosure texts are placeholders until Legal supplies the market wording. The mock rows in the body (the engagement's test identities, gitignored, sent by ar-seed.py) are upserted after the synthetic fixtures; missing columns are filled from the fixture shape.",
         "width": 768,
         "height": 256,
         "color": 6
@@ -839,7 +1161,7 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -416
+        -448
       ]
     }
   ],
@@ -1013,6 +1335,39 @@
       "main": [
         [
           {
+            "node": "MockBookingRows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MockBookingRows": {
+      "main": [
+        [
+          {
+            "node": "SplitMockBookings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitMockBookings": {
+      "main": [
+        [
+          {
+            "node": "UpsertMockBooking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpsertMockBooking": {
+      "main": [
+        [
+          {
             "node": "RespondSeeded",
             "type": "main",
             "index": 0
@@ -1025,7 +1380,7 @@
     "executionOrder": "v1"
   },
   "meta": {
-    "description": "POST /webhook/ar/v1/admin/seed. Upserts ar_markets (PL, ES, DE, GB), ar_codes (intent and handoff reason codes) and ar_prompts (goals, rules and every spoken line, per language). Run once per environment; safe to re-run."
+    "description": "POST /webhook/ar/v1/admin/seed. Upserts ar_markets (PL, ES, DE, GB), ar_codes (intent and handoff reason codes), ar_prompts (goals, rules and every spoken line, per language) and the lab fixtures (customers, dealers, the two existing appointments). The body may carry mockCustomers, mockDealers and mockBookings rows to upsert on top (the test identities of the engagement, kept out of the generator). Run once per environment; safe to re-run."
   },
   "tags": [
     "voice-booking",

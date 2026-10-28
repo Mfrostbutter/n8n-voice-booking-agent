@@ -1,5 +1,5 @@
 {
-  "name": "AR-MOCK-CRM customer master",
+  "name": "AR-MOCK-CASE Customer account",
   "nodes": [
     {
       "parameters": {
@@ -32,15 +32,15 @@
             {
               "keyName": "vin",
               "condition": "eq",
-              "keyValue": "={{ String($json.body.vin || '').toUpperCase().trim() }}"
+              "keyValue": "={{ String($json.body.vin || '-').toUpperCase().trim() }}"
             }
           ]
         },
         "returnAll": false,
         "limit": 1
       },
-      "id": "9afed8a6-6e12-549e-8e76-a3412d1bda51",
-      "name": "LookupCustomer",
+      "id": "ba99c61d-f9f6-50e9-b75c-27657d32bf2f",
+      "name": "LookupByVin",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
@@ -51,8 +51,73 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b68bbd63-78c3-55e1-9ff6-4a3198088919",
+              "leftValue": "={{ $json.customerRef }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "80c130e4-2869-5df5-97fc-39666f8a8a9c",
+      "name": "FoundByVin",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "msisdn",
+              "condition": "eq",
+              "keyValue": "={{ String($('ReceiveLookup').first().json.body.msisdn || '-').trim() }}"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      },
+      "id": "08f46221-c30c-57e8-9fdc-f4e5b68446bc",
+      "name": "LookupByPhone",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        272
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
         "mode": "raw",
-        "jsonOutput": "={{ $json.customerRef ? { found: true, vin: $json.vin, customerRef: $json.customerRef, greetingName: $json.greetingName, vehicleLabel: $json.vehicleLabel, preferredDealerId: $json.preferredDealerId, preferredDealerName: $json.preferredDealerName, market: $json.market, language: $json.language } : { found: false, vin: String($('ReceiveLookup').first().json.body.vin || '').toUpperCase().trim() } }}",
+        "jsonOutput": "={{ $json.customerRef ? { found: true, vin: $json.vin, customerRef: $json.customerRef, accountName: $json.accountName, greetingName: $json.greetingName, vehicleLabel: $json.vehicleLabel, preferredDealerId: $json.preferredDealerId, preferredDealerName: $json.preferredDealerName, market: $json.market, language: $json.language, meId: $json.meId || '', cvrId: $json.cvrId || '', fin: $json.fin || '', plate: $json.plate || '' } : { found: false } }}",
         "options": {}
       },
       "id": "a3c98d39-bc8b-57c3-a393-cbb739831b4d",
@@ -60,7 +125,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        416,
+        624,
         0
       ]
     },
@@ -77,15 +142,154 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        624,
+        832,
         0
       ]
     },
     {
       "parameters": {
-        "content": "## Mock CRM\n\nSynthetic customers in ar_mock_customers, keyed by VIN. Lab only; the real build swaps the table read for one HTTP Request.",
-        "width": 864,
-        "height": 352,
+        "httpMethod": "POST",
+        "path": "ar-mock/crm/customer-identify",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "8ae6d76c-0390-5014-bd54-c0060dd8b7b9",
+      "name": "ReceiveIdentify",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        672
+      ],
+      "webhookId": "7d4bbd58-4324-55fd-bb54-f59685556337"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "plate",
+              "condition": "eq",
+              "keyValue": "={{ String($json.body.plate || '-').toUpperCase().replace(/[^A-Z0-9]/g, '') }}"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      },
+      "id": "f1d57ec0-013e-5800-8898-a107d2862fa8",
+      "name": "LookupByPlate",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        672
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "765a5fee-c662-56ef-912e-0bf9452700ea",
+              "leftValue": "={{ $json.customerRef || '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "7c26506d-4e40-5d67-a281-bc346906b245",
+              "leftValue": "={{ ($('ReceiveIdentify').first().json.body.lastName && String($json.accountName || '').toLowerCase().includes(String($('ReceiveIdentify').first().json.body.lastName).toLowerCase().trim())) || ($('ReceiveIdentify').first().json.body.postcode && String($json.postcode || '').replace(/\\s/g, '').toUpperCase() === String($('ReceiveIdentify').first().json.body.postcode).replace(/\\s/g, '').toUpperCase()) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f16169a-ce42-5dce-be50-301eb0b87629",
+      "name": "MatchesIdentity",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $json.customerRef ? { found: true, vin: $json.vin, customerRef: $json.customerRef, accountName: $json.accountName, greetingName: $json.greetingName, vehicleLabel: $json.vehicleLabel, preferredDealerId: $json.preferredDealerId, preferredDealerName: $json.preferredDealerName, market: $json.market, language: $json.language, meId: $json.meId || '', cvrId: $json.cvrId || '', fin: $json.fin || '', plate: $json.plate || '' } : { found: false } }}",
+        "options": {}
+      },
+      "id": "a60cdb86-4b0e-5551-8eb4-c7e43b0e87a6",
+      "name": "ShapeIdentified",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { found: false } }}",
+        "options": {}
+      },
+      "id": "c5ef8719-0d3c-529f-adbe-9d6eaef493f4",
+      "name": "ShapeNotFound",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "3a41fe0d-da3a-5e73-83a4-eadf0e6937cf",
+      "name": "RespondIdentify",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        832,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Account lookup\n\nSynthetic customers in ar_mock_customers: by VIN (in-car), then by phone number (IVR). Lab only; the real build is the CASE account search.",
+        "width": 1072,
+        "height": 624,
         "color": 7
       },
       "id": "zone-01",
@@ -99,8 +303,24 @@
     },
     {
       "parameters": {
-        "content": "## Mock CRM / customer master\n\nSynthetic customers in the ar_mock_customers table (seeded by AR-90), keyed by VIN. Unknown VIN returns found:false with HTTP 200. Real build: one HTTP Request to the customer API in place of the table read.",
-        "width": 624,
+        "content": "## Spoken identification\n\nRegistration plate (normalised) plus surname or postcode: the placeholder rule until the identification rule is agreed (question 20).",
+        "width": 1072,
+        "height": 624,
+        "color": 7
+      },
+      "id": "zone-02",
+      "name": "zone-02",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Mock CASE customer account\n\nSynthetic customers in ar_mock_customers (seeded by AR-90). Lookup: VIN, then phone number. Identify: registration plate plus surname or postcode, a placeholder until the identification rule is agreed (question 20; CASE holds me ID, name, e-mail, mobile, postcode, VIN or FIN and plate). Real build: CASE account search in place of the table reads.",
+        "width": 704,
         "height": 256,
         "color": 6
       },
@@ -119,14 +339,43 @@
       "main": [
         [
           {
-            "node": "LookupCustomer",
+            "node": "LookupByVin",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "LookupCustomer": {
+    "LookupByVin": {
+      "main": [
+        [
+          {
+            "node": "FoundByVin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FoundByVin": {
+      "main": [
+        [
+          {
+            "node": "ShapeFixture",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LookupByPhone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LookupByPhone": {
       "main": [
         [
           {
@@ -147,13 +396,75 @@
           }
         ]
       ]
+    },
+    "ReceiveIdentify": {
+      "main": [
+        [
+          {
+            "node": "LookupByPlate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LookupByPlate": {
+      "main": [
+        [
+          {
+            "node": "MatchesIdentity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MatchesIdentity": {
+      "main": [
+        [
+          {
+            "node": "ShapeIdentified",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ShapeNotFound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ShapeIdentified": {
+      "main": [
+        [
+          {
+            "node": "RespondIdentify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ShapeNotFound": {
+      "main": [
+        [
+          {
+            "node": "RespondIdentify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1"
   },
   "meta": {
-    "description": "Lab stand-in for CRM / customer master. POST ar-mock/crm/customer-lookup {vin, msisdn} -> {found, customerRef, greetingName, vehicleLabel, preferredDealerId, ...}. Synthetic rows in ar_mock_customers."
+    "description": "Lab stand-in for the CASE customer account. POST ar-mock/crm/customer-lookup {vin, msisdn} -> {found, ...} (VIN first, then the phone number). POST ar-mock/crm/customer-identify {plate, lastName, postcode} -> {found, ...} for spoken identification. Synthetic rows in ar_mock_customers."
   },
   "tags": [
     "voice-booking",

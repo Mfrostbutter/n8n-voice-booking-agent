@@ -11,15 +11,11 @@
               "type": "string"
             },
             {
-              "name": "dealerId",
+              "name": "serviceIds",
               "type": "string"
             },
             {
               "name": "fromDate",
-              "type": "string"
-            },
-            {
-              "name": "serviceType",
               "type": "string"
             }
           ]
@@ -98,21 +94,247 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "http://localhost:5678/webhook/ar-mock/dealerbook/slots",
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d9b378d0-ea8e-5968-9bc5-369d97f1aa58",
+              "leftValue": "={{ !!($('LoadSession').first().json.reservationId || $('LoadSession').first().json.appointmentRef) || !$('LoadSession').first().json.dealerId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "93f8b8ca-d64f-537a-bc31-ab9ef7c4c6e6",
+      "name": "HasReservation",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-19-create-reservation",
+          "mode": "list",
+          "cachedResultName": "AR-19 Tool: Create reservation"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $('LoadSession').first().json.sessionId }}",
+            "dealerId": "={{ $('LoadSession').first().json.dealerId || '' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerId",
+              "displayName": "dealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "f13896d2-73bd-568f-8276-ef29153b1bb6",
+      "name": "CreateReservationFirst",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        624,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eec15a94-1cff-5e37-b15f-12dbed95d20c",
+              "name": "sessionId",
+              "value": "={{ $('LoadSession').first().json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "5f7e6345-c2c4-5ec0-ab8b-858d477317ab",
+              "name": "market",
+              "value": "={{ $('LoadSession').first().json.market }}",
+              "type": "string"
+            },
+            {
+              "id": "fda03752-3c18-5384-b5c4-3435c056b913",
+              "name": "language",
+              "value": "={{ $('LoadSession').first().json.language || 'en' }}",
+              "type": "string"
+            },
+            {
+              "id": "eccb3d79-14c7-5784-ba57-63f40b1c0c65",
+              "name": "isNew",
+              "value": "={{ !$('LoadSession').first().json.appointmentRef && !!($('LoadSession').first().json.reservationId || ($('CreateReservationFirst').isExecuted ? ($('CreateReservationFirst').first().json.reservationId || '') : '')) }}",
+              "type": "boolean"
+            },
+            {
+              "id": "9336cc24-ec9a-5f58-90e8-53df58abb424",
+              "name": "reservationId",
+              "value": "={{ $('LoadSession').first().json.appointmentRef ? ($('LoadSession').first().json.appointmentOfferId || '') : ($('LoadSession').first().json.reservationId || ($('CreateReservationFirst').isExecuted ? ($('CreateReservationFirst').first().json.reservationId || '') : '')) }}",
+              "type": "string"
+            },
+            {
+              "id": "fd356452-21d3-52a9-a7a1-09d24d16a314",
+              "name": "dealerId",
+              "value": "={{ $('LoadSession').first().json.appointmentRef ? ($('LoadSession').first().json.appointmentDealerId || '') : ($('LoadSession').first().json.dealerId || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "d25d6b69-86d4-5be8-96f8-ee570afa9c1f",
+              "name": "dealerName",
+              "value": "={{ $('LoadSession').first().json.appointmentRef ? ($('LoadSession').first().json.appointmentDealerName || '') : ($('LoadSession').first().json.dealerName || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "6f35a113-199f-519b-9ce2-cda4c0cfc74c",
+              "name": "serviceIds",
+              "value": "={{ String($('ToolInput').first().json.serviceIds || $('LoadSession').first().json.selectedServices || '').toUpperCase().replace(/\\s/g, '') }}",
+              "type": "string"
+            },
+            {
+              "id": "8550cfe6-dbae-5d0c-aeb4-3e292a46e634",
+              "name": "fromDateTime",
+              "value": "={{ (/^\\d{4}-\\d{2}-\\d{2}$/.test(String($('ToolInput').first().json.fromDate || '')) ? DateTime.fromISO($('ToolInput').first().json.fromDate) : $today.plus({ days: 1 })).toFormat(\"yyyy-MM-dd'T'00:00:00\") }}",
+              "type": "string"
+            },
+            {
+              "id": "ecb53bb1-b04c-5ef1-ab3b-e827e2e306e8",
+              "name": "toDateTime",
+              "value": "={{ (/^\\d{4}-\\d{2}-\\d{2}$/.test(String($('ToolInput').first().json.fromDate || '')) ? DateTime.fromISO($('ToolInput').first().json.fromDate) : $today.plus({ days: 1 })).plus({ days: Number($('LoadMarket').first().json.slotWindowDays) || 14 }).toFormat(\"yyyy-MM-dd'T'23:59:59\") }}",
+              "type": "string"
+            },
+            {
+              "id": "52ad41f2-60b4-5496-91b8-660bc7ff010b",
+              "name": "maxSlots",
+              "value": "={{ Number($('LoadMarket').first().json.maxSlotsOffered) || 3 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f9bd0cfa-3f72-503b-952e-cc7ff38d0d95",
+      "name": "SlotWindow",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d263ff15-ff9b-5b96-a96e-1d4a68c85a78",
+              "leftValue": "={{ $json.isNew }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ec01aaaa-49a9-587f-b4e4-27ecb679ee27",
+      "name": "NewBooking",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "http://localhost:5678/webhook/ar-mock/dealerbook/reservations",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ dealerId: $('ToolInput').first().json.dealerId || $('LoadSession').first().json.dealerId, fromDate: $('ToolInput').first().json.fromDate || '', serviceType: $('ToolInput').first().json.serviceType || '', market: $('LoadSession').first().json.market }) }}",
+        "jsonBody": "={{ JSON.stringify({ reservationId: $json.reservationId, serviceIds: String($json.serviceIds || 'MAINT').split(',').filter(Boolean) }) }}",
         "options": {
           "timeout": 15000
         }
       },
-      "id": "76f7cd6e-e595-53a6-b02b-d088529d8ad1",
-      "name": "CallDealerBookSlots",
+      "id": "5642fe95-d9b1-5822-8830-5ce055f445d1",
+      "name": "PatchServices",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        624,
+        1248,
+        0
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/ar-mock/dealerbook/timeslots",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ reservationId: $('SlotWindow').first().json.reservationId, dealerId: $('SlotWindow').first().json.dealerId, fromDateTime: $('SlotWindow').first().json.fromDateTime, toDateTime: $('SlotWindow').first().json.toDateTime, market: $('SlotWindow').first().json.market }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "e8e68348-02c5-5f8b-baab-f88386bc8a67",
+      "name": "CallDealerBookTimeslots",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1456,
         0
       ],
       "retryOnFail": true,
@@ -127,19 +349,25 @@
             {
               "id": "c5fe0b30-1fb1-54b4-a926-f42c5a82350f",
               "name": "slots",
-              "value": "={{ ($json.slots || []).slice(0, Number($('LoadMarket').first().json.maxSlotsOffered) || 3).map(o => ({ slotId: o.slotId, startsAt: o.startsAt, dealerId: o.dealerId, dealerName: $json.dealerName, label: DateTime.fromISO(o.startsAt, { zone: 'utc' }).setLocale($('LoadSession').first().json.language || 'en').toFormat('cccc dd.MM. HH:mm') })) }}",
+              "value": "={{ ($json.slots || []).slice(0, $('SlotWindow').first().json.maxSlots).map(o => ({ slotId: o.slotId, startsAt: o.startsAt, dealerId: o.dealerId, dealerName: $json.dealerName || $('SlotWindow').first().json.dealerName, label: DateTime.fromISO(o.startsAt, { zone: 'utc' }).setLocale($('SlotWindow').first().json.language).toFormat('cccc dd.MM. HH:mm') })) }}",
               "type": "array"
             },
             {
               "id": "931f11e5-36b6-5fcf-9eea-9194b740484a",
               "name": "dealerId",
-              "value": "={{ $json.dealerId || $('ToolInput').first().json.dealerId || $('LoadSession').first().json.dealerId || '' }}",
+              "value": "={{ $json.dealerId || $('SlotWindow').first().json.dealerId }}",
               "type": "string"
             },
             {
               "id": "e85ca311-aec9-5e64-8c1a-77ff12a09d5d",
               "name": "dealerName",
-              "value": "={{ $json.dealerName || $('LoadSession').first().json.dealerName || '' }}",
+              "value": "={{ $json.dealerName || $('SlotWindow').first().json.dealerName }}",
+              "type": "string"
+            },
+            {
+              "id": "ded7daf1-f416-5f39-b23b-1f1930a8d2cd",
+              "name": "selectedServices",
+              "value": "={{ $('SlotWindow').first().json.serviceIds }}",
               "type": "string"
             },
             {
@@ -151,7 +379,7 @@
             {
               "id": "f44f71f2-48fb-5f9a-8b8e-a8aea611d653",
               "name": "sessionId",
-              "value": "={{ $('LoadSession').first().json.sessionId }}",
+              "value": "={{ $('SlotWindow').first().json.sessionId }}",
               "type": "string"
             }
           ]
@@ -163,8 +391,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        832,
-        0
+        0,
+        672
       ]
     },
     {
@@ -180,7 +408,7 @@
             {
               "id": "c6763236-b6f6-5473-8b74-5d435d105704",
               "name": "result",
-              "value": "={{ $json.slots.length ? { ok: true, dealerId: $json.dealerId, dealerName: $json.dealerName, slots: $json.slots.map(o => ({ slotId: o.slotId, when: o.label })), note: 'Offer these by day and time, never by slotId. When the caller picks one, use its slotId in BookAppointment.' } : { ok: true, dealerId: $json.dealerId, dealerName: $json.dealerName, slots: [], note: $json.reason === 'dealer_not_dealerbook_enabled' ? 'This dealer cannot be booked online. Hand off with SCENARIO_REQUIRES_AGENT.' : 'No slots in this window. Try once more with a later fromDate, then hand off with NO_SLOT.' } }}",
+              "value": "={{ $json.slots.length ? { ok: true, dealerId: $json.dealerId, dealerName: $json.dealerName, services: $json.selectedServices, slots: $json.slots.map(o => ({ slotId: o.slotId, when: o.label })), note: 'Offer these by day and time, never by slotId. When the caller picks one, read it back in state CONFIRM with its slotId; book or move it only after the caller says yes.' } : { ok: true, dealerId: $json.dealerId, dealerName: $json.dealerName, slots: [], note: $json.reason === 'dealer_not_dealerbook_enabled' ? 'This dealer cannot be booked online. Offer a retailer callback (intent CALLBACK) or self-service instructions (SELF_SERVICE).' : 'No slots in this window. Try once more with a later fromDate, then hand off with NO_SLOT.' } }}",
               "type": "object"
             }
           ]
@@ -193,8 +421,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1088,
-        0
+        208,
+        672
       ]
     },
     {
@@ -219,8 +447,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "offeredSlots": "={{ $json.offeredSlots }}",
-            "dealerId": "={{ $json.dealerId }}",
-            "dealerName": "={{ $json.dealerName }}"
+            "selectedServices": "={{ $json.selectedServices }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -493,6 +720,156 @@
               "type": "number",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "identifyAttempts",
+              "displayName": "identifyAttempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reservationId",
+              "displayName": "reservationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "selectedServices",
+              "displayName": "selectedServices",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentRef",
+              "displayName": "appointmentRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentLabel",
+              "displayName": "appointmentLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerId",
+              "displayName": "appointmentDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerName",
+              "displayName": "appointmentDealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cancelledAt",
+              "displayName": "cancelledAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "movedAt",
+              "displayName": "movedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackAt",
+              "displayName": "callbackAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "voiceCallId",
+              "displayName": "voiceCallId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentOfferId",
+              "displayName": "appointmentOfferId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fulfilments",
+              "displayName": "fulfilments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -504,8 +881,8 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        1296,
-        0
+        416,
+        672
       ],
       "alwaysOutputData": true
     },
@@ -520,8 +897,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1504,
-        0
+        624,
+        672
       ]
     },
     {
@@ -561,15 +938,15 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        832,
+        1456,
         272
       ]
     },
     {
       "parameters": {
-        "content": "## Find slots\n\nDealerBook availability for the agreed dealer from the requested date; at most maxSlotsOffered (market row), labelled in the session language.",
-        "width": 1072,
-        "height": 656,
+        "content": "## Find slots\n\nAPI V2 order: a missing reservation is created first from the session's dealer (CreateReservation); PATCH the selected services onto the reservation (new booking only), then GET timeslots for the reservation (or the existing booking's offer when rescheduling) in the market's window; at most maxSlotsOffered, labelled in the session language.",
+        "width": 1696,
+        "height": 624,
         "color": 5
       },
       "id": "zone-01",
@@ -578,14 +955,14 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -176
+        -144
       ]
     },
     {
       "parameters": {
-        "content": "## Remember what was offered\n\nOffered slots are stored on the session so a booking can only name one of them; the tool returns them by day and time, never by slotId.",
-        "width": 656,
-        "height": 656,
+        "content": "## Remember what was offered\n\nSelected services and offered slots are stored on the session so a booking or a move can only name one of them; the tool returns them by day and time, never by slotId.",
+        "width": 864,
+        "height": 352,
         "color": 3
       },
       "id": "zone-02",
@@ -593,15 +970,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1024,
-        -176
+        -64,
+        528
       ]
     },
     {
       "parameters": {
-        "content": "## AR-12 FindSlots\n\nThe offered slots are written to the session row. BookAppointment refuses any slotId that was not offered in this call: slots are facts, not model output. Labels are spoken-form weekday, date and time in the session language.",
+        "content": "## AR-12 FindSlots\n\nDealerBook API V2 order (endpoint sheet, 2026-10-23): the selected services are a PATCH on the reservation, then GET timeslots for the reservation in a window (fromDateTime to toDateTime, slotWindowDays of the market row). A reschedule searches the existing booking's offer id and skips the PATCH. The offered slots are written to the session row; a booking or a move can only name one of them. Labels are spoken-form weekday, date and time in the session language.",
         "width": 768,
-        "height": 256,
+        "height": 272,
         "color": 6
       },
       "id": "zone-panel-1",
@@ -610,7 +987,7 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -448
+        -432
       ]
     }
   ],
@@ -641,14 +1018,90 @@
       "main": [
         [
           {
-            "node": "CallDealerBookSlots",
+            "node": "HasReservation",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "CallDealerBookSlots": {
+    "HasReservation": {
+      "main": [
+        [
+          {
+            "node": "SlotWindow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CreateReservationFirst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CreateReservationFirst": {
+      "main": [
+        [
+          {
+            "node": "SlotWindow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SlotWindow": {
+      "main": [
+        [
+          {
+            "node": "NewBooking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NewBooking": {
+      "main": [
+        [
+          {
+            "node": "PatchServices",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CallDealerBookTimeslots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PatchServices": {
+      "main": [
+        [
+          {
+            "node": "CallDealerBookTimeslots",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReturnSlotsError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CallDealerBookTimeslots": {
       "main": [
         [
           {
@@ -704,7 +1157,7 @@
     "executionOrder": "v1"
   },
   "meta": {
-    "description": "Agent tool. Returns up to maxSlotsOffered (market row, default three) bookable DealerBook slots for a dealer from a date. Inputs: sessionId (plumbed), dealerId, fromDate (YYYY-MM-DD), serviceType. Side effect: stores the offered slots on the session so BookAppointment can validate the choice."
+    "description": "Agent tool. Writes the chosen services to the DealerBook reservation (PATCH) and returns up to maxSlotsOffered (market row, default three) bookable timeslots in the market's window from a date, for the session's reservation (new booking) or the existing booking's offer (reschedule). Inputs: sessionId (plumbed), serviceIds, fromDate (YYYY-MM-DD). Side effect: stores the selected services and the offered slots on the session so BookAppointment and MoveAppointment can validate the choice."
   },
   "tags": [
     "voice-booking",

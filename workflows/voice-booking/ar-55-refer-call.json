@@ -1,0 +1,828 @@
+{
+  "name": "AR-55 PoC: Refer call to agent",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "workflowInputs",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "sessionId",
+              "type": "string"
+            },
+            {
+              "name": "summary",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "0ca3d311-9b36-5220-a0fe-ac03151e9874",
+      "name": "ToolInput",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "sessionId",
+              "condition": "eq",
+              "keyValue": "={{ $json.sessionId }}"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      },
+      "id": "512b88b3-8489-5ea5-9f61-2b06ce3a8330",
+      "name": "LoadSession",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-14-build-handoff",
+          "mode": "list",
+          "cachedResultName": "AR-14 Build handoff context"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $('ToolInput').first().json.sessionId }}",
+            "intent": "={{ $('LoadSession').first().json.intent || 'UNKNOWN' }}",
+            "handoffReason": "CALLER_REQUEST",
+            "summary": "={{ $('ToolInput').first().json.summary || '' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffReason",
+              "displayName": "handoffReason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "d8596d99-37ea-56c3-84e6-e8c3e6872d75",
+      "name": "BuildHandoff",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "returnAll": true
+      },
+      "id": "6723a1c2-22b2-55c7-b88c-b9c5dfaf9973",
+      "name": "LoadProofConfig",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "rows",
+        "options": {}
+      },
+      "id": "eac33c16-5fae-5401-99cf-b56991f5c9f9",
+      "name": "ProofRows",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        832,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ Object.fromEntries(($json.rows || []).filter(r => r.key).map(r => [r.key, r.value])) }}",
+        "options": {}
+      },
+      "id": "78f26650-c19c-5d2c-b88e-d90c31eed4b8",
+      "name": "ProofConfig",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eebb45f4-0546-5243-938f-d5621bb2ba6a",
+              "name": "callId",
+              "value": "={{ $('LoadSession').first().json.voiceCallId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "e84121c1-fbd9-5ab1-9721-9252095af262",
+              "name": "sessionId",
+              "value": "={{ $('ToolInput').first().json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "380b2446-f0dd-52f5-bd38-1e683609a81a",
+              "name": "correlationId",
+              "value": "={{ $('LoadSession').first().json.correlationId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a2bb9910-5a63-5100-807d-4e334024a92d",
+              "name": "uuiHex",
+              "value": "={{ $('BuildHandoff').first().json.uuiHex || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "2790fb44-8aac-5efd-8ffe-4d0c55da1a97",
+              "name": "targetUri",
+              "value": "={{ 'sip:agent@' + ($('ProofConfig').first().json.referDomain || 'proof.n8n.invalid') + '?User-to-User=' + ($('BuildHandoff').first().json.uuiHex || '') + '%3Bencoding%3Dhex' }}",
+              "type": "string"
+            },
+            {
+              "id": "7710d06f-fc06-5d69-82ec-7507927e0af8",
+              "name": "startedAt",
+              "value": "={{ Date.now() }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ad6d0dba-a292-5a20-888b-e51f98254e29",
+      "name": "ReferRequest",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1248,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9da88e24-2d2a-5e48-ae04-bceb8c8a43b7",
+              "leftValue": "={{ $json.callId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "35d80622-69aa-5b13-8b71-41983e0c4f20",
+      "name": "HasCallId",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1456,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.openai.com/v1/realtime/calls/' + $json.callId + '/refer' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ target_uri: $json.targetUri }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "e4941815-1d59-5052-a03a-19e1074d12cf",
+      "name": "CallRefer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1456,
+        272
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-17-log-event",
+          "mode": "list",
+          "cachedResultName": "AR-17 Log event"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "correlationId": "={{ $('ReferRequest').first().json.correlationId }}",
+            "sessionId": "={{ $('ReferRequest').first().json.sessionId }}",
+            "caseId": "",
+            "workflow": "AR-55",
+            "event": "refer_sent",
+            "state": "",
+            "tool": "",
+            "latencyMs": "={{ Date.now() - $('ReferRequest').first().json.startedAt }}",
+            "outcome": "sent",
+            "errorCode": "",
+            "detail": "={{ 'target=' + $('ReferRequest').first().json.targetUri }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event",
+              "displayName": "event",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tool",
+              "displayName": "tool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "latencyMs",
+              "displayName": "latencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "outcome",
+              "displayName": "outcome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "errorCode",
+              "displayName": "errorCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "detail",
+              "displayName": "detail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "3a88c219-eebd-5c8d-8285-7394857a49c5",
+      "name": "LogReferSent",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-17-log-event",
+          "mode": "list",
+          "cachedResultName": "AR-17 Log event"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "correlationId": "={{ $('ReferRequest').first().json.correlationId }}",
+            "sessionId": "={{ $('ReferRequest').first().json.sessionId }}",
+            "caseId": "",
+            "workflow": "AR-55",
+            "event": "refer_failed",
+            "state": "",
+            "tool": "",
+            "latencyMs": "={{ Date.now() - $('ReferRequest').first().json.startedAt }}",
+            "outcome": "failed",
+            "errorCode": "={{ $json.callId ? 'refer_failed' : 'no_call_id' }}",
+            "detail": "={{ String(($json.error || {}).message || 'no voiceCallId on the session').slice(0, 200) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event",
+              "displayName": "event",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tool",
+              "displayName": "tool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "latencyMs",
+              "displayName": "latencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "outcome",
+              "displayName": "outcome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "errorCode",
+              "displayName": "errorCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "detail",
+              "displayName": "detail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "8e502431-3a8f-5761-9be6-31c3276d995d",
+      "name": "LogReferFailed",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { ok: true, message: 'Transfer requested. Say the handover line and stop talking.' } }}",
+        "options": {}
+      },
+      "id": "69a4f129-b108-5522-9425-8128cfeda1f3",
+      "name": "ReturnReferred",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { ok: false, error: 'refer_failed', message: 'The transfer could not be requested. Apologise once and ask the caller to call the dealer directly.' } }}",
+        "options": {}
+      },
+      "id": "d2ac3d11-d8a3-5a0f-917e-85c711517450",
+      "name": "ReturnReferFailed",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Refer\n\nAR-14 builds the UUI; the refer goes to the OpenAI call with the UUI as a Refer-To query parameter. No call id on the session means the call was never accepted through AR-51.",
+        "width": 1696,
+        "height": 608,
+        "color": 3
+      },
+      "id": "zone-01",
+      "name": "zone-01",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Outcome\n\nSent or failed is logged with the target; the tool answer tells the model what to say.",
+        "width": 448,
+        "height": 624,
+        "color": 5
+      },
+      "id": "zone-02",
+      "name": "zone-02",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## AR-55 Refer call\n\nRisk 1 and 2 of decision doc 13 in one call: does the REFER reach the carrier, and does the query parameter in Refer-To survive. AR-53 answers both from what Twilio posts.",
+        "width": 768,
+        "height": 256,
+        "color": 6
+      },
+      "id": "zone-panel-1",
+      "name": "zone-panel-1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -400
+      ]
+    }
+  ],
+  "connections": {
+    "LoadProofConfig": {
+      "main": [
+        [
+          {
+            "node": "ProofRows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProofRows": {
+      "main": [
+        [
+          {
+            "node": "ProofConfig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ToolInput": {
+      "main": [
+        [
+          {
+            "node": "LoadSession",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LoadSession": {
+      "main": [
+        [
+          {
+            "node": "BuildHandoff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BuildHandoff": {
+      "main": [
+        [
+          {
+            "node": "LoadProofConfig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProofConfig": {
+      "main": [
+        [
+          {
+            "node": "ReferRequest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReferRequest": {
+      "main": [
+        [
+          {
+            "node": "HasCallId",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HasCallId": {
+      "main": [
+        [
+          {
+            "node": "CallRefer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LogReferFailed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CallRefer": {
+      "main": [
+        [
+          {
+            "node": "LogReferSent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LogReferFailed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LogReferSent": {
+      "main": [
+        [
+          {
+            "node": "ReturnReferred",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LogReferFailed": {
+      "main": [
+        [
+          {
+            "node": "ReturnReferFailed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "Inputs: sessionId, summary. Builds the handover UUI (AR-14), then POSTs refer to the OpenAI call with target_uri sip:agent@<referDomain>?User-to-User=<hex>;encoding=hex. Twilio receives the REFER and posts the Refer-To to AR-53. Returns {ok, message}."
+  },
+  "tags": [
+    "voice-booking",
+    "poc"
+  ],
+  "project": "Voice Booking",
+  "folder": "Voice Booking Agent"
+}

@@ -3,22 +3,27 @@
   "zones": [
     {
       "title": "Find slots",
-      "body": "DealerBook availability for the agreed dealer from the requested date; at most maxSlotsOffered (market row), labelled in the session language.",
+      "body": "API V2 order: a missing reservation is created first from the session's dealer (CreateReservation); PATCH the selected services onto the reservation (new booking only), then GET timeslots for the reservation (or the existing booking's offer when rescheduling) in the market's window; at most maxSlotsOffered, labelled in the session language.",
       "color": 5,
       "nodes": [
         "ToolInput",
         "LoadSession",
         "LoadMarket",
-        "CallDealerBookSlots",
-        "ShapeSlots",
+        "HasReservation",
+        "SlotWindow",
+        "NewBooking",
+        "PatchServices",
+        "CallDealerBookTimeslots",
+        "CreateReservationFirst",
         "ReturnSlotsError"
       ]
     },
     {
       "title": "Remember what was offered",
-      "body": "Offered slots are stored on the session so a booking can only name one of them; the tool returns them by day and time, never by slotId.",
+      "body": "Selected services and offered slots are stored on the session so a booking or a move can only name one of them; the tool returns them by day and time, never by slotId.",
       "color": 3,
       "nodes": [
+        "ShapeSlots",
         "OfferSlots",
         "StoreOffered",
         "ReturnSlots"
@@ -28,7 +33,7 @@
   "panels": [
     {
       "title": "AR-12 FindSlots",
-      "body": "The offered slots are written to the session row. BookAppointment refuses any slotId that was not offered in this call: slots are facts, not model output. Labels are spoken-form weekday, date and time in the session language.",
+      "body": "DealerBook API V2 order (endpoint sheet, 2026-10-23): the selected services are a PATCH on the reservation, then GET timeslots for the reservation in a window (fromDateTime to toDateTime, slotWindowDays of the market row). A reschedule searches the existing booking's offer id and skips the PATCH. The offered slots are written to the session row; a booking or a move can only name one of them. Labels are spoken-form weekday, date and time in the session language.",
       "color": 6,
       "width": 768
     }

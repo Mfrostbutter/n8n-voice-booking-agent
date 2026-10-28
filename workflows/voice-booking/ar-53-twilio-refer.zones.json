@@ -1,0 +1,38 @@
+{
+  "gutter": 16,
+  "zones": [
+    {
+      "title": "Refer received",
+      "body": "ReferTransferTarget is the Refer-To Twilio received. The UUI hex is decoded, the session gets refer_received, the event carries the target byte-exact.",
+      "color": 4,
+      "nodes": [
+        "ReceiveRefer",
+        "LoadProofConfig",
+        "ProofRows",
+        "ProofConfig",
+        "ShapeRefer",
+        "StoreReferReceived",
+        "LogReferReceived",
+        "HasHuman"
+      ]
+    },
+    {
+      "title": "Dial the human",
+      "body": "With humanNumber in the config the caller is bridged to the phone; without it the line says whether the context was decoded and ends.",
+      "color": 3,
+      "nodes": [
+        "TwimlDialHuman",
+        "RespondReferTwiml",
+        "TwimlNoHuman"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "title": "AR-53 Twilio refer received",
+      "body": "The proof's pass condition lives here: ReferTransferTarget carries the UUI query parameter, n8n decodes it, the human phone rings. No Twilio signature check on the lab (PoC exception).",
+      "color": 6,
+      "width": 768
+    }
+  ]
+}

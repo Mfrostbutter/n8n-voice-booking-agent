@@ -344,7 +344,7 @@
       "typeVersion": 1.1,
       "position": [
         0,
-        672
+        784
       ],
       "alwaysOutputData": true
     },
@@ -410,7 +410,7 @@
       "typeVersion": 1.3,
       "position": [
         208,
-        672
+        784
       ]
     },
     {
@@ -419,7 +419,7 @@
           "__rl": true,
           "value": "PENDING_ar-15-case-system",
           "mode": "list",
-          "cachedResultName": "AR-15 Case create, update or close"
+          "cachedResultName": "AR-15 CASE case create, update, close or delegate"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -427,11 +427,29 @@
             "op": "create",
             "correlationId": "={{ $('ParseStart').first().json.correlationId }}",
             "caseId": "",
-            "subject": "Appointment booking via voice assistant",
+            "subject": "Appointment request via voice assistant",
             "classification": "Appointment Booking",
             "status": "In Progress",
             "solution": "",
-            "delegatedReason": ""
+            "delegatedReason": "",
+            "accountName": "={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.accountName : '') || '' }}",
+            "caseOrigin": "={{ $('ParseStart').first().json.vin ? 'IN_CAR' : 'IVR' }}",
+            "description": "={{ 'Service appointment request via voice assistant (' + ($('ParseStart').first().json.vin ? 'in-car call' : 'IVR') + ', market ' + $('ResolveMarket').first().json.market + ')' }}",
+            "serviceType": "CS",
+            "delegatedTo": "",
+            "callbackNote": "",
+            "caseCountry": "={{ $('ResolveMarket').first().json.market }}",
+            "accountId": "={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.customerRef : '') || '' }}",
+            "assetId": "={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.cvrId : '') || '' }}",
+            "vinOrFin": "={{ $('ParseStart').first().json.vin || ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.vehicleRef : '') || '' }}",
+            "licensePlate": "={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.plate : '') || '' }}",
+            "mileage": "",
+            "mileageUnit": "={{ $('ResolveMarket').first().json.market === 'GB' ? 'mi' : 'km' }}",
+            "assignedDealerId": "={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.preferredDealerId : '') || '' }}",
+            "type": "Appointment Booking",
+            "topic": "Service appointment",
+            "reason": "Maintenance",
+            "primaryContact": "={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.accountName : '') || '' }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -514,6 +532,186 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "accountName",
+              "displayName": "accountName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "serviceType",
+              "displayName": "serviceType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "delegatedTo",
+              "displayName": "delegatedTo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackNote",
+              "displayName": "callbackNote",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseCountry",
+              "displayName": "caseCountry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "accountId",
+              "displayName": "accountId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assetId",
+              "displayName": "assetId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vinOrFin",
+              "displayName": "vinOrFin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "licensePlate",
+              "displayName": "licensePlate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mileage",
+              "displayName": "mileage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mileageUnit",
+              "displayName": "mileageUnit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assignedDealerId",
+              "displayName": "assignedDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "topic",
+              "displayName": "topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "primaryContact",
+              "displayName": "primaryContact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -530,7 +728,7 @@
       "typeVersion": 1.3,
       "position": [
         416,
-        672
+        784
       ]
     },
     {
@@ -546,7 +744,7 @@
       "typeVersion": 2,
       "position": [
         672,
-        672
+        784
       ]
     },
     {
@@ -614,6 +812,18 @@
               "type": "boolean"
             },
             {
+              "id": "bd211fa6-dbca-568e-8e47-e9b481ec33bb",
+              "name": "caseOrigin",
+              "value": "={{ $('ParseStart').first().json.vin ? 'IN_CAR' : 'IVR' }}",
+              "type": "string"
+            },
+            {
+              "id": "80cd4d5b-41cc-5320-b83f-2be2d04f10d7",
+              "name": "identifyAttempts",
+              "value": 0,
+              "type": "number"
+            },
+            {
               "id": "cc5bc8fb-27c5-5902-8297-7d932ce703e4",
               "name": "customerRef",
               "value": "={{ ($('IdentifyCustomer').first().json.ok && $('IdentifyCustomer').first().json.known) ? ($('IdentifyCustomer').first().json.customerRef || '') : '' }}",
@@ -622,7 +832,7 @@
             {
               "id": "7e436cd4-11dd-5db7-85f4-02cf8d692590",
               "name": "vehicleRef",
-              "value": "={{ $('ParseStart').first().json.vin }}",
+              "value": "={{ $('ParseStart').first().json.vin || (($('IdentifyCustomer').first().json.ok && $('IdentifyCustomer').first().json.known) ? ($('IdentifyCustomer').first().json.vehicleRef || '') : '') }}",
               "type": "string"
             },
             {
@@ -677,7 +887,7 @@
       "typeVersion": 3.4,
       "position": [
         880,
-        672
+        784
       ]
     },
     {
@@ -701,7 +911,7 @@
       "typeVersion": 3.4,
       "position": [
         1088,
-        672
+        784
       ]
     },
     {
@@ -731,7 +941,9 @@
             "offeredSlots": "={{ $json.offeredSlots }}",
             "turns": "={{ $json.turns }}",
             "startedAt": "={{ $json.startedAt }}",
-            "handoffReason": "={{ $json.handoffReason }}"
+            "handoffReason": "={{ $json.handoffReason }}",
+            "caseOrigin": "={{ $json.caseOrigin }}",
+            "identifyAttempts": "={{ $json.identifyAttempts }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -1004,6 +1216,156 @@
               "type": "number",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "identifyAttempts",
+              "displayName": "identifyAttempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reservationId",
+              "displayName": "reservationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "selectedServices",
+              "displayName": "selectedServices",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentRef",
+              "displayName": "appointmentRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentLabel",
+              "displayName": "appointmentLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerId",
+              "displayName": "appointmentDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerName",
+              "displayName": "appointmentDealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cancelledAt",
+              "displayName": "cancelledAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "movedAt",
+              "displayName": "movedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackAt",
+              "displayName": "callbackAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "voiceCallId",
+              "displayName": "voiceCallId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentOfferId",
+              "displayName": "appointmentOfferId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fulfilments",
+              "displayName": "fulfilments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1016,7 +1378,7 @@
       "typeVersion": 1.1,
       "position": [
         1296,
-        672
+        784
       ]
     },
     {
@@ -1169,7 +1531,7 @@
       "typeVersion": 1.3,
       "position": [
         1504,
-        672
+        784
       ]
     },
     {
@@ -1203,7 +1565,7 @@
       "typeVersion": 2.2,
       "position": [
         0,
-        1072
+        1184
       ]
     },
     {
@@ -1279,7 +1641,7 @@
       "typeVersion": 1.3,
       "position": [
         208,
-        1344
+        1456
       ]
     },
     {
@@ -1294,7 +1656,7 @@
       "typeVersion": 3.4,
       "position": [
         208,
-        1072
+        1184
       ]
     },
     {
@@ -1311,7 +1673,7 @@
       "typeVersion": 1.5,
       "position": [
         416,
-        1072
+        1184
       ]
     },
     {
@@ -1348,9 +1710,9 @@
     },
     {
       "parameters": {
-        "content": "## Identify and open the case\n\nMarket row, CRM lookup by VIN, case. The model never sees the VIN or the number.",
+        "content": "## Identify and open the case\n\nMarket row, CASE account lookup by VIN (in-car) or phone number (IVR), then the case with its mandatory fields (account name, origin, description, service type) and the CASE booking prerequisites of 2026-10-23 (country, account, asset, VIN or FIN, plate, mileage unit, assigned dealer, classification, primary contact). The model never sees the VIN or the number; an unknown caller is identified by spoken data in the dialogue.",
         "width": 656,
-        "height": 352,
+        "height": 464,
         "color": 3
       },
       "id": "zone-03",
@@ -1366,7 +1728,7 @@
       "parameters": {
         "content": "## Session\n\nRandom session id, one row in ar_sessions per call, state starts at IDENTIFY. The greeting is the market's disclosure plus the ar_prompts greeting in the session language. Every start is logged to ar_events.",
         "width": 1072,
-        "height": 352,
+        "height": 464,
         "color": 3
       },
       "id": "zone-04",
@@ -1391,12 +1753,12 @@
       "typeVersion": 1,
       "position": [
         -64,
-        928
+        1040
       ]
     },
     {
       "parameters": {
-        "content": "## AR-01 Session start\n\nGateway calls this once the INVITE is answered. Header auth. Re-delivery of a known correlationId returns the existing session without speaking again.",
+        "content": "## AR-01 Session start\n\nGateway calls this once the INVITE is answered. Header auth. In-car calls carry the VIN; IVR calls carry only the phone number and an unknown caller is identified by spoken data in the dialogue. Re-delivery of a known correlationId returns the existing session without speaking again.",
         "width": 816,
         "height": 256,
         "color": 6

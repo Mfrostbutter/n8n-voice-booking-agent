@@ -28,7 +28,7 @@
     },
     {
       "title": "Identify and open the case",
-      "body": "Market row, CRM lookup by VIN, case. The model never sees the VIN or the number.",
+      "body": "Market row, CASE account lookup by VIN (in-car) or phone number (IVR), then the case with its mandatory fields (account name, origin, description, service type) and the CASE booking prerequisites of 2026-10-23 (country, account, asset, VIN or FIN, plate, mileage unit, assigned dealer, classification, primary contact). The model never sees the VIN or the number; an unknown caller is identified by spoken data in the dialogue.",
       "color": 3,
       "nodes": [
         "LoadMarket",
@@ -63,7 +63,7 @@
   "panels": [
     {
       "title": "AR-01 Session start",
-      "body": "Gateway calls this once the INVITE is answered. Header auth. Re-delivery of a known correlationId returns the existing session without speaking again.",
+      "body": "Gateway calls this once the INVITE is answered. Header auth. In-car calls carry the VIN; IVR calls carry only the phone number and an unknown caller is identified by spoken data in the dialogue. Re-delivery of a known correlationId returns the existing session without speaking again.",
       "color": 6,
       "width": 816
     }

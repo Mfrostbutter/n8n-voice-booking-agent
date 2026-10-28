@@ -3,7 +3,7 @@
   "zones": [
     {
       "title": "Booking gate",
-      "body": "Rules in order: a booking already exists; the slot was not offered in this call; the caller has not confirmed it (state CONFIRM with this slotId read back). Only Proceed books.",
+      "body": "Rules in order: a booking already exists; no reservation in hand; the slot was not offered in this call; the caller has not confirmed it (state CONFIRM with this slotId read back). Only Proceed books.",
       "color": 5,
       "nodes": [
         "ToolInput",
@@ -11,15 +11,17 @@
         "BookingGate",
         "BookingRequest",
         "ReplyAlreadyBooked",
+        "ReplyNoReservation",
         "ReplySlotNotOffered",
         "ReplyNotConfirmed"
       ]
     },
     {
       "title": "Book",
-      "body": "Idempotency key session:slot. The confirmation code comes from DealerBook, never from the model.",
+      "body": "PATCH the timeslot and the fulfilment onto the reservation, then POST the booking with the idempotency key session:slot. The booking id and the six-letter reference code come from DealerBook, never from the model; a booking error becomes a retailer callback.",
       "color": 3,
       "nodes": [
+        "PatchReservation",
         "CallDealerBookBook",
         "StoreBooking",
         "ReturnBooking",
@@ -30,7 +32,7 @@
   "panels": [
     {
       "title": "AR-13 BookAppointment",
-      "body": "BookingGate is the only place a booking can start: the slot must be one offered in this call, read back in CONFIRM, and confirmed in a later turn. Books with an idempotency key, writes bookingRef and confirmationCode to the session, sets state BOOKED. The spoken confirmation is built from this result, never from the model.",
+      "body": "BookingGate is the only place a booking can start: the slot must be one offered in this call, read back in CONFIRM, and confirmed in a later turn. Then the API V2 order: PATCH the timeslot (and the fulfilment when the caller asked for mobility) onto the reservation, POST the booking with an idempotency key. The booking id goes to the session as bookingRef, the six-letter reference code as confirmationCode; the spoken confirmation is built from this result, never from the model. A booking error is a retailer callback (CAC work instruction), not a handover.",
       "color": 6,
       "width": 816
     }

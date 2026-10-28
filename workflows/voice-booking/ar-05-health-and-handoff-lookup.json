@@ -93,7 +93,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "={{ $json.sessionId ? { found: true, statusCode: 200, correlationId: $json.correlationId, sessionId: $json.sessionId, caseId: $json.caseId, state: $json.state, intent: $json.intent, handoffReason: $json.handoffReason || null, handoffResult: $json.handoffResult || null, summary: $json.handoffSummary || '', dealer: $json.dealerName || null, slotId: $json.slotId || null, confirmationCode: $json.confirmationCode || null, language: $json.language, market: $json.market, startedAt: $json.startedAt, endedAt: $json.endedAt || null } : { found: false, statusCode: 404 } }}",
+        "jsonOutput": "={{ $json.sessionId ? { found: true, statusCode: 200, correlationId: $json.correlationId, sessionId: $json.sessionId, caseId: $json.caseId, state: $json.state, intent: $json.intent, handoffReason: $json.handoffReason || null, handoffResult: $json.handoffResult || null, summary: $json.handoffSummary || '', dealer: $json.dealerName || null, slotId: $json.slotId || null, confirmationCode: $json.confirmationCode || null, appointmentRef: $json.appointmentRef || null, movedAt: $json.movedAt || null, cancelledAt: $json.cancelledAt || null, callbackAt: $json.callbackAt || null, caseOrigin: $json.caseOrigin || null, language: $json.language, market: $json.market, startedAt: $json.startedAt, endedAt: $json.endedAt || null } : { found: false, statusCode: 404 } }}",
         "options": {}
       },
       "id": "6b1a397e-1554-5c5e-a48c-162101f3511a",

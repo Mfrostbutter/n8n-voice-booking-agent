@@ -41,9 +41,11 @@ python3 build/setup.py
 ```
 
 The setup script creates three credentials (`AR gateway bearer`, `AR chat
-memory Postgres`, `AR model endpoint`), nine Data Tables (`ar_sessions`,
-`ar_events`, `ar_markets`, `ar_codes`, `ar_prompts`, `ar_mock_bookings`,
-`ar_mock_cases`, `ar_mock_customers`, `ar_mock_dealers`) and writes
+memory Postgres`, `AR model endpoint`; plus `AR OpenAI Realtime` and `AR MCP
+bearer` when `AR_OPENAI_API_KEY` and `AR_PROOF_MCP_TOKEN` are exported, for the
+voice proof), ten Data Tables (`ar_sessions`, `ar_events`, `ar_markets`,
+`ar_codes`, `ar_prompts`, `ar_mock_bookings`, `ar_mock_cases`,
+`ar_mock_customers`, `ar_mock_dealers`, `ar_proof_config`) and writes
 `lab-ids.json`, the per-instance configuration
 the generator and the deploy script read. Re-running reuses what exists by
 name; `python3 build/setup.py --tables-only` adds a new table or column to
@@ -61,7 +63,7 @@ python3 build/deploy.py
 The first line is the node policy check (README, "Node policy"). It passes
 on the shipped set; run it again after any change to `build/gen.py`.
 
-Two passes: the first creates the nineteen workflows by name and learns their
+Two passes: the first creates the thirty-three workflows by name and learns their
 ids, the second rewrites every sub-workflow reference and publishes. Callers
 that reference a sub-workflow not yet published fail to publish in pass one;
 that is expected, pass two resolves it. The last line is either `all deployed

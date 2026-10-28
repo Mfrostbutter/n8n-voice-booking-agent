@@ -1,0 +1,959 @@
+{
+  "name": "AR-19 Tool: Create reservation",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "workflowInputs",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "sessionId",
+              "type": "string"
+            },
+            {
+              "name": "dealerId",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "2a7f530e-a2ac-5f25-b08c-531a05208821",
+      "name": "ToolInput",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "sessionId",
+              "condition": "eq",
+              "keyValue": "={{ $json.sessionId }}"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      },
+      "id": "d6186300-be9e-57f6-aae1-d42c34735a66",
+      "name": "LoadSession",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/ar-mock/dealerbook/reservations",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ vin: $('LoadSession').first().json.vehicleRef || '', dealerId: $('ToolInput').first().json.dealerId || $('LoadSession').first().json.dealerId || '', market: $('LoadSession').first().json.market, customerId: $('LoadSession').first().json.customerRef || '' }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "847c0613-8c69-5da7-bf8d-364f3a0814a3",
+      "name": "CallDealerBookReservation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c953c7bb-5a20-5579-bdb8-cdc85b6b99d5",
+              "leftValue": "={{ $json.ok === true && !!$json.reservationId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ae333c2c-7584-5c8f-8df1-ede1ce2e465c",
+      "name": "ReservationOk",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/ar-mock/dealerbook/services",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ reservationId: $json.reservationId }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "340f1d1e-30e0-511c-802d-a38c73f957cd",
+      "name": "CallDealerBookServices",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/ar-mock/dealerbook/fulfilments",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ reservationId: $('CallDealerBookReservation').first().json.reservationId }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "3f5078bb-0a79-5038-badf-46a682748830",
+      "name": "CallDealerBookFulfilments",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f34d4026-9f96-5768-8ea6-c70fce1fc86e",
+              "name": "ok",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "31d06d0d-cd8b-546b-bb09-64b3e183987a",
+              "name": "reservationId",
+              "value": "={{ $('CallDealerBookReservation').first().json.reservationId }}",
+              "type": "string"
+            },
+            {
+              "id": "1758797b-4022-50db-a2fe-fffc1e342303",
+              "name": "dealerId",
+              "value": "={{ $('CallDealerBookReservation').first().json.dealerId || $('ToolInput').first().json.dealerId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "73832707-eccb-53cf-ba4d-a1bcf934bf78",
+              "name": "dealerName",
+              "value": "={{ $('CallDealerBookReservation').first().json.dealerName || $('LoadSession').first().json.dealerName || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "8c24680b-14c0-5a28-9d4a-f1f19f446345",
+              "name": "services",
+              "value": "={{ $('CallDealerBookServices').first().json.services || [] }}",
+              "type": "array"
+            },
+            {
+              "id": "6cef737a-5fad-562d-9804-7a2b9598039d",
+              "name": "servicesJson",
+              "value": "={{ JSON.stringify($('CallDealerBookServices').first().json.services || []) }}",
+              "type": "string"
+            },
+            {
+              "id": "9f31707f-94e6-5a8e-a22b-3cfea35820ce",
+              "name": "fulfilments",
+              "value": "={{ $json.fulfilments || [] }}",
+              "type": "array"
+            },
+            {
+              "id": "f0338016-3664-5394-b3de-feca31a48e49",
+              "name": "fulfilmentsJson",
+              "value": "={{ JSON.stringify($json.fulfilments || []) }}",
+              "type": "string"
+            },
+            {
+              "id": "15eeb5e8-ced1-5764-8798-9ca8892ed70d",
+              "name": "note",
+              "value": "Reservation created. Offer the services by name; maintenance service is the usual choice. When the caller has chosen, call FindSlots with the serviceIds and the earliest date.",
+              "type": "string"
+            },
+            {
+              "id": "f595f528-fbc6-5501-8d3b-738b020543e4",
+              "name": "sessionId",
+              "value": "={{ $('LoadSession').first().json.sessionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "88232423-7bc7-54b5-9c1f-cea19c483cf3",
+      "name": "ShapeReservation",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "sessionId",
+              "condition": "eq",
+              "keyValue": "={{ $json.sessionId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "reservationId": "={{ $json.reservationId }}",
+            "services": "={{ $json.servicesJson }}",
+            "fulfilments": "={{ $json.fulfilmentsJson }}",
+            "dealerId": "={{ $json.dealerId }}",
+            "dealerName": "={{ $json.dealerName }}",
+            "selectedServices": "",
+            "offeredSlots": "[]"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "market",
+              "displayName": "market",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customerRef",
+              "displayName": "customerRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vehicleRef",
+              "displayName": "vehicleRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "greetingName",
+              "displayName": "greetingName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vehicleLabel",
+              "displayName": "vehicleLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerId",
+              "displayName": "dealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerName",
+              "displayName": "dealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "offeredSlots",
+              "displayName": "offeredSlots",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slotId",
+              "displayName": "slotId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bookingRef",
+              "displayName": "bookingRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationCode",
+              "displayName": "confirmationCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationChannel",
+              "displayName": "confirmationChannel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationSent",
+              "displayName": "confirmationSent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffReason",
+              "displayName": "handoffReason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffResult",
+              "displayName": "handoffResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffSummary",
+              "displayName": "handoffSummary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "turns",
+              "displayName": "turns",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "endedAt",
+              "displayName": "endedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "endReason",
+              "displayName": "endReason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lastLatencyMs",
+              "displayName": "lastLatencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "identifyAttempts",
+              "displayName": "identifyAttempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reservationId",
+              "displayName": "reservationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "selectedServices",
+              "displayName": "selectedServices",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentRef",
+              "displayName": "appointmentRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentLabel",
+              "displayName": "appointmentLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerId",
+              "displayName": "appointmentDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerName",
+              "displayName": "appointmentDealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cancelledAt",
+              "displayName": "cancelledAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "movedAt",
+              "displayName": "movedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackAt",
+              "displayName": "callbackAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "voiceCallId",
+              "displayName": "voiceCallId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentOfferId",
+              "displayName": "appointmentOfferId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fulfilments",
+              "displayName": "fulfilments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "41946132-49b3-5b12-86df-093642a6f758",
+      "name": "StoreReservation",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        672
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ (s => ({ ok: s.ok, reservationId: s.reservationId, dealerName: s.dealerName, services: s.services, note: s.note }))($('ShapeReservation').first().json) }}",
+        "options": {}
+      },
+      "id": "c337496a-f234-5494-9bdf-308004c74d7b",
+      "name": "ReturnReservation",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { ok: false, reservationId: '', dealerId: $json.dealerId || $('ToolInput').first().json.dealerId || '', dealerName: $json.dealerName || $('LoadSession').first().json.dealerName || '', services: [], error: $json.error || 'reservation_failed', note: $json.error === 'dealer_not_dealerbook_enabled' ? 'This dealer cannot be booked online. Offer a retailer callback (intent CALLBACK) or self-service instructions (SELF_SERVICE).' : 'Unknown dealer. Call FindDealers and use one of its dealerIds.' } }}",
+        "options": {}
+      },
+      "id": "9acb8fc9-96b1-5feb-baf7-b05c9a388594",
+      "name": "ShapeNoReservation",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f43ea229-fa94-56f0-9c71-6d970a52163c",
+              "name": "ok",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "e0f7ba70-a09e-5f8f-b48f-ae681fec121b",
+              "name": "error",
+              "value": "={{ JSON.stringify($json.error || {}).includes('409') ? 'slot_taken' : 'backend_unavailable' }}",
+              "type": "string"
+            },
+            {
+              "id": "3d9cd58d-cb43-53a7-8acf-004376f7bed8",
+              "name": "message",
+              "value": "={{ JSON.stringify($json.error || {}).includes('409') ? 'That slot was taken in the meantime. Call FindSlots again and offer new options.' : 'The backend system is unavailable. Apologise once and hand the caller to an agent (BACKEND_UNAVAILABLE).' }}",
+              "type": "string"
+            },
+            {
+              "id": "c66d6ade-b551-5254-bd34-a3e1bede400c",
+              "name": "detail",
+              "value": "={{ String(($json.error || {}).message || '').slice(0, 200) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2595b5e7-640d-5fc0-8428-b5055d4c5a5a",
+      "name": "ReturnReservationError",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Reservation, services, fulfilments\n\nAPI V2 order: POST reservations for the session's vehicle at the agreed dealer, then GET services and GET fulfilments for it. A dealer without online booking answers with no reservation and the callback or self-service note.",
+        "width": 1280,
+        "height": 624,
+        "color": 3
+      },
+      "id": "zone-01",
+      "name": "zone-01",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Store and return\n\nReservation, dealer, services and fulfilments are stored on the session; selected services and offered slots are reset.",
+        "width": 656,
+        "height": 352,
+        "color": 3
+      },
+      "id": "zone-02",
+      "name": "zone-02",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## AR-19 CreateReservation\n\nDealerBook API V2 order (endpoint sheet, 2026-10-23): POST reservations, GET services, GET fulfilments; the selections follow as PATCHes in FindSlots and BookAppointment. A dealer without online booking answers with no reservation and the note to offer a retailer callback or self-service.",
+        "width": 768,
+        "height": 256,
+        "color": 6
+      },
+      "id": "zone-panel-1",
+      "name": "zone-panel-1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -416
+      ]
+    }
+  ],
+  "connections": {
+    "ToolInput": {
+      "main": [
+        [
+          {
+            "node": "LoadSession",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LoadSession": {
+      "main": [
+        [
+          {
+            "node": "CallDealerBookReservation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CallDealerBookReservation": {
+      "main": [
+        [
+          {
+            "node": "ReservationOk",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReturnReservationError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReservationOk": {
+      "main": [
+        [
+          {
+            "node": "CallDealerBookServices",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ShapeNoReservation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CallDealerBookServices": {
+      "main": [
+        [
+          {
+            "node": "CallDealerBookFulfilments",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReturnReservationError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CallDealerBookFulfilments": {
+      "main": [
+        [
+          {
+            "node": "ShapeReservation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReturnReservationError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ShapeReservation": {
+      "main": [
+        [
+          {
+            "node": "StoreReservation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StoreReservation": {
+      "main": [
+        [
+          {
+            "node": "ReturnReservation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "Agent tool. Creates the DealerBook reservation for the session's vehicle at the agreed dealer (POST reservations), then reads the services and the fulfilments available for it (GET services, GET fulfilments), the first three calls of the API V2 lifecycle. Inputs: sessionId (plumbed), dealerId. Stores reservationId, dealer, services and fulfilments on the session."
+  },
+  "tags": [
+    "voice-booking",
+    "sub-workflow"
+  ],
+  "project": "Voice Booking",
+  "folder": "Voice Booking Agent"
+}

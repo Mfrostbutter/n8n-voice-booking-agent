@@ -1,0 +1,1119 @@
+{
+  "name": "AR-26 Tool: Move appointment",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "workflowInputs",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "sessionId",
+              "type": "string"
+            },
+            {
+              "name": "slotId",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "c015ff43-666d-5d62-af82-19005dfbdd34",
+      "name": "ToolInput",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "sessionId",
+              "condition": "eq",
+              "keyValue": "={{ $json.sessionId }}"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      },
+      "id": "8c13cd12-d052-519d-a3ff-0a63db33948b",
+      "name": "LoadSession",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0a4cd0c3-44ba-5f33-a97b-47219a983611",
+                    "leftValue": "={{ $json.movedAt || '' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "AlreadyMoved"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "3288f8dc-9b2d-55d7-a55d-437865ca312f",
+                    "leftValue": "={{ $json.appointmentRef || '' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NotInHand"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f43e064d-6d31-5b7b-b363-cc493334745b",
+                    "leftValue": "={{ JSON.parse($json.offeredSlots || '[]').some(o => o.slotId === String($('ToolInput').first().json.slotId || '').trim()) }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SlotNotOffered"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d5b58d10-baa7-54f2-be58-6768732d7749",
+                    "leftValue": "={{ $json.state || '' }}",
+                    "rightValue": "CONFIRM",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    }
+                  },
+                  {
+                    "id": "bd209f7f-6a5c-5776-8f3e-e936a1574ee8",
+                    "leftValue": "={{ $json.slotId || '' }}",
+                    "rightValue": "={{ String($('ToolInput').first().json.slotId || '').trim() }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "NotConfirmed"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Proceed"
+        }
+      },
+      "id": "1bb4b0f6-82ba-5199-a78c-287451cf65d1",
+      "name": "MoveGate",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e30ba8ff-80b9-51a0-93d8-e1d29ccf81a3",
+              "name": "ok",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "dbc87c85-aa9a-585b-8a66-a1b22d1e79ec",
+              "name": "already",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "c97b44a5-c200-5e0a-b424-f2a5efb31e07",
+              "name": "message",
+              "value": "The appointment was already moved in this call. Read the new time back; do not move it again.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b0b1b164-9467-5d7d-8548-3623b5ec2ff5",
+      "name": "ReplyAlreadyMoved",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "59445e07-0198-5a0e-bbb2-d77b3bc5b1ca",
+              "name": "ok",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "53f0a51b-a7f4-5ce2-a36b-27e5bd6fdbc0",
+              "name": "error",
+              "value": "no_appointment",
+              "type": "string"
+            },
+            {
+              "id": "170a3901-045d-5187-b78c-a0079f8b49f1",
+              "name": "message",
+              "value": "No appointment in hand. Call FindAppointment first.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "30d4fee8-86f7-5c10-935c-609a3701d49a",
+      "name": "ReplyNotInHand",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a38045bf-cd86-50ff-a505-e138eb585c5f",
+              "name": "ok",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "3e0380aa-471e-5264-8031-f48e4be3fbf6",
+              "name": "error",
+              "value": "slot_not_offered",
+              "type": "string"
+            },
+            {
+              "id": "c8badabc-4d94-5df8-85c2-34910b3f604f",
+              "name": "message",
+              "value": "slotId is not one of the slots offered in this call. Call FindSlots and use one of its slotIds.",
+              "type": "string"
+            },
+            {
+              "id": "e0cc2d3c-e2e9-5a06-b35b-2de668871dea",
+              "name": "offeredSlotIds",
+              "value": "={{ JSON.parse($json.offeredSlots || '[]').map(o => o.slotId) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b14592b2-f419-502c-97d7-12868bd15a58",
+      "name": "ReplySlotNotOffered",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        816
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cde117b5-e586-5083-a5c6-e37ac4b5de1e",
+              "name": "ok",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "657cdc74-0ae3-5170-8254-20c7daca811b",
+              "name": "error",
+              "value": "not_confirmed",
+              "type": "string"
+            },
+            {
+              "id": "734829c9-bb86-53f8-b8d3-ce8c68a8923d",
+              "name": "message",
+              "value": "The caller has not confirmed the new time yet. Read back day, time and dealer with this slotId in the slotId field (state CONFIRM), and call MoveAppointment only in the next turn after the caller says yes.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "58344f5c-d2e2-5b52-8f74-247739c66398",
+      "name": "ReplyNotConfirmed",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        1088
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2898a3b1-c4a2-55d7-a0a7-0392f532e54c",
+              "name": "slot",
+              "value": "={{ JSON.parse($json.offeredSlots || '[]').find(o => o.slotId === String($('ToolInput').first().json.slotId || '').trim()) }}",
+              "type": "object"
+            },
+            {
+              "id": "1e1225b0-72c8-5bff-a128-b4aedea3dfec",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "ddf5d5b6-0330-5b53-84b7-42b9762d5106",
+              "name": "correlationId",
+              "value": "={{ $json.correlationId }}",
+              "type": "string"
+            },
+            {
+              "id": "63b07ada-afdb-5bb4-a735-db8f034b9adf",
+              "name": "appointmentRef",
+              "value": "={{ $json.appointmentRef }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "86d84848-ef4a-5d67-bbbe-cba99860cfee",
+      "name": "MoveRequest",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/ar-mock/dealerbook/bookings/reschedule",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ bookingId: $json.appointmentRef, timeslotId: $json.slot.slotId, dealerName: $json.slot.dealerName || '', correlationId: $json.correlationId }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "9eef88ee-bf64-55f1-807b-32c5bdc14231",
+      "name": "CallDealerBookReschedule",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PENDING"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "sessionId",
+              "condition": "eq",
+              "keyValue": "={{ $('MoveRequest').first().json.sessionId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "movedAt": "={{ $now.toUTC().toISO() }}",
+            "bookingRef": "={{ $json.bookingRef }}",
+            "confirmationCode": "={{ $json.confirmationCode || '' }}",
+            "slotId": "={{ $json.slotId }}",
+            "state": "MOVED",
+            "intent": "RESCHEDULE",
+            "dealerId": "={{ $json.dealerId || '' }}",
+            "dealerName": "={{ $json.dealerName || '' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "correlationId",
+              "displayName": "correlationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseId",
+              "displayName": "caseId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "market",
+              "displayName": "market",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customerRef",
+              "displayName": "customerRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vehicleRef",
+              "displayName": "vehicleRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "greetingName",
+              "displayName": "greetingName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vehicleLabel",
+              "displayName": "vehicleLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerId",
+              "displayName": "dealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dealerName",
+              "displayName": "dealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "offeredSlots",
+              "displayName": "offeredSlots",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slotId",
+              "displayName": "slotId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bookingRef",
+              "displayName": "bookingRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationCode",
+              "displayName": "confirmationCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationChannel",
+              "displayName": "confirmationChannel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confirmationSent",
+              "displayName": "confirmationSent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffReason",
+              "displayName": "handoffReason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffResult",
+              "displayName": "handoffResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "handoffSummary",
+              "displayName": "handoffSummary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "turns",
+              "displayName": "turns",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "endedAt",
+              "displayName": "endedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "endReason",
+              "displayName": "endReason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lastLatencyMs",
+              "displayName": "lastLatencyMs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "identifyAttempts",
+              "displayName": "identifyAttempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reservationId",
+              "displayName": "reservationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "selectedServices",
+              "displayName": "selectedServices",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentRef",
+              "displayName": "appointmentRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentLabel",
+              "displayName": "appointmentLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerId",
+              "displayName": "appointmentDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerName",
+              "displayName": "appointmentDealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cancelledAt",
+              "displayName": "cancelledAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "movedAt",
+              "displayName": "movedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackAt",
+              "displayName": "callbackAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "voiceCallId",
+              "displayName": "voiceCallId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentOfferId",
+              "displayName": "appointmentOfferId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fulfilments",
+              "displayName": "fulfilments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "c9fcbd33-0e84-5403-8a8c-27f83cac61fa",
+      "name": "StoreMoved",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1088,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2d662127-0be7-5cb8-8bfc-dcedd6803c90",
+              "name": "ok",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "87bd8f07-00dc-5124-bb26-9b5a0d8282b1",
+              "name": "bookingRef",
+              "value": "={{ $('CallDealerBookReschedule').first().json.bookingRef }}",
+              "type": "string"
+            },
+            {
+              "id": "3d37ec46-b17c-53ba-bd7a-c3eb29616751",
+              "name": "when",
+              "value": "={{ $('MoveRequest').first().json.slot.label }}",
+              "type": "string"
+            },
+            {
+              "id": "738bd74e-630f-5d7a-aa34-a2965d0693fa",
+              "name": "dealerName",
+              "value": "={{ $('MoveRequest').first().json.slot.dealerName || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "81e3a027-d520-534d-b9da-7195cf5b9e17",
+              "name": "note",
+              "value": "Moved. Read the new day and time back and tell the caller DealerBook sends the confirmation by SMS or email.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6a32e222-ef0e-518e-8588-766f34422c1c",
+      "name": "ReturnMoved",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1296,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e3d1c32f-cdad-5bd8-b8a4-31d0b2686f39",
+              "name": "ok",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "33dc37fa-122a-5407-875c-cd722e7b6886",
+              "name": "error",
+              "value": "={{ JSON.stringify($json.error || {}).includes('409') ? 'slot_taken' : 'backend_unavailable' }}",
+              "type": "string"
+            },
+            {
+              "id": "ac65a9de-0380-52ff-8664-d2379c66a8f7",
+              "name": "message",
+              "value": "={{ JSON.stringify($json.error || {}).includes('409') ? 'That slot was taken in the meantime. Call FindSlots again and offer new options.' : 'The backend system is unavailable. Apologise once and hand the caller to an agent (BACKEND_UNAVAILABLE).' }}",
+              "type": "string"
+            },
+            {
+              "id": "51804994-b482-505d-a931-32479389268a",
+              "name": "detail",
+              "value": "={{ String(($json.error || {}).message || '').slice(0, 200) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "69a59a9e-39b4-5f38-98df-1047210235f8",
+      "name": "ReturnMoveError",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Move gate\n\nRules in order: already moved; no appointment in hand; the slot was not offered in this call; not confirmed (state CONFIRM with this slotId read back). Only Proceed moves.",
+        "width": 864,
+        "height": 1472,
+        "color": 5
+      },
+      "id": "zone-01",
+      "name": "zone-01",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Move\n\nPOST reschedule on the DealerBook booking id keeps the id and the reference code; movedAt, the new slot and state MOVED on the session.",
+        "width": 656,
+        "height": 1472,
+        "color": 3
+      },
+      "id": "zone-02",
+      "name": "zone-02",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        816,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## AR-26 MoveAppointment\n\nRescheduling keeps the DealerBook booking id and the reference code and moves the timeslot (endpoint sheet, 2026-10-23: timeslots for the booking's offer, then POST reschedule; host api-dev there, open). Same two-turn gate as a booking. DealerBook confirms the move to the customer.",
+        "width": 768,
+        "height": 256,
+        "color": 6
+      },
+      "id": "zone-panel-1",
+      "name": "zone-panel-1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -448
+      ]
+    }
+  ],
+  "connections": {
+    "ToolInput": {
+      "main": [
+        [
+          {
+            "node": "LoadSession",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LoadSession": {
+      "main": [
+        [
+          {
+            "node": "MoveGate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MoveGate": {
+      "main": [
+        [
+          {
+            "node": "ReplyAlreadyMoved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReplyNotInHand",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReplySlotNotOffered",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReplyNotConfirmed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MoveRequest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MoveRequest": {
+      "main": [
+        [
+          {
+            "node": "CallDealerBookReschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CallDealerBookReschedule": {
+      "main": [
+        [
+          {
+            "node": "StoreMoved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReturnMoveError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StoreMoved": {
+      "main": [
+        [
+          {
+            "node": "ReturnMoved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "Agent tool. Moves the appointment in hand to one of the slots offered in this call (POST bookings/{bookingId}/reschedule). Inputs: sessionId (plumbed), slotId. MoveGate: appointment in hand, slot offered by FindSlots, read back in CONFIRM with its slotId, confirmed in a later turn. Returns {ok, when, dealerName} or {ok:false, error}."
+  },
+  "tags": [
+    "voice-booking",
+    "sub-workflow"
+  ],
+  "project": "Voice Booking",
+  "folder": "Voice Booking Agent"
+}

@@ -279,12 +279,121 @@
                       "operation": "notEmpty",
                       "singleValue": true
                     }
+                  },
+                  {
+                    "id": "c98ab797-4529-5ef9-8580-57cac259696e",
+                    "leftValue": "={{ $json.movedAt || '' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
                   }
                 ],
                 "combinator": "and"
               },
               "renameOutput": true,
               "outputKey": "Booked"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "05b3146c-38bf-5cb4-bf67-b6333175391d",
+                    "leftValue": "={{ $json.movedAt || '' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Moved"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ca7b820f-a4af-5317-80f0-e5ecc921d36d",
+                    "leftValue": "={{ $json.cancelledAt || '' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cancelled"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b9c64e26-4ebf-5789-a807-768e42fcde36",
+                    "leftValue": "={{ $json.callbackAt || '' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CallbackLogged"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "04aa881e-39b1-58a6-a29f-aef785101af2",
+                    "leftValue": "={{ $json.intent || '' }}",
+                    "rightValue": "SELF_SERVICE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SelfService"
             },
             {
               "conditions": {
@@ -348,7 +457,7 @@
       "typeVersion": 3.4,
       "position": [
         0,
-        672
+        720
       ]
     },
     {
@@ -364,7 +473,7 @@
             {
               "id": "83b8fb8a-5a3a-51de-b149-91ccab649d49",
               "name": "solution",
-              "value": "={{ 'Appointment booked via voice assistant. Confirmation code ' + $json.confirmationCode + '. Dealer ' + ($json.dealerName || $json.dealerId) + '. Slot ' + $json.slotId + '.' }}",
+              "value": "={{ 'Appointment booked via voice assistant. Confirmation code ' + $json.confirmationCode + '. Dealer ' + ($json.dealerName || $json.dealerId) + '. Slot ' + $json.slotId + '. Services ' + ($json.selectedServices || 'MAINT') + '. Confirmation sent by DealerBook.' }}",
               "type": "string"
             },
             {
@@ -384,7 +493,151 @@
       "typeVersion": 3.4,
       "position": [
         0,
-        944
+        992
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "02ea8ec6-fe3b-542c-bcdf-b0020c779ec7",
+              "name": "caseStatus",
+              "value": "Resolved",
+              "type": "string"
+            },
+            {
+              "id": "a5dc53ed-f934-5aa6-bedb-add83f23b414",
+              "name": "solution",
+              "value": "={{ 'Appointment ' + $json.bookingRef + ' moved via voice assistant to slot ' + $json.slotId + ' at ' + ($json.dealerName || $json.dealerId) + '. Confirmation sent by DealerBook.' }}",
+              "type": "string"
+            },
+            {
+              "id": "fa3f99ad-0d89-5ef4-8590-6a48693df375",
+              "name": "delegatedReason",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "6d4452dc-ecc9-5832-b6ad-d8110ed629fd",
+      "name": "OnMoved",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        1264
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e88b4f33-afd7-5c9e-b9fb-b6acc091c080",
+              "name": "caseStatus",
+              "value": "Resolved",
+              "type": "string"
+            },
+            {
+              "id": "e1c461e6-d9c1-5237-b0a6-1be2f5948bca",
+              "name": "solution",
+              "value": "={{ 'Appointment ' + $json.appointmentRef + ' cancelled via voice assistant. Confirmation sent by DealerBook.' }}",
+              "type": "string"
+            },
+            {
+              "id": "2cf83856-062c-5d38-8a71-d308f5a53c55",
+              "name": "delegatedReason",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "36e0f5a6-fbaa-5b9a-9e5e-f102033ef3be",
+      "name": "OnCancelled",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        1536
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "02b6ac82-6836-57e8-95a9-38d8ef0040a2",
+              "name": "caseStatus",
+              "value": "Delegated",
+              "type": "string"
+            },
+            {
+              "id": "df21f702-9cf8-55f2-a82e-d16d68d0f016",
+              "name": "solution",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "afbb3fa6-efb2-56ae-8f40-496e12913ce8",
+              "name": "delegatedReason",
+              "value": "={{ 'Retailer callback requested; delegated to XCCC for ' + ($json.dealerName || $json.dealerId || 'the preferred dealer') + '.' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "a1927974-9ccc-5510-80e7-93a44e4f8bfa",
+      "name": "OnCallbackLogged",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        1808
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4478bcb1-76d3-5f33-a106-58c648b21e10",
+              "name": "caseStatus",
+              "value": "Resolved",
+              "type": "string"
+            },
+            {
+              "id": "595dc896-2a76-5d64-8c9b-ff451d38ca3f",
+              "name": "solution",
+              "value": "Assisted self-service: the customer was given the instructions to book in the app or on the website. Nothing sent.",
+              "type": "string"
+            },
+            {
+              "id": "72ce6d7a-b0f8-51fc-a11d-feb771b0e6a4",
+              "name": "delegatedReason",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "638640ab-0d75-5f70-b8a2-f0c695ccdef7",
+      "name": "OnSelfService",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        2080
       ]
     },
     {
@@ -420,7 +673,7 @@
       "typeVersion": 3.4,
       "position": [
         0,
-        1216
+        2352
       ]
     },
     {
@@ -436,7 +689,7 @@
             {
               "id": "97ca025f-33e7-5b2c-ae81-d15b4b3b8e60",
               "name": "solution",
-              "value": "={{ 'Call ended without booking (' + $('ValidateEnd').first().json.endReason + ') in state ' + ($json.state || '') + '.' }}",
+              "value": "={{ 'Call ended without an outcome (' + $('ValidateEnd').first().json.endReason + ') in state ' + ($json.state || '') + '.' }}",
               "type": "string"
             },
             {
@@ -456,7 +709,7 @@
       "typeVersion": 3.4,
       "position": [
         0,
-        1488
+        2624
       ]
     },
     {
@@ -506,33 +759,9 @@
               "type": "boolean"
             },
             {
-              "id": "498f15f0-f244-5701-9f94-3a4d8d87dd19",
-              "name": "needsConfirmation",
-              "value": "={{ !!$json.bookingRef && String($json.confirmationSent) !== 'true' }}",
-              "type": "boolean"
-            },
-            {
               "id": "4f2bb508-ffab-524a-8bae-fda792d229fd",
               "name": "language",
               "value": "={{ $json.language || 'en' }}",
-              "type": "string"
-            },
-            {
-              "id": "63bdfce3-3141-5cc1-81ac-128449043f37",
-              "name": "customerRef",
-              "value": "={{ $json.customerRef || '' }}",
-              "type": "string"
-            },
-            {
-              "id": "742e1cb3-5299-5aba-8512-8f98ea3cd2cb",
-              "name": "confirmationChannel",
-              "value": "={{ $json.confirmationChannel || 'sms' }}",
-              "type": "string"
-            },
-            {
-              "id": "3cc59765-bc46-5792-9b55-58ad1dd12a07",
-              "name": "confirmationText",
-              "value": "={{ (($('Prompts').first().json.prompts.find(p => p.key === 'confirmation') || {})[$json.language] || ($('Prompts').first().json.prompts.find(p => p.key === 'confirmation') || {}).en || '').replace('{code}', $json.confirmationCode || '').replace('{dealer}', $json.dealerName || '').replace('{slot}', $json.slotId || '') }}",
               "type": "string"
             },
             {
@@ -563,7 +792,7 @@
       "typeVersion": 3.4,
       "position": [
         208,
-        672
+        720
       ]
     },
     {
@@ -572,7 +801,7 @@
           "__rl": true,
           "value": "PENDING_ar-15-case-system",
           "mode": "list",
-          "cachedResultName": "AR-15 Case create, update or close"
+          "cachedResultName": "AR-15 CASE case create, update, close or delegate"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -584,7 +813,25 @@
             "classification": "",
             "status": "={{ $json.caseStatus }}",
             "solution": "={{ $json.solution }}",
-            "delegatedReason": "={{ $json.delegatedReason }}"
+            "delegatedReason": "={{ $json.delegatedReason }}",
+            "accountName": "",
+            "caseOrigin": "",
+            "description": "",
+            "serviceType": "",
+            "delegatedTo": "",
+            "callbackNote": "",
+            "caseCountry": "",
+            "accountId": "",
+            "assetId": "",
+            "vinOrFin": "",
+            "licensePlate": "",
+            "mileage": "",
+            "mileageUnit": "",
+            "assignedDealerId": "",
+            "type": "",
+            "topic": "",
+            "reason": "",
+            "primaryContact": ""
           },
           "matchingColumns": [],
           "schema": [
@@ -667,6 +914,186 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "accountName",
+              "displayName": "accountName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "serviceType",
+              "displayName": "serviceType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "delegatedTo",
+              "displayName": "delegatedTo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackNote",
+              "displayName": "callbackNote",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caseCountry",
+              "displayName": "caseCountry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "accountId",
+              "displayName": "accountId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assetId",
+              "displayName": "assetId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vinOrFin",
+              "displayName": "vinOrFin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "licensePlate",
+              "displayName": "licensePlate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mileage",
+              "displayName": "mileage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mileageUnit",
+              "displayName": "mileageUnit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assignedDealerId",
+              "displayName": "assignedDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "topic",
+              "displayName": "topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "primaryContact",
+              "displayName": "primaryContact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -683,128 +1110,7 @@
       "typeVersion": 1.3,
       "position": [
         416,
-        672
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "cddf407c-2d5d-53fd-85dc-534ca931c4af",
-              "leftValue": "={{ $('DecideOutcome').first().json.needsConfirmation }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "d49df62a-b068-59a7-b627-55e3b3abd75d",
-      "name": "NeedsConfirmation",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        624,
-        672
-      ]
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "PENDING_ar-16-send-confirmation",
-          "mode": "list",
-          "cachedResultName": "AR-16 Send booking confirmation"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "channel": "={{ $('DecideOutcome').first().json.confirmationChannel }}",
-            "customerRef": "={{ $('DecideOutcome').first().json.customerRef }}",
-            "language": "={{ $('DecideOutcome').first().json.language }}",
-            "text": "={{ $('DecideOutcome').first().json.confirmationText }}",
-            "correlationId": "={{ $('DecideOutcome').first().json.correlationId }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "channel",
-              "displayName": "channel",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "customerRef",
-              "displayName": "customerRef",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "language",
-              "displayName": "language",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "text",
-              "displayName": "text",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "correlationId",
-              "displayName": "correlationId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "mode": "once",
-        "options": {
-          "waitForSubWorkflow": true
-        }
-      },
-      "id": "044abe34-ece4-513a-8374-6bf742ae62c0",
-      "name": "SendConfirmation",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.3,
-      "position": [
-        624,
-        944
+        720
       ]
     },
     {
@@ -820,8 +1126,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.7,
       "position": [
-        880,
-        672
+        672,
+        720
       ],
       "credentials": {
         "postgres": {
@@ -855,9 +1161,9 @@
           "value": {
             "endedAt": "={{ $now.toUTC().toISO() }}",
             "endReason": "={{ $('DecideOutcome').first().json.endReason }}",
-            "confirmationSent": "={{ $('DecideOutcome').first().json.needsConfirmation ? ($('SendConfirmation').first().json.ok === true) : ($('LoadSession').first().json.confirmationSent === true) }}",
             "greetingName": "",
-            "offeredSlots": "[]"
+            "offeredSlots": "[]",
+            "services": "[]"
           },
           "matchingColumns": [],
           "schema": [
@@ -1130,6 +1436,156 @@
               "type": "number",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "caseOrigin",
+              "displayName": "caseOrigin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "identifyAttempts",
+              "displayName": "identifyAttempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reservationId",
+              "displayName": "reservationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "selectedServices",
+              "displayName": "selectedServices",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentRef",
+              "displayName": "appointmentRef",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentLabel",
+              "displayName": "appointmentLabel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerId",
+              "displayName": "appointmentDealerId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentDealerName",
+              "displayName": "appointmentDealerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cancelledAt",
+              "displayName": "cancelledAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "movedAt",
+              "displayName": "movedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callbackAt",
+              "displayName": "callbackAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "voiceCallId",
+              "displayName": "voiceCallId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointmentOfferId",
+              "displayName": "appointmentOfferId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fulfilments",
+              "displayName": "fulfilments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1141,8 +1597,8 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        1088,
-        672
+        880,
+        720
       ],
       "alwaysOutputData": true
     },
@@ -1295,14 +1751,14 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        1296,
-        672
+        1088,
+        720
       ]
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ ok: true, sessionId: $('DecideOutcome').first().json.sessionId, caseId: $('DecideOutcome').first().json.caseId, caseStatus: $('DecideOutcome').first().json.caseStatus, confirmationSent: $('DecideOutcome').first().json.needsConfirmation }) }}",
+        "responseBody": "={{ JSON.stringify({ ok: true, sessionId: $('DecideOutcome').first().json.sessionId, caseId: $('DecideOutcome').first().json.caseId, caseStatus: $('DecideOutcome').first().json.caseStatus }) }}",
         "options": {
           "responseCode": 200
         }
@@ -1312,8 +1768,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        1504,
-        672
+        1296,
+        720
       ]
     },
     {
@@ -1334,7 +1790,7 @@
     },
     {
       "parameters": {
-        "content": "## Load state\n\nThe confirmation text comes from ar_prompts; the session row decides the outcome.",
+        "content": "## Load state\n\nPrompts for the spoken lines; the session row decides the outcome.",
         "width": 864,
         "height": 624,
         "color": 3
@@ -1350,9 +1806,9 @@
     },
     {
       "parameters": {
-        "content": "## Outcome\n\nCaseOutcome in order: a booking exists (Resolved); ended in HANDOFF or a handoff end reason (Delegated); otherwise Closed. A confirmation goes out when a booking exists.",
-        "width": 864,
-        "height": 1168,
+        "content": "## Outcome\n\nCaseOutcome in order: booked, moved or cancelled (Resolved, DealerBook sent the confirmation); callback logged (Delegated to XCCC); self-service (Resolved); ended in HANDOFF or a handoff end reason (Delegated); otherwise Closed.",
+        "width": 656,
+        "height": 2304,
         "color": 3
       },
       "id": "zone-03",
@@ -1368,7 +1824,7 @@
       "parameters": {
         "content": "## Close\n\nChat memory purged, session finalised, end logged. Nothing of the call is retained beyond ar_events.",
         "width": 864,
-        "height": 1168,
+        "height": 2304,
         "color": 4
       },
       "id": "zone-04",
@@ -1376,13 +1832,13 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        816,
+        608,
         528
       ]
     },
     {
       "parameters": {
-        "content": "## AR-03 Session end\n\nCase outcome from the session state. Chat memory for the session is deleted here: no transcript survives the call.",
+        "content": "## AR-03 Session end\n\nEvery journey ends with the case closed in CASE. The outcome comes from the session row; DealerBook confirms bookings, cancellations and moves to the customer, so nothing is sent from here. Chat memory for the session is deleted: no transcript survives the call.",
         "width": 768,
         "height": 256,
         "color": 6
@@ -1420,6 +1876,34 @@
         ],
         [
           {
+            "node": "OnMoved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnCancelled",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnCallbackLogged",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OnSelfService",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
             "node": "OnHandedOff",
             "type": "main",
             "index": 0
@@ -1442,6 +1926,50 @@
       ]
     },
     "OnBooked": {
+      "main": [
+        [
+          {
+            "node": "DecideOutcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnMoved": {
+      "main": [
+        [
+          {
+            "node": "DecideOutcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnCancelled": {
+      "main": [
+        [
+          {
+            "node": "DecideOutcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnCallbackLogged": {
+      "main": [
+        [
+          {
+            "node": "DecideOutcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnSelfService": {
       "main": [
         [
           {
@@ -1569,35 +2097,6 @@
       "main": [
         [
           {
-            "node": "NeedsConfirmation",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "NeedsConfirmation": {
-      "main": [
-        [
-          {
-            "node": "SendConfirmation",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "PurgeMemory",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "SendConfirmation": {
-      "main": [
-        [
-          {
             "node": "PurgeMemory",
             "type": "main",
             "index": 0
@@ -1643,7 +2142,7 @@
     "executionOrder": "v1"
   },
   "meta": {
-    "description": "POST /webhook/ar/v1/session/end. Closes or delegates the case, sends the confirmation if owed, purges the chat memory rows for the session, finalises the session row and logs. Idempotent."
+    "description": "POST /webhook/ar/v1/session/end. Closes or delegates the CASE case with the journey's outcome (booked, moved, cancelled, callback, self-service, handed off, closed), purges the chat memory rows for the session, finalises the session row and logs. DealerBook sends the customer confirmation. Idempotent."
   },
   "tags": [
     "voice-booking",
