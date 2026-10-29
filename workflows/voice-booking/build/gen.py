@@ -1455,6 +1455,9 @@ def add_guards(w, src):
         ("IdentityUnverified", [w.cond("={{ $json.verified }}", "false", kind="boolean"), w.cond("={{ ['IDENTIFY', 'HANDOFF'].includes($json.state) }}", "false", kind="boolean"),
                                 w.cond("={{ $json.action }}", "notEquals", "handoff")], "and",
          "OnIdentityUnverified", [("state", "IDENTIFY", "string"), ("guards", with_guard("identity_unverified"), "array")]),
+        ("IdentityVerified", [w.cond("={{ $json.verified }}", "true", kind="boolean"), w.cond("={{ $json.state }}", "equals", "IDENTIFY"),
+                              w.cond("={{ $json.action }}", "notEquals", "handoff")], "and",
+         "OnIdentityVerified", [("state", "CONSENT", "string"), ("guards", with_guard("identity_verified"), "array")]),
     ])
     slot_set = "$json.state === 'CONFIRM' && $json.slotId && $json.offeredSlotIds.includes($json.slotId)"
     ps = w.set_fields("PendingSlot", [
@@ -2228,10 +2231,10 @@ ZONES = {
          "rows": [["DialogueAgent"], ["DialogueModel", "TurnMemory", "TurnOutputShape", "ParserFixerModel"], ["VerifyIdentity", "FindDealers", "CreateReservation", "FindSlots", "BookAppointment"], ["FindAppointment", "CancelAppointment", "MoveAppointment", "RequestCallback"]]},
         {"title": "Guards 1: gates", "color": 5, "body": "ClampOutput: only values the schema allows, only a state transition the table allows (illegal_transition), a journey intent sticks for the call. Then each rule is an If (the condition) and an Edit Fields (what it changes). Gates: a deterministic yes or no in IDENTIFY and CONSENT wins over the model.",
          "rows": [["ReloadSession", "ReadOutput", "ClampOutput", "GateDecline", "GateAdvance", "ScenarioDowngrade"], [None, None, None, "OnGateDecline", "OnGateAdvance", "OnScenarioDowngrade"]]},
-        {"title": "Guards 2: caller, identification and outcomes", "color": 5, "body": "Caller asks for a person: handoff. Two failed PIN checks: handoff. A state beyond IDENTIFY before VerifyIdentity succeeded is forced back. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
+        {"title": "Guards 2: caller, identification and outcomes", "color": 5, "body": "Caller asks for a person: handoff. Two failed PIN checks: handoff. A state beyond IDENTIFY before VerifyIdentity succeeded is forced back; IDENTIFY after it succeeded is advanced to CONSENT. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
          "rows": [["CallerAsksForHuman", "IdentifyExhausted", "IdentityUnverified", "PendingSlot", "OutcomeSync", "FalseConfirmation", "FalseCancellation", "SelfServiceLine"],
                   ["OnCallerRequest", "OnIdentifyExhausted", "OnIdentityUnverified", None, "OnSyncBooked", "OnFalseConfirmation", "OnFalseCancellation", "OnSelfService"],
-                  [None, None, None, None, "OnSyncMoved"], [None, None, None, None, "OnSyncCancelled"], [None, None, None, None, "OnSyncCallbackLogged"]]},
+                  [None, None, "IdentityVerified", None, "OnSyncMoved"], [None, None, "OnIdentityVerified", None, "OnSyncCancelled"], [None, None, None, None, "OnSyncCallbackLogged"]]},
         {"title": "Guards 3: reply and end", "color": 5, "body": "Empty or over-long replies are fixed. A handoff always speaks the market's handover line. No end before a journey outcome (BOOKED, MOVED, CANCELLED, CALLBACK_LOGGED, SELF_SERVICE) or WRAPUP.",
          "rows": [["EmptyReply", "ReplyTooLong", "HandoffNormalise", "ForceHandoff", "EndBlocked", "GuardResult"], ["OnEmptyReply", "OnReplyTooLong", "OnHandoff", "OnForceHandoff", "OnEndBlocked"]]},
         {"title": "Handoff", "color": 3, "body": "A model failure answers with a fixed apology and PLATFORM_ERROR. Any handoff builds the Refer-To through AR-14.",

@@ -108,7 +108,7 @@
     },
     {
       "title": "Guards 2: caller, identification and outcomes",
-      "body": "Caller asks for a person: handoff. Two failed PIN checks: handoff. A state beyond IDENTIFY before VerifyIdentity succeeded is forced back. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
+      "body": "Caller asks for a person: handoff. Two failed PIN checks: handoff. A state beyond IDENTIFY before VerifyIdentity succeeded is forced back; IDENTIFY after it succeeded is advanced to CONSENT. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
       "color": 5,
       "nodes": [
         "CallerAsksForHuman",
@@ -126,7 +126,9 @@
         "OnFalseConfirmation",
         "OnFalseCancellation",
         "OnSelfService",
+        "IdentityVerified",
         "OnSyncMoved",
+        "OnIdentityVerified",
         "OnSyncCancelled",
         "OnSyncCallbackLogged"
       ]

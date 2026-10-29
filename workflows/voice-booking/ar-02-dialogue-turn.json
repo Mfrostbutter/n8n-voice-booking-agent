@@ -3814,6 +3814,88 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ac553547-3208-5fe3-aa97-3582ee5a410d",
+              "leftValue": "={{ $json.verified }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "324fd4f4-074d-5608-879d-b852704bf761",
+              "leftValue": "={{ $json.state }}",
+              "rightValue": "IDENTIFY",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "03c246f9-dcf1-52d7-abe0-94c3f2bd066b",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "handoff",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d248bc6b-ba6f-53f2-a52b-7951ba63bea6",
+      "name": "IdentityVerified",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        6496
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e2362232-9bf8-5d5d-bff1-90760591be63",
+              "name": "state",
+              "value": "CONSENT",
+              "type": "string"
+            },
+            {
+              "id": "21b03c29-0b95-5c30-a3ce-f5a88fceb95b",
+              "name": "guards",
+              "value": "={{ $json.guards.concat(['identity_verified']) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "464ed30e-3b2f-54af-b8de-3115d857ff04",
+      "name": "OnIdentityVerified",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        6768
+      ]
+    },
+    {
+      "parameters": {
         "assignments": {
           "assignments": [
             {
@@ -5920,7 +6002,7 @@
     },
     {
       "parameters": {
-        "content": "## Guards 2: caller, identification and outcomes\n\nCaller asks for a person: handoff. Two failed PIN checks: handoff. A state beyond IDENTIFY before VerifyIdentity succeeded is forced back. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
+        "content": "## Guards 2: caller, identification and outcomes\n\nCaller asks for a person: handoff. Two failed PIN checks: handoff. A state beyond IDENTIFY before VerifyIdentity succeeded is forced back; IDENTIFY after it succeeded is advanced to CONSENT. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
         "width": 1696,
         "height": 1472,
         "color": 5
@@ -6822,7 +6904,7 @@
         ],
         [
           {
-            "node": "PendingSlot",
+            "node": "IdentityVerified",
             "type": "main",
             "index": 0
           }
@@ -6830,6 +6912,35 @@
       ]
     },
     "OnIdentityUnverified": {
+      "main": [
+        [
+          {
+            "node": "IdentityVerified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdentityVerified": {
+      "main": [
+        [
+          {
+            "node": "OnIdentityVerified",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PendingSlot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnIdentityVerified": {
       "main": [
         [
           {

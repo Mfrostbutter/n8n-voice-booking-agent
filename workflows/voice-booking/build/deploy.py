@@ -80,7 +80,9 @@ def deploy_one(key, have):
     path = os.path.join(OUT, key + ".json")
     wf = json.load(open(path))
     payload = {"name": wf["name"], "nodes": wf["nodes"], "connections": wf["connections"], "settings": wf.get("settings", {"executionOrder": "v1"})}
-    cur = have.get(wf["name"])
+    # The recorded id first, then the name: a renamed workflow updates in place instead of leaving an orphan.
+    by_id = {w["id"]: w for w in have.values()}
+    cur = by_id.get(wf.get("id") or "") or have.get(wf["name"])
     if cur:
         wid = cur["id"]
         if cur.get("active"):
