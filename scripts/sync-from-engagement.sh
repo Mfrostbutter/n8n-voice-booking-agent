@@ -139,6 +139,7 @@ TERMS = [
     ("the MB systems", "the real systems"),
     ("MB customer API", "customer API"),
     ("MB Legal", "Legal"),
+    ("M. Frostbutter", "the repository owner"),
     ("Mercedes-Benz", "the manufacturer"),
     ("Mercedes", "the manufacturer"),
     ("mercedes-benz", "voice-booking"),
@@ -258,7 +259,7 @@ AR_FOLDER=Voice Booking Agent
 EOF
 
 # Nothing customer-specific, personal or lab-bound may remain.
-PATTERN='[Mm]ercedes|MERCEDES|Benz|BENZ|\bMB\b|[Ss]irius|SIRIUS|[Dd]sd|DSD|[Gg]enesys|GENESYS|Nexus|Model Garden|Salesforce|\bGIS\b|Daimler|Agentic Race|agentic-race|\bRace\b|jury|Jury|criteri|W1K|WDD|W1N|WDB|Frosty|frosty|Marta|Vivek|Dawid|Biniam|Eitler|Malaika|Daniele|Rajeshwari|Preeth|Zacharias|MASSP4AI|infisical|Infisical|podman|pg-lab|netbird|ag-ingest|10\.10\.|n8n-fde-harness|[a-z]+labs\.com|\.claude'
+PATTERN='[Mm]ercedes|MERCEDES|Benz|BENZ|\bMB\b|[Ss]irius|SIRIUS|[Dd]sd|DSD|[Gg]enesys|GENESYS|Nexus|Model Garden|Salesforce|\bGIS\b|Daimler|Agentic Race|agentic-race|\bRace\b|jury|Jury|criteri|W1K|WDD|W1N|WDB|Frosty|frosty|Frostbutter|Marta|Vivek|Dawid|Biniam|Eitler|Malaika|Daniele|Rajeshwari|Preeth|Zacharias|MASSP4AI|infisical|Infisical|podman|pg-lab|netbird|ag-ingest|10\.10\.|n8n-fde-harness|[a-z]+labs\.com|\.claude'
 if grep -rnE "$PATTERN" "$DST" --exclude-dir=.git --exclude-dir=.agents --exclude=sync-from-engagement.sh --exclude=secrets_env.py; then
   echo "sync refused: customer or private terms above" >&2; exit 1
 fi

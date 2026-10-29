@@ -303,7 +303,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Append one row to ar_events. Inputs: correlationId, sessionId, caseId, workflow, event, state, tool, latencyMs, outcome, errorCode, detail. Returns {ok}. No PII."

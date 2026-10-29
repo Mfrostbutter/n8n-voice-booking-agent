@@ -75,6 +75,31 @@
                 },
                 "conditions": [
                   {
+                    "id": "b65cd689-d136-5818-895b-4cf58702f004",
+                    "leftValue": "={{ $json.verified === true }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NotVerified"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
                     "id": "78a22729-ea8b-517d-af37-434cc35f454c",
                     "leftValue": "={{ $json.callbackAt || '' }}",
                     "rightValue": "",
@@ -136,6 +161,41 @@
         "assignments": {
           "assignments": [
             {
+              "id": "9a17f15a-f08d-5e04-9ecd-cb67de4d28f9",
+              "name": "ok",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "fcced027-523d-58ac-9362-9c17a152f33c",
+              "name": "error",
+              "value": "not_identified",
+              "type": "string"
+            },
+            {
+              "id": "cb67b161-20d5-51c1-8ef8-54199feb7567",
+              "name": "message",
+              "value": "Identity not verified yet. Ask the caller for the four-digit PIN and call VerifyIdentity first.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "28a7e254-7fd1-510a-a437-9d9f068ebdf2",
+      "name": "ReplyNotVerified",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
               "id": "193bef51-26f5-5179-a333-1749de465f1a",
               "name": "ok",
               "value": true,
@@ -163,7 +223,7 @@
       "typeVersion": 3.4,
       "position": [
         416,
-        272
+        544
       ]
     },
     {
@@ -198,7 +258,7 @@
       "typeVersion": 3.4,
       "position": [
         416,
-        544
+        816
       ]
     },
     {
@@ -999,6 +1059,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1087,9 +1157,9 @@
     },
     {
       "parameters": {
-        "content": "## Callback gate\n\nAlready logged, or not yet confirmed (state CALLBACK from the previous turn). Only Proceed delegates.",
+        "content": "## Callback gate\n\nNot verified (no PIN yet), already logged, or not yet confirmed (state CALLBACK from the previous turn). Only Proceed delegates.",
         "width": 656,
-        "height": 896,
+        "height": 1168,
         "color": 5
       },
       "id": "zone-01",
@@ -1105,7 +1175,7 @@
       "parameters": {
         "content": "## Delegate\n\nThe CASE case is delegated to XCCC with the callback note; callbackAt and state CALLBACK_LOGGED on the session. No DealerBook.",
         "width": 864,
-        "height": 896,
+        "height": 1168,
         "color": 3
       },
       "id": "zone-02",
@@ -1159,6 +1229,13 @@
     },
     "CallbackGate": {
       "main": [
+        [
+          {
+            "node": "ReplyNotVerified",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "ReplyAlreadyLogged",
@@ -1224,7 +1301,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Agent tool. Logs the retailer callback in the CASE case and delegates the case to XCCC (joint scope step 5; no DealerBook). Inputs: sessionId (plumbed), reason, preferredTime. CallbackGate: read back in state CALLBACK, logged only after the caller's yes in a later turn. Returns {ok, caseId} or {ok:false, error}."

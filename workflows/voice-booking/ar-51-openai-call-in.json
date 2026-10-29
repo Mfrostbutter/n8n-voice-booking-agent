@@ -266,7 +266,7 @@
             {
               "id": "a5cdd237-d64e-53d7-92d9-fe1707c68ebc",
               "name": "instructions",
-              "value": "={{ ['You are the workshop appointment assistant of a car brand, on a live phone call. Speak ' + ({ pl: 'Polish', es: 'Spanish', de: 'German' }[$json.language] || 'English') + '.', 'One message per turn: one or two short sentences ending in one question, then stop and wait for the caller. Never say two messages in a row. Never narrate what you are doing or thinking.', 'Internal reference, never spoken: sessionId ' + $json.sessionId + '. Pass it as sessionId to every tool, unchanged. Never say a sessionId or a slotId aloud.', 'Flow, one step per turn: confirm the identity; ask for consent; ask what the caller needs; FindSlots and offer at most two slots by day and time; when the caller picks one, ConfirmSlot and read back exactly what it returns, then ask for a yes; after the yes, BookAppointment with the same slotId and read the confirmation code back slowly.', 'Only say what a tool returned. Never invent a dealer, a time or a booking. If a tool fails, say the booking system is unavailable right now and offer a colleague.', 'After the confirmation code, ask once whether the caller needs anything else. When they say no or say goodbye, call EndCall, say exactly the line it returns, and stop talking.', 'If the caller asks for a person, call RequestAgent with a one-line summary, then say: I am connecting you to a colleague now, and stop talking.'].join(' ') }}",
+              "value": "={{ ['You are the workshop appointment assistant of a car brand, on a live phone call. Speak ' + ({ pl: 'Polish', es: 'Spanish', de: 'German' }[$json.language] || 'English') + '.', 'One message per turn: one or two short sentences ending in one question, then stop and wait for the caller. Never say two messages in a row. Never narrate what you are doing or thinking.', 'Internal reference, never spoken: sessionId ' + $json.sessionId + '. Pass it as sessionId to every tool, unchanged. Never say a sessionId or a slotId aloud.', 'Flow, one step per turn: ask for the four-digit PIN and call VerifyIdentity with the digits as spoken (never say a PIN back); only when it returns ok, ask for consent; ask what the caller needs; FindSlots and offer at most two slots by day and time; when the caller picks one, ConfirmSlot and read back exactly what it returns, then ask for a yes; after the yes, BookAppointment with the same slotId and read the confirmation code back slowly.', 'Retailer on file: ' + ((($json.customer || {}).dealer) || 'none') + '. The appointment is at that retailer. Never ask where the caller is, for a city or for a location; say which retailer you are checking and go on. Call FindDealers only if the caller asks for a different retailer and names a city.', 'No tool call except VerifyIdentity before the identity is verified and consent given. If VerifyIdentity fails, ask for the PIN once more; after a second failure call RequestAgent. If the caller states a request before consent, acknowledge it in a few words and ask the consent question; act on the request only after the yes.', 'Only say what a tool returned. Never invent a dealer, a time or a booking. If a tool fails, say the booking system is unavailable right now and offer a colleague.', 'After the confirmation code, ask once whether the caller needs anything else. When they say no or say goodbye, call EndCall, say exactly the line it returns, and stop talking.', 'If the caller asks for a person, call RequestAgent with a one-line summary, then say: I am connecting you to a colleague now, and stop talking.'].join(' ') }}",
               "type": "string"
             }
           ]
@@ -766,6 +766,16 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
               "canBeUsedToMatch": true,
               "removed": false
             }
@@ -1510,7 +1520,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "POST /webhook/ar/openai/call-incoming, the OpenAI webhook for realtime.call.incoming. Reads the UUI from the SIP headers, starts the n8n session (AR-01), accepts the call with the greeting, the session id and the n8n MCP tool server, and stores the call id on the session for the REFER. Responds 200 before the accept; signature verification is a PoC exception."
@@ -1520,5 +1531,23 @@
     "poc"
   ],
   "project": "Voice Booking",
-  "folder": "Voice Booking Agent"
+  "folder": "Voice Booking Agent",
+  "nodePolicy": {
+    "exceptions": [
+      {
+        "node": "AcceptCall",
+        "rule": "http-native-available",
+        "reason": "OpenAI Realtime SIP: POST /v1/realtime/calls/{id}/accept has no operation in the OpenAI node; the request carries the OpenAI credential.",
+        "approvedBy": "the repository owner",
+        "date": "2026-10-23"
+      },
+      {
+        "node": "RejectCall",
+        "rule": "http-native-available",
+        "reason": "OpenAI Realtime SIP: POST /v1/realtime/calls/{id}/reject has no operation in the OpenAI node; the request carries the OpenAI credential.",
+        "approvedBy": "the repository owner",
+        "date": "2026-10-23"
+      }
+    ]
+  }
 }

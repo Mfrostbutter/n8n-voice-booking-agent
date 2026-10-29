@@ -27,7 +27,7 @@
     },
     {
       "title": "Gates",
-      "body": "YesNoGate: a deterministic yes or no in IDENTIFY (identified caller), CONSENT, DEALER, CONFIRM and CONFIRM_CANCEL, a spoken journey in NEED (cancel, reschedule, callback, self-service), a chosen service in SERVICES and a date in LOOKUP move the state before the model runs, so a small model cannot loop on a confirmed question or forget a tool call.",
+      "body": "YesNoGate: a deterministic no in IDENTIFY (a customer on file says it is not them), a yes or no in CONSENT, DEALER, CONFIRM and CONFIRM_CANCEL, a spoken journey in NEED (cancel, reschedule, callback, self-service), a chosen service in SERVICES and a date in LOOKUP move the state before the model runs, so a small model cannot loop on a confirmed question or forget a tool call.",
       "color": 5,
       "nodes": [
         "TurnFacts",
@@ -35,7 +35,6 @@
         "OnIdentityFailed",
         "OnNeedCancel",
         "OnRescheduleDate",
-        "OnIdentityConfirmed",
         "OnNeedReschedule",
         "OnCancelInLookup",
         "OnConsentDeclined",
@@ -72,7 +71,7 @@
     },
     {
       "title": "Reason",
-      "body": "The agent has nine tools (one per joint-scope step), Postgres memory and a structured parser with auto-fix.",
+      "body": "The agent has nine tools (PIN verification, then one per joint-scope step), Postgres memory and a structured parser with auto-fix.",
       "color": 5,
       "nodes": [
         "DialogueAgent",
@@ -80,7 +79,7 @@
         "TurnMemory",
         "TurnOutputShape",
         "ParserFixerModel",
-        "IdentifyCaller",
+        "VerifyIdentity",
         "FindDealers",
         "CreateReservation",
         "FindSlots",
@@ -109,11 +108,12 @@
     },
     {
       "title": "Guards 2: caller, identification and outcomes",
-      "body": "Caller asks for a person: handoff. Two failed identifications: handoff. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
+      "body": "Caller asks for a person: handoff. Two failed PIN checks: handoff. A state beyond IDENTIFY before VerifyIdentity succeeded is forced back. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
       "color": 5,
       "nodes": [
         "CallerAsksForHuman",
         "IdentifyExhausted",
+        "IdentityUnverified",
         "PendingSlot",
         "OutcomeSync",
         "FalseConfirmation",
@@ -121,6 +121,7 @@
         "SelfServiceLine",
         "OnCallerRequest",
         "OnIdentifyExhausted",
+        "OnIdentityUnverified",
         "OnSyncBooked",
         "OnFalseConfirmation",
         "OnFalseCancellation",
@@ -180,7 +181,7 @@
     },
     {
       "title": "Tools",
-      "body": "IdentifyCaller, FindDealers, CreateReservation, FindSlots, BookAppointment, FindAppointment, CancelAppointment, MoveAppointment, RequestCallback. sessionId is plumbed, never a model parameter. Handoff is not a tool: it is a deterministic consequence of action=handoff.",
+      "body": "VerifyIdentity, FindDealers, CreateReservation, FindSlots, BookAppointment, FindAppointment, CancelAppointment, MoveAppointment, RequestCallback. sessionId is plumbed, never a model parameter. Handoff is not a tool: it is a deterministic consequence of action=handoff.",
       "color": 6,
       "width": 704
     }

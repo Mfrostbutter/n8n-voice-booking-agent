@@ -12,8 +12,9 @@ reach a credential the nodes use.
 """
 import json, os, subprocess, sys, urllib.request, urllib.error
 
-HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.dirname(HERE)
-ROOT = os.path.dirname(os.path.dirname(OUT))
+HERE = os.path.dirname(os.path.abspath(__file__))
+OUT = os.environ.get("AR_OUT_DIR") or os.path.dirname(HERE)  # where gen.py wrote the set
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 import organize_workflows as org  # noqa: E402
 
@@ -23,7 +24,18 @@ IDS_PATH = os.environ.get("AR_IDS_FILE") or os.path.join(OUT, "lab-ids.json")
 os.path.exists(IDS_PATH) or sys.exit(f"{IDS_PATH} missing: run build/setup.py first")
 UNPUBLISHED = []
 TARGET = {"env": "lab", "url": BASE, "base": BASE + "/api/v1", "key": KEY}
-CREDS = org.credentials_index(TARGET)
+
+
+def credentials_or_empty():
+    """A member key may not list credentials (403). In a personal project the scope checks are no-ops, so continue without the index."""
+    code, _ = org.api(TARGET, "GET", "/credentials?limit=1")
+    if code == 403:
+        print("credential listing not permitted for this key: scope checks skipped")
+        return {}
+    return org.credentials_index(TARGET)
+
+
+CREDS = credentials_or_empty()
 TABLES = org.data_tables_index(TARGET)
 ORDER = ["ar-17-log-event","ar-20-mock-crm","ar-21-mock-dealerbook","ar-22-mock-case-system","ar-23-mock-comms",
          "ar-10-identify-customer","ar-11-find-dealers","ar-12-find-slots","ar-13-book-appointment","ar-14-build-handoff",

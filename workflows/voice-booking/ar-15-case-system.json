@@ -340,7 +340,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Writes the CASE (CRM) case. Inputs: op (create|update|close|delegate), correlationId, caseId, subject, classification, status, solution, delegatedReason, accountName, caseOrigin (IN_CAR|IVR), description, serviceType (CS|DMS|RSA), delegatedTo (XCCC for a retailer callback), callbackNote, and the booking prerequisites of the CASE case data (caseCountry, accountId, assetId, vinOrFin, licensePlate, mileage, mileageUnit, assignedDealerId, type, topic, reason, primaryContact). Free text is scrubbed of personal data before the write. Returns {ok, caseId, status} or {ok:false, error}."

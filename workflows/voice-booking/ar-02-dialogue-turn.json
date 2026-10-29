@@ -626,49 +626,6 @@
                 },
                 "conditions": [
                   {
-                    "id": "a5ed1b86-258b-5564-adb5-788cebe60c34",
-                    "leftValue": "={{ $json.rowState }}",
-                    "rightValue": "IDENTIFY",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  },
-                  {
-                    "id": "451f6356-6e62-5db7-a213-49eabcc679b4",
-                    "leftValue": "={{ $json.utter }}",
-                    "rightValue": "^(tak|zgadza|owszem|dok[łl]adnie|to ja|oczywi[śs]cie|jasne|s[íi]|claro|correcto|as[íi] es|soy yo|exacto|vale|de acuerdo|por supuesto|ja|genau|richtig|korrekt|das bin ich|stimmt|nat[üu]rlich|gerne|in ordnung|yes|yeah|yep|correct|that'?s me|that is me|sure|of course|go ahead|ok(ay)?)(?=[\\s,.!?;:]|$)",
-                    "operator": {
-                      "type": "string",
-                      "operation": "regex"
-                    }
-                  },
-                  {
-                    "id": "44b1d812-0d17-5eae-af1e-b6fa22fe66e2",
-                    "leftValue": "={{ $json.customerRef }}",
-                    "rightValue": "",
-                    "operator": {
-                      "type": "string",
-                      "operation": "notEmpty",
-                      "singleValue": true
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "IdentityConfirmed"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "loose",
-                  "version": 3
-                },
-                "conditions": [
-                  {
                     "id": "a83aaea0-204d-595d-87f7-9a30dcf4791a",
                     "leftValue": "={{ $json.rowState }}",
                     "rightValue": "CONSENT",
@@ -1172,36 +1129,6 @@
       "position": [
         416,
         720
-      ]
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "689760ad-d84b-5957-aaf5-cb028b2abfd1",
-              "name": "state",
-              "value": "CONSENT",
-              "type": "string"
-            },
-            {
-              "id": "2c205486-d19c-5616-a4c4-5b3fb965b289",
-              "name": "gateAdvanced",
-              "value": true,
-              "type": "boolean"
-            }
-          ]
-        },
-        "options": {},
-        "includeOtherFields": true
-      },
-      "id": "8e6311c3-a095-5c93-8e60-8ecfa3f2aef7",
-      "name": "OnIdentityConfirmed",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        416,
-        992
       ]
     },
     {
@@ -2308,7 +2235,7 @@
             {
               "id": "4711df15-45a0-5633-b9c2-910fd0043415",
               "name": "factsText",
-              "value": "={{ [ $json.gateLine, $json.prefetchNote, 'Session state: ' + $json.state + '.', 'Call origin: ' + ($json.caseOrigin === 'IVR' ? 'phone call through the IVR (no vehicle identified from the car)' : 'in-car call') + '.', 'Customer identified: ' + ($json.customerRef ? 'yes' : 'no' + ($json.identifyAttempts ? ' (failed identification attempts: ' + $json.identifyAttempts + ' of 2)' : '')) + '.', $json.greetingName ? 'Name to address the customer: ' + $json.greetingName + '.' : '', $json.vehicleLabel ? 'Vehicle: ' + $json.vehicleLabel + '.' : '', $json.dealerName ? 'Preferred dealer: ' + $json.dealerName + ' (dealerId ' + $json.dealerId + ').' : 'Preferred dealer: none on file.', 'Market: ' + $json.market + '. Online booking enabled in this market: ' + ($json.marketBookable ? 'yes' : 'no') + '.', $json.reservationId ? 'Reservation in hand at ' + $json.dealerName + '. Services available:\\n' + $json.serviceLines : 'No reservation yet (CreateReservation after the dealer is agreed).', $json.selectedServices ? 'Selected services: ' + $json.selectedServices + '.' : '', $json.appointmentRef ? 'Existing appointment in hand: ' + $json.appointmentLabel + ' (bookingRef ' + $json.appointmentRef + ').' : '', $json.bookingRef && !$json.movedAt ? 'Booking already made in this call: confirmation code ' + $json.confirmationCode + '.' : $json.movedAt ? 'The appointment was moved in this call.' : 'No booking made yet in this call.', $json.cancelledAt ? 'The appointment was cancelled in this call.' : '', $json.callbackAt ? 'The retailer callback is logged; the dealer will call the customer.' : '', 'Offered slots in this call:\\n' + $json.slotLines, 'Today is ' + new Date().toISOString().slice(0, 10) + ' (UTC).' ].filter(Boolean).join('\\n') }}",
+              "value": "={{ [ $json.gateLine, $json.prefetchNote, 'Session state: ' + $json.state + '.', 'Call origin: ' + ($json.caseOrigin === 'IVR' ? 'phone call through the IVR (no vehicle identified from the car)' : 'in-car call') + '.', 'Customer on file: ' + ($json.customerRef ? 'yes' : 'no (the caller gives the registration plate with the PIN)') + '. Identity verified by PIN: ' + ($json.verified === true ? 'yes' : 'no' + ($json.identifyAttempts ? ' (failed attempts: ' + $json.identifyAttempts + ' of 2)' : '')) + '.', $json.greetingName ? 'Name to address the customer: ' + $json.greetingName + '.' : '', $json.vehicleLabel ? 'Vehicle: ' + $json.vehicleLabel + '.' : '', $json.dealerName ? 'Preferred dealer: ' + $json.dealerName + ' (dealerId ' + $json.dealerId + ').' : 'Preferred dealer: none on file.', 'Market: ' + $json.market + '. Online booking enabled in this market: ' + ($json.marketBookable ? 'yes' : 'no') + '.', $json.reservationId ? 'Reservation in hand at ' + $json.dealerName + '. Services available:\\n' + $json.serviceLines : 'No reservation yet (CreateReservation after the dealer is agreed).', $json.selectedServices ? 'Selected services: ' + $json.selectedServices + '.' : '', $json.appointmentRef ? 'Existing appointment in hand: ' + $json.appointmentLabel + ' (bookingRef ' + $json.appointmentRef + ').' : '', $json.bookingRef && !$json.movedAt ? 'Booking already made in this call: confirmation code ' + $json.confirmationCode + '.' : $json.movedAt ? 'The appointment was moved in this call.' : 'No booking made yet in this call.', $json.cancelledAt ? 'The appointment was cancelled in this call.' : '', $json.callbackAt ? 'The retailer callback is logged; the dealer will call the customer.' : '', 'Offered slots in this call:\\n' + $json.slotLines, 'Today is ' + new Date().toISOString().slice(0, 10) + ' (UTC).' ].filter(Boolean).join('\\n') }}",
               "type": "string"
             }
           ]
@@ -2749,20 +2676,19 @@
     },
     {
       "parameters": {
-        "description": "Identifies a caller who is not yet identified (IVR call or unknown vehicle) from the data points they give: vehicle registration plate plus surname or postcode. Call it as soon as the caller has given the plate and one more data point. Returns the customer's greeting name and vehicle, or not_identified with what to do next.",
+        "description": "Verifies the caller's identity with the four-digit PIN they say. Call it as soon as the caller has given the PIN (digits as spoken: 'one two three four' is 1234); a caller with no vehicle on file also gives the registration plate. Returns ok when verified, or not_identified with what to do next.",
         "workflowId": {
           "__rl": true,
           "value": "PENDING_ar-18-identify-caller",
           "mode": "list",
-          "cachedResultName": "AR-18 Tool: Identify caller by spoken data"
+          "cachedResultName": "AR-18 Tool: Verify identity by PIN"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
             "sessionId": "={{ $('PrepareTurn').first().json.sessionId }}",
-            "lastName": "={{ $fromAI('lastName', 'Surname the caller gave, or empty', 'string') }}",
-            "registrationPlate": "={{ $fromAI('registrationPlate', 'Vehicle registration plate as spoken, letters and digits, or empty', 'string') }}",
-            "postcode": "={{ $fromAI('postcode', 'Postcode the caller gave, or empty', 'string') }}"
+            "pin": "={{ $fromAI('pin', 'The four-digit PIN the caller said, digits only', 'string') }}",
+            "registrationPlate": "={{ $fromAI('registrationPlate', 'Vehicle registration plate as spoken, letters and digits, or empty when the vehicle is on file', 'string') }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -2777,8 +2703,8 @@
               "removed": false
             },
             {
-              "id": "lastName",
-              "displayName": "lastName",
+              "id": "pin",
+              "displayName": "pin",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -2795,24 +2721,14 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
-            },
-            {
-              "id": "postcode",
-              "displayName": "postcode",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": true
         }
       },
-      "id": "cbf556e4-f505-552a-bf50-829e7f33ad32",
-      "name": "IdentifyCaller",
+      "id": "d4bfc401-8ab8-501a-b154-14bafb181a91",
+      "name": "VerifyIdentity",
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
@@ -3239,6 +3155,12 @@
               "id": "957f989a-435e-5e27-bb86-3441c04035be",
               "name": "known",
               "value": "={{ !!$json.customerRef }}",
+              "type": "boolean"
+            },
+            {
+              "id": "6ebb0d5b-72d1-5448-ad4d-d01c92f811c2",
+              "name": "verified",
+              "value": "={{ $json.verified === true }}",
               "type": "boolean"
             },
             {
@@ -3680,7 +3602,7 @@
       "typeVersion": 2.2,
       "position": [
         0,
-        5920
+        5952
       ]
     },
     {
@@ -3716,7 +3638,7 @@
       "typeVersion": 3.4,
       "position": [
         0,
-        6192
+        6224
       ]
     },
     {
@@ -3731,7 +3653,7 @@
           "conditions": [
             {
               "id": "4082322d-2458-5d37-9207-e37eb8265142",
-              "leftValue": "={{ $json.known }}",
+              "leftValue": "={{ $json.verified }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -3768,7 +3690,7 @@
       "typeVersion": 2.2,
       "position": [
         208,
-        5920
+        5952
       ]
     },
     {
@@ -3804,7 +3726,90 @@
       "typeVersion": 3.4,
       "position": [
         208,
-        6192
+        6224
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "266cb142-1597-5f1e-9d28-fd57d17065a6",
+              "leftValue": "={{ $json.verified }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "9f040338-3472-57c7-8f75-f35e5373e294",
+              "leftValue": "={{ ['IDENTIFY', 'HANDOFF'].includes($json.state) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "eb5fb40f-5571-5321-9aa6-55316c993fec",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "handoff",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "092947bf-01cb-5b3a-8e66-ccaee76430d4",
+      "name": "IdentityUnverified",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        5952
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2753e680-88b0-5154-867e-049048eaa5a9",
+              "name": "state",
+              "value": "IDENTIFY",
+              "type": "string"
+            },
+            {
+              "id": "0c102bce-3850-55f4-93fe-fa30aab2eb51",
+              "name": "guards",
+              "value": "={{ $json.guards.concat(['identity_unverified']) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "1d812930-abf1-5218-8a92-268243aef36c",
+      "name": "OnIdentityUnverified",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        6224
       ]
     },
     {
@@ -3833,8 +3838,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        416,
-        5920
+        624,
+        5952
       ]
     },
     {
@@ -3994,8 +3999,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        624,
-        5920
+        832,
+        5952
       ]
     },
     {
@@ -4024,8 +4029,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        624,
-        6192
+        832,
+        6224
       ]
     },
     {
@@ -4054,8 +4059,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        624,
-        6464
+        832,
+        6496
       ]
     },
     {
@@ -4084,8 +4089,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        624,
-        6736
+        832,
+        6768
       ]
     },
     {
@@ -4114,8 +4119,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        624,
-        7008
+        832,
+        7040
       ]
     },
     {
@@ -4184,8 +4189,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        832,
-        5920
+        1040,
+        5952
       ]
     },
     {
@@ -4226,8 +4231,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        832,
-        6192
+        1040,
+        6224
       ]
     },
     {
@@ -4269,8 +4274,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1040,
-        5920
+        1248,
+        5952
       ]
     },
     {
@@ -4311,8 +4316,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1040,
-        6192
+        1248,
+        6224
       ]
     },
     {
@@ -4363,8 +4368,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1248,
-        5920
+        1456,
+        5952
       ]
     },
     {
@@ -4405,8 +4410,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1248,
-        6192
+        1456,
+        6224
       ]
     },
     {
@@ -4440,7 +4445,7 @@
       "typeVersion": 2.2,
       "position": [
         0,
-        7408
+        7440
       ]
     },
     {
@@ -4470,7 +4475,7 @@
       "typeVersion": 3.4,
       "position": [
         0,
-        7680
+        7712
       ]
     },
     {
@@ -4503,7 +4508,7 @@
       "typeVersion": 2.2,
       "position": [
         208,
-        7408
+        7440
       ]
     },
     {
@@ -4533,7 +4538,7 @@
       "typeVersion": 3.4,
       "position": [
         208,
-        7680
+        7712
       ]
     },
     {
@@ -4566,7 +4571,7 @@
       "typeVersion": 2.2,
       "position": [
         416,
-        7408
+        7440
       ]
     },
     {
@@ -4608,7 +4613,7 @@
       "typeVersion": 3.4,
       "position": [
         416,
-        7680
+        7712
       ]
     },
     {
@@ -4650,7 +4655,7 @@
       "typeVersion": 2.2,
       "position": [
         624,
-        7408
+        7440
       ]
     },
     {
@@ -4692,7 +4697,7 @@
       "typeVersion": 3.4,
       "position": [
         624,
-        7680
+        7712
       ]
     },
     {
@@ -4735,7 +4740,7 @@
       "typeVersion": 2.2,
       "position": [
         832,
-        7408
+        7440
       ]
     },
     {
@@ -4765,7 +4770,7 @@
       "typeVersion": 3.4,
       "position": [
         832,
-        7680
+        7712
       ]
     },
     {
@@ -4890,7 +4895,7 @@
       "typeVersion": 3.4,
       "position": [
         1040,
-        7408
+        7440
       ]
     },
     {
@@ -5015,7 +5020,7 @@
       "typeVersion": 3.4,
       "position": [
         0,
-        8352
+        8384
       ]
     },
     {
@@ -5049,7 +5054,7 @@
       "typeVersion": 2.2,
       "position": [
         0,
-        8080
+        8112
       ]
     },
     {
@@ -5125,7 +5130,7 @@
       "typeVersion": 1.3,
       "position": [
         208,
-        8080
+        8112
       ]
     },
     {
@@ -5140,7 +5145,7 @@
       "typeVersion": 3.4,
       "position": [
         416,
-        8080
+        8112
       ]
     },
     {
@@ -5170,7 +5175,7 @@
       "typeVersion": 3.4,
       "position": [
         672,
-        8080
+        8112
       ]
     },
     {
@@ -5621,6 +5626,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -5633,7 +5648,7 @@
       "typeVersion": 1.1,
       "position": [
         880,
-        8080
+        8112
       ],
       "alwaysOutputData": true
     },
@@ -5787,7 +5802,7 @@
       "typeVersion": 1.3,
       "position": [
         1088,
-        8080
+        8112
       ]
     },
     {
@@ -5804,7 +5819,7 @@
       "typeVersion": 1.5,
       "position": [
         1296,
-        8080
+        8112
       ]
     },
     {
@@ -5841,7 +5856,7 @@
     },
     {
       "parameters": {
-        "content": "## Gates\n\nYesNoGate: a deterministic yes or no in IDENTIFY (identified caller), CONSENT, DEALER, CONFIRM and CONFIRM_CANCEL, a spoken journey in NEED (cancel, reschedule, callback, self-service), a chosen service in SERVICES and a date in LOOKUP move the state before the model runs, so a small model cannot loop on a confirmed question or forget a tool call.",
+        "content": "## Gates\n\nYesNoGate: a deterministic no in IDENTIFY (a customer on file says it is not them), a yes or no in CONSENT, DEALER, CONFIRM and CONFIRM_CANCEL, a spoken journey in NEED (cancel, reschedule, callback, self-service), a chosen service in SERVICES and a date in LOOKUP move the state before the model runs, so a small model cannot loop on a confirmed question or forget a tool call.",
         "width": 1072,
         "height": 1488,
         "color": 5
@@ -5873,7 +5888,7 @@
     },
     {
       "parameters": {
-        "content": "## Reason\n\nThe agent has nine tools (one per joint-scope step), Postgres memory and a structured parser with auto-fix.",
+        "content": "## Reason\n\nThe agent has nine tools (PIN verification, then one per joint-scope step), Postgres memory and a structured parser with auto-fix.",
         "width": 1040,
         "height": 1168,
         "color": 5
@@ -5905,9 +5920,9 @@
     },
     {
       "parameters": {
-        "content": "## Guards 2: caller, identification and outcomes\n\nCaller asks for a person: handoff. Two failed identifications: handoff. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
-        "width": 1488,
-        "height": 1440,
+        "content": "## Guards 2: caller, identification and outcomes\n\nCaller asks for a person: handoff. Two failed PIN checks: handoff. A state beyond IDENTIFY before VerifyIdentity succeeded is forced back. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
+        "width": 1696,
+        "height": 1472,
         "color": 5
       },
       "id": "zone-07",
@@ -5932,7 +5947,7 @@
       "typeVersion": 1,
       "position": [
         -64,
-        7264
+        7296
       ]
     },
     {
@@ -5948,7 +5963,7 @@
       "typeVersion": 1,
       "position": [
         -64,
-        7936
+        7968
       ]
     },
     {
@@ -5964,7 +5979,7 @@
       "typeVersion": 1,
       "position": [
         608,
-        7936
+        7968
       ]
     },
     {
@@ -5985,7 +6000,7 @@
     },
     {
       "parameters": {
-        "content": "## Tools\n\nIdentifyCaller, FindDealers, CreateReservation, FindSlots, BookAppointment, FindAppointment, CancelAppointment, MoveAppointment, RequestCallback. sessionId is plumbed, never a model parameter. Handoff is not a tool: it is a deterministic consequence of action=handoff.",
+        "content": "## Tools\n\nVerifyIdentity, FindDealers, CreateReservation, FindSlots, BookAppointment, FindAppointment, CancelAppointment, MoveAppointment, RequestCallback. sessionId is plumbed, never a model parameter. Handoff is not a tool: it is a deterministic consequence of action=handoff.",
         "width": 704,
         "height": 256,
         "color": 6
@@ -6039,13 +6054,6 @@
         [
           {
             "node": "OnIdentityFailed",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "OnIdentityConfirmed",
             "type": "main",
             "index": 0
           }
@@ -6144,17 +6152,6 @@
       ]
     },
     "OnIdentityFailed": {
-      "main": [
-        [
-          {
-            "node": "GateFacts",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "OnIdentityConfirmed": {
       "main": [
         [
           {
@@ -6493,7 +6490,7 @@
         ]
       ]
     },
-    "IdentifyCaller": {
+    "VerifyIdentity": {
       "ai_tool": [
         [
           {
@@ -6796,7 +6793,7 @@
         ],
         [
           {
-            "node": "PendingSlot",
+            "node": "IdentityUnverified",
             "type": "main",
             "index": 0
           }
@@ -6804,6 +6801,35 @@
       ]
     },
     "OnIdentifyExhausted": {
+      "main": [
+        [
+          {
+            "node": "IdentityUnverified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdentityUnverified": {
+      "main": [
+        [
+          {
+            "node": "OnIdentityUnverified",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PendingSlot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnIdentityUnverified": {
       "main": [
         [
           {
@@ -7346,7 +7372,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none"
   },
   "meta": {
     "description": "POST /webhook/ar/v1/session/turn. One call per caller utterance. Loads the session, runs the dialogue agent with its nine tools (identify, dealers, reservation, slots, book, find, cancel, move, callback), applies deterministic guards, builds the handoff context when needed, updates the session and logs. Returns speak, action, state and handoff."

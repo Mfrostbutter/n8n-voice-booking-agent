@@ -571,6 +571,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1014,7 +1024,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "POST /webhook/ar/twilio/refer, Twilio's referUrl: the Refer-To of the REFER arrives as ReferTransferTarget. Decodes the UUI, stores refer_received on the session, logs the target byte-exact, and answers TwiML that dials the human number from ar_proof_config (or says the context and hangs up)."

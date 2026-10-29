@@ -5,7 +5,7 @@
       "parameters": {
         "path": "ar-proof-tools",
         "authentication": "bearerAuth",
-        "instructions": "Appointment booking tools for one phone call. Always pass the sessionId from the instructions. Order: FindSlots, ConfirmSlot when the caller picks one, BookAppointment after the caller says yes, EndCall when the caller is done. Call RequestAgent when the caller asks for a person."
+        "instructions": "Appointment booking tools for one phone call. Always pass the sessionId from the instructions. Order: VerifyIdentity with the PIN first, FindSlots, ConfirmSlot when the caller picks one, BookAppointment after the caller says yes, EndCall when the caller is done. Call RequestAgent when the caller asks for a person."
       },
       "id": "a0260351-738c-53c0-997b-4886f2b8fc1b",
       "name": "ProofTools",
@@ -18,7 +18,69 @@
     },
     {
       "parameters": {
-        "description": "Dealers in the caller's market, nearest first. Call when the caller names a city or asks where to go.",
+        "description": "Verifies the caller with the four-digit PIN they say. Call it as soon as the caller has given the PIN; nothing else works before it returns ok.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PENDING_ar-18-identify-caller",
+          "mode": "list",
+          "cachedResultName": "AR-18 Tool: Verify identity by PIN"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $fromAI('sessionId', 'The session id given in the instructions, unchanged', 'string') }}",
+            "pin": "={{ $fromAI('pin', 'The four-digit PIN the caller said, digits only', 'string') }}",
+            "registrationPlate": "={{ $fromAI('registrationPlate', 'Registration plate the caller gave, or empty', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "pin",
+              "displayName": "pin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "registrationPlate",
+              "displayName": "registrationPlate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "id": "0eae0048-564e-56ef-9a67-8a45c5a9f418",
+      "name": "VerifyIdentity",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Other retailers in the caller's market, by city. Call it only when the caller asks for a retailer other than the one on file and names a city; never to find out where the caller is.",
         "workflowId": {
           "__rl": true,
           "value": "PENDING_ar-11-find-dealers",
@@ -63,7 +125,7 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        0,
+        208,
         272
       ]
     },
@@ -125,7 +187,7 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        208,
+        416,
         272
       ]
     },
@@ -176,7 +238,7 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        416,
+        624,
         272
       ]
     },
@@ -249,7 +311,7 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        624,
+        832,
         272
       ]
     },
@@ -300,7 +362,7 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        832,
+        1040,
         272
       ]
     },
@@ -351,14 +413,14 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        1040,
+        1248,
         272
       ]
     },
     {
       "parameters": {
-        "content": "## MCP server\n\nBearer-protected MCP trigger at /mcp/ar-proof-tools. The tools are the demo sub-workflows plus ConfirmSlot (the CONFIRM step as a tool); RequestAgent is the REFER path.",
-        "width": 1248,
+        "content": "## MCP server\n\nBearer-protected MCP trigger at /mcp/ar-proof-tools. The tools are the demo sub-workflows (VerifyIdentity first: FindSlots, FindAppointment and RequestCallback refuse an unverified session) plus ConfirmSlot (the CONFIRM step as a tool); RequestAgent is the REFER path.",
+        "width": 1456,
         "height": 624,
         "color": 3
       },
@@ -389,6 +451,17 @@
     }
   ],
   "connections": {
+    "VerifyIdentity": {
+      "ai_tool": [
+        [
+          {
+            "node": "ProofTools",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "FindDealers": {
       "ai_tool": [
         [
@@ -457,10 +530,11 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
-    "description": "MCP Server Trigger at /mcp/ar-proof-tools (bearer auth) exposing FindDealers, FindSlots, BookAppointment and RequestAgent to the OpenAI Realtime session. The same sub-workflows the demo agent uses; RequestAgent is the REFER path (AR-55)."
+    "description": "MCP Server Trigger at /mcp/ar-proof-tools (bearer auth) exposing VerifyIdentity, FindDealers, FindSlots, ConfirmSlot, BookAppointment, RequestAgent and EndCall to the OpenAI Realtime session. The same sub-workflows the demo agent uses; RequestAgent is the REFER path (AR-55)."
   },
   "tags": [
     "voice-booking",

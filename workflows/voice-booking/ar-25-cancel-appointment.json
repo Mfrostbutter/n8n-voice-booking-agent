@@ -793,6 +793,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1027,7 +1037,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Agent tool. Cancels the appointment in hand in DealerBook (POST bookings/{bookingId}). Inputs: sessionId (plumbed), bookingRef. CancelGate: the appointment must be the one FindAppointment stored, read back in state CONFIRM_CANCEL, and confirmed in a later turn. Returns {ok, bookingRef} or {ok:false, error}."

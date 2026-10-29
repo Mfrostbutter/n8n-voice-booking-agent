@@ -824,7 +824,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Lab stand-in for the CASE case API. POST ar-mock/casesys/case {op: create|update|close|delegate, correlationId, caseId, ...} -> case (mandatory fields: accountName, caseOrigin, description, serviceType, plus the CASE booking prerequisites of 2026-10-23). POST ar-mock/casesys/appointments {vin, bookingRef} -> the account's booked appointments. Persists in ar_mock_cases."

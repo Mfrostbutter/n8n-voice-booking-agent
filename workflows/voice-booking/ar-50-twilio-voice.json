@@ -80,9 +80,9 @@
         "filters": {
           "conditions": [
             {
-              "keyName": "market",
+              "keyName": "={{ $('ProofConfig').first().json.proofVin ? 'vin' : 'market' }}",
               "condition": "eq",
-              "keyValue": "GB"
+              "keyValue": "={{ $('ProofConfig').first().json.proofVin || 'GB' }}"
             }
           ]
         },
@@ -563,7 +563,7 @@
     },
     {
       "parameters": {
-        "content": "## Twilio voice entry\n\nTwilio posts the inbound call. The config rows and the first GB fixture customer shape the synthetic UUI; with an OpenAI project the TwiML dials the SIP ingress (referUrl AR-53, action AR-54), without it the caller hears the lab line.",
+        "content": "## Twilio voice entry\n\nTwilio posts the inbound call. The config rows and the vehicle named by proofVin (fallback: the first GB fixture customer) shape the synthetic UUI; with an OpenAI project the TwiML dials the SIP ingress (referUrl AR-53, action AR-54), without it the caller hears the lab line.",
         "width": 1696,
         "height": 624,
         "color": 4
@@ -611,7 +611,7 @@
     },
     {
       "parameters": {
-        "content": "## AR-50 Twilio voice entry\n\nProof of decision doc 13: Twilio stands in for the contact center trunk. No Twilio signature check on the lab (PoC exception, test plan). The UUI is the first GB fixture customer, hex-encoded as contact center would send it.",
+        "content": "## AR-50 Twilio voice entry\n\nProof of decision doc 13: Twilio stands in for the contact center trunk. No Twilio signature check on the lab (PoC exception, test plan). The UUI names the vehicle in the proofVin config row (fallback: the first GB fixture customer), hex-encoded as contact center would send it.",
         "width": 768,
         "height": 256,
         "color": 6
@@ -790,7 +790,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "POST /webhook/ar/twilio/voice, called by Twilio Programmable Voice on an inbound call. Answers TwiML: Dial Sip to the OpenAI Realtime SIP ingress with a synthetic in-car UUI, referUrl on AR-53, action on AR-54. Without openaiProjectId in ar_proof_config the caller hears a lab line (Twilio-only smoke test). POST /webhook/ar/proof/config (gateway auth) upserts the config rows."

@@ -15,12 +15,12 @@
       ]
     },
     {
-      "title": "Spoken identification",
-      "body": "Registration plate (normalised) plus surname or postcode: the placeholder rule until the identification rule is agreed (question 20).",
+      "title": "PIN identification",
+      "body": "The account by customerRef (known caller) or by the normalised registration plate, then the four-digit PIN must match. Test-period stand-in until the identification rule is agreed (question 20).",
       "color": 7,
       "nodes": [
         "ReceiveIdentify",
-        "LookupByPlate",
+        "LookupAccount",
         "MatchesIdentity",
         "ShapeIdentified",
         "RespondIdentify",
@@ -31,7 +31,7 @@
   "panels": [
     {
       "title": "Mock CASE customer account",
-      "body": "Synthetic customers in ar_mock_customers (seeded by AR-90). Lookup: VIN, then phone number. Identify: registration plate plus surname or postcode, a placeholder until the identification rule is agreed (question 20; CASE holds me ID, name, e-mail, mobile, postcode, VIN or FIN and plate). Real build: CASE account search in place of the table reads.",
+      "body": "Synthetic customers in ar_mock_customers (seeded by AR-90). Lookup: VIN, then phone number. Identify: the four-digit PIN on the account (pin column), anchored by customerRef for a known caller or by the registration plate for an unknown one; a test-period stand-in until the identification rule is agreed (question 20). Real build: CASE account search in place of the table reads.",
       "color": 6,
       "width": 704
     }

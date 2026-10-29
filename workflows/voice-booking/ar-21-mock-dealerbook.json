@@ -2382,7 +2382,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Lab stand-in for DealerBook API V2 in the order of the endpoint sheet (2026-10-23): dealers, POST reservations, GET services, GET fulfilments, PATCH reservations (services, fulfilment, timeslot), GET timeslots, POST bookings, bookings by customerId, chassisNumber, offerId or status, cancel, reschedule. Dealers in ar_mock_dealers, deterministic slots, bookings in ar_mock_bookings. Replace with the DealerBook API."

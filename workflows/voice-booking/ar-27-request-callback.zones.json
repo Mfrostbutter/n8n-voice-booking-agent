@@ -3,12 +3,13 @@
   "zones": [
     {
       "title": "Callback gate",
-      "body": "Already logged, or not yet confirmed (state CALLBACK from the previous turn). Only Proceed delegates.",
+      "body": "Not verified (no PIN yet), already logged, or not yet confirmed (state CALLBACK from the previous turn). Only Proceed delegates.",
       "color": 5,
       "nodes": [
         "ToolInput",
         "LoadSession",
         "CallbackGate",
+        "ReplyNotVerified",
         "ReplyAlreadyLogged",
         "ReplyNotConfirmed"
       ]

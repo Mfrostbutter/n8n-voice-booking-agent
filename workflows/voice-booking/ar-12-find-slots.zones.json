@@ -3,30 +3,32 @@
   "zones": [
     {
       "title": "Find slots",
-      "body": "API V2 order: a missing reservation is created first from the session's dealer (CreateReservation); PATCH the selected services onto the reservation (new booking only), then GET timeslots for the reservation (or the existing booking's offer when rescheduling) in the market's window; at most maxSlotsOffered, labelled in the session language.",
+      "body": "An unverified session (no PIN yet) is refused. API V2 order: a missing reservation is created first from the session's dealer (CreateReservation); PATCH the selected services onto the reservation (new booking only), then GET timeslots for the reservation (or the existing booking's offer when rescheduling) in the market's window; at most maxSlotsOffered, labelled in the session language.",
       "color": 5,
       "nodes": [
         "ToolInput",
         "LoadSession",
+        "Verified",
         "LoadMarket",
         "HasReservation",
         "SlotWindow",
         "NewBooking",
         "PatchServices",
-        "CallDealerBookTimeslots",
-        "CreateReservationFirst",
-        "ReturnSlotsError"
+        "ReturnNotVerified",
+        "CreateReservationFirst"
       ]
     },
     {
-      "title": "Remember what was offered",
-      "body": "Selected services and offered slots are stored on the session so a booking or a move can only name one of them; the tool returns them by day and time, never by slotId.",
+      "title": "Slots and what was offered",
+      "body": "GET timeslots, then the selected services and offered slots are stored on the session so a booking or a move can only name one of them; the tool returns them by day and time, never by slotId.",
       "color": 3,
       "nodes": [
+        "CallDealerBookTimeslots",
         "ShapeSlots",
         "OfferSlots",
         "StoreOffered",
-        "ReturnSlots"
+        "ReturnSlots",
+        "ReturnSlotsError"
       ]
     }
   ],

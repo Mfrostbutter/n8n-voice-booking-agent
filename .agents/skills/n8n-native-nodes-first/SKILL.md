@@ -135,7 +135,7 @@ travel with the file into the repo and the review:
       "node": "FetchChannelHistory",
       "rule": "http-native-available",
       "reason": "Slack node has no conversations.history with cursor paging; HTTP Request on the slackApi credential.",
-      "approvedBy": "M. Frostbutter",
+      "approvedBy": "the repository owner",
       "date": "2026-10-21"
     }
   ]

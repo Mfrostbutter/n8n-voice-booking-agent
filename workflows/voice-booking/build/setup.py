@@ -35,6 +35,7 @@ import json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.dirname(HERE)
 ROOT = os.path.dirname(os.path.dirname(OUT))
+MEMORY = os.environ.get("AR_MEMORY", "postgres")  # "simple" skips the Postgres credential (in-process memory on a test host)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 import organize_workflows as org  # noqa: E402
 
@@ -80,8 +81,11 @@ CREDENTIALS = [
      lambda: {"name": "Authorization", "value": "Bearer " + need("AR_OPENAI_API_KEY")}),
     ("credMcpBearer", f"{PREFIX} MCP bearer", "httpBearerAuth",
      lambda: {"token": need("AR_PROOF_MCP_TOKEN")}),
+    # Sideband sidecar off the Mac: AR-51 presents this bearer on /attach.
+    ("credSidebandBearer", f"{PREFIX} sideband bearer", "httpHeaderAuth",
+     lambda: {"name": "Authorization", "value": "Bearer " + need("AR_SIDEBAND_TOKEN")}),
 ]
-OPTIONAL = {"credOpenAi": "AR_OPENAI_API_KEY", "credMcpBearer": "AR_PROOF_MCP_TOKEN"}
+OPTIONAL = {"credOpenAi": "AR_OPENAI_API_KEY", "credMcpBearer": "AR_PROOF_MCP_TOKEN", "credSidebandBearer": "AR_SIDEBAND_TOKEN"}
 
 
 def project_record():
@@ -105,13 +109,21 @@ def in_project(shared, project):
 
 def ensure_credentials(project, ids):
     have = {}
-    for c in org.credentials_index(TARGET).values():
-        if in_project(c.get("shared"), project):
-            have.setdefault(c["name"], c)
+    code, _ = org.api(TARGET, "GET", "/credentials?limit=1")
+    if code == 403:
+        print("credential listing not permitted for this key: existing ids come from the ids file")
+    else:
+        for c in org.credentials_index(TARGET).values():
+            if in_project(c.get("shared"), project):
+                have.setdefault(c["name"], c)
     for key, name, ctype, data in CREDENTIALS:
         if CREDS_ONLY and key not in OPTIONAL and ids.get(key):
             print(f"credential '{name}': kept ({ids[key]})"); continue
+        if key == "credPostgres" and MEMORY == "simple":
+            print(f"credential '{name}': skipped (AR_MEMORY=simple)"); ids.pop(key, None); continue
         cur = have.get(name)
+        if not cur and code == 403 and ids.get(key):
+            print(f"credential '{name}': kept from the ids file ({ids[key]})"); continue
         if cur:
             print(f"credential '{name}': exists ({cur['id']})")
             ids[key] = cur["id"]; ids[key + "Name"] = name
@@ -175,6 +187,7 @@ def main():
         if MODEL:
             ids["model"] = MODEL
         ids["modelBaseUrl"] = MODEL_URL
+        ids["memory"] = MEMORY
     if DRY:
         print("dry run: ids file not written"); return
     json.dump(ids, open(IDS_PATH, "w"), indent=2); open(IDS_PATH, "a").write("\n")

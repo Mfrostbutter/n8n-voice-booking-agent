@@ -1586,6 +1586,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -2139,7 +2149,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none"
   },
   "meta": {
     "description": "POST /webhook/ar/v1/session/end. Closes or delegates the CASE case with the journey's outcome (booked, moved, cancelled, callback, self-service, handed off, closed), purges the chat memory rows for the session, finalises the session row and logs. DealerBook sends the customer confirmation. Idempotent."

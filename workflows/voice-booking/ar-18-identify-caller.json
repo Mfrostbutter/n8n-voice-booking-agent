@@ -1,5 +1,5 @@
 {
-  "name": "AR-18 Tool: Identify caller by spoken data",
+  "name": "AR-18 Tool: Verify identity by PIN",
   "nodes": [
     {
       "parameters": {
@@ -11,15 +11,11 @@
               "type": "string"
             },
             {
-              "name": "lastName",
+              "name": "pin",
               "type": "string"
             },
             {
               "name": "registrationPlate",
-              "type": "string"
-            },
-            {
-              "name": "postcode",
               "type": "string"
             }
           ]
@@ -71,7 +67,7 @@
         "url": "http://localhost:5678/webhook/ar-mock/crm/customer-identify",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ plate: $('ToolInput').first().json.registrationPlate || '', lastName: $('ToolInput').first().json.lastName || '', postcode: $('ToolInput').first().json.postcode || '', correlationId: $('LoadSession').first().json.correlationId }) }}",
+        "jsonBody": "={{ JSON.stringify({ pin: String($('ToolInput').first().json.pin || '').replace(/\\D/g, ''), customerRef: $('LoadSession').first().json.customerRef || '', plate: $('LoadSession').first().json.customerRef ? '' : ($('ToolInput').first().json.registrationPlate || ''), correlationId: $('LoadSession').first().json.correlationId }) }}",
         "options": {
           "timeout": 15000
         }
@@ -149,7 +145,8 @@
             "greetingName": "={{ $json.greetingName || '' }}",
             "vehicleLabel": "={{ $json.vehicleLabel || '' }}",
             "dealerId": "={{ $json.preferredDealerId || '' }}",
-            "dealerName": "={{ $json.preferredDealerName || '' }}"
+            "dealerName": "={{ $json.preferredDealerName || '' }}",
+            "verified": true
           },
           "matchingColumns": [],
           "schema": [
@@ -572,6 +569,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -943,7 +950,7 @@
             {
               "id": "35ea2a59-795c-5e3b-8452-d7ed7c780e8d",
               "name": "note",
-              "value": "Identified. Greet the customer by the greeting name, confirm the vehicle in one sentence, then move to CONSENT.",
+              "value": "Identity verified. Address the customer by the greeting name, move to CONSENT and ask the consent question.",
               "type": "string"
             }
           ]
@@ -1403,6 +1410,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1450,7 +1467,7 @@
             {
               "id": "20bb62a3-764d-5e5c-b2b1-54c28fe150b4",
               "name": "message",
-              "value": "={{ (Number($('LoadSession').first().json.identifyAttempts) || 0) + 1 >= 2 ? 'No match after two attempts. Say you cannot verify the details and set action handoff with handoffReason IDENTIFICATION_FAILED.' : 'No customer matched. Ask the caller to repeat the registration plate and the surname once, then call IdentifyCaller again.' }}",
+              "value": "={{ (Number($('LoadSession').first().json.identifyAttempts) || 0) + 1 >= 2 ? 'No match after two attempts. Say you cannot verify the identity and set action handoff with handoffReason IDENTIFICATION_FAILED.' : 'The PIN did not match. Ask the caller to say the four-digit PIN once more (a caller with no vehicle on file: PIN and registration plate), then call VerifyIdentity again.' }}",
               "type": "string"
             }
           ]
@@ -1509,7 +1526,7 @@
     },
     {
       "parameters": {
-        "content": "## Identify by spoken data\n\nPlate plus surname or postcode against the CASE account (placeholder rule until question 20 is agreed). A match stores the customer on the session and account, asset, VIN or FIN, plate and dealer on the case; a miss counts an attempt.",
+        "content": "## Verify by PIN\n\nThe four-digit PIN against the CASE account on the session (in-car) or behind the spoken plate (IVR); test-period stand-in until question 20 is agreed. A match sets verified, stores the customer on the session and account, asset, VIN or FIN, plate and dealer on the case; a miss counts an attempt.",
         "width": 1488,
         "height": 624,
         "color": 3
@@ -1525,9 +1542,9 @@
     },
     {
       "parameters": {
-        "content": "## AR-18 IdentifyCaller\n\nFor IVR calls (no VIN) and unknown VINs. The data points are a placeholder until the identification rule is agreed (question 20; no document holds it); the rule lives in the mock and this tool, nowhere else. A match also writes account, asset, VIN or FIN, plate and dealer to the case. Attempts are counted on the session; the IdentifyExhausted guard in AR-02 hands off after two.",
+        "content": "## AR-18 VerifyIdentity\n\nEvery caller: the four-digit PIN against the account on the session (in-car) or the account behind the spoken plate (IVR). The PIN is a test-period stand-in until the identification rule is agreed (question 20); the rule lives in the mock and this tool, nowhere else. A match sets verified on the session and writes account, asset, VIN or FIN, plate and dealer to the case. Attempts are counted on the session; the IdentifyExhausted guard in AR-02 hands off after two.",
         "width": 768,
-        "height": 256,
+        "height": 272,
         "color": 6
       },
       "id": "zone-panel-1",
@@ -1536,7 +1553,7 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -416
+        -432
       ]
     }
   ],
@@ -1634,10 +1651,12 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
-    "description": "Agent tool. Matches the caller against the CASE customer account from spoken data points (registration plate plus surname or postcode; placeholder until the identification rule is agreed, question 20). Inputs: sessionId (plumbed), lastName, registrationPlate, postcode. Stores the identified customer on the session and the account name on the case. Two failed attempts: the dialogue hands off with IDENTIFICATION_FAILED."
+    "description": "Agent tool. Verifies the caller against the CASE customer account with the four-digit PIN: the session's customer (in-car call) or the account behind the spoken registration plate (IVR call). Inputs: sessionId (plumbed), pin, registrationPlate. A match sets verified on the session, stores the customer and writes the account to the case. Two failed attempts: the dialogue hands off with IDENTIFICATION_FAILED."
   },
   "tags": [
     "voice-booking",

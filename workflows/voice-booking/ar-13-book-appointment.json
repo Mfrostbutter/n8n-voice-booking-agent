@@ -934,6 +934,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1227,7 +1237,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Agent tool. Writes the chosen timeslot and fulfilment to the DealerBook reservation (PATCH), submits the booking (POST bookings) and stores the DealerBook booking id and the six-letter reference code on the session. Inputs: sessionId (plumbed), slotId, mobility, notes. Returns {ok, confirmationCode (the reference code), bookingId, when, dealerName} or {ok:false, error}. Idempotent per session and slot."

@@ -63,6 +63,75 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c75f32b1-de7b-54e3-88de-f8797606bcc6",
+              "leftValue": "={{ $json.verified === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "41a16127-aa84-5e84-9003-f511107e45f0",
+      "name": "Verified",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2a2148a8-46f3-5c71-a293-af0e8eeab77f",
+              "name": "ok",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "c0140db9-7436-5ba4-a22d-86d6ae6584ea",
+              "name": "error",
+              "value": "not_identified",
+              "type": "string"
+            },
+            {
+              "id": "88df7470-2186-5321-82ad-0b3718fa367d",
+              "name": "message",
+              "value": "Identity not verified yet. Ask the caller for the four-digit PIN and call VerifyIdentity first.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e7a7c918-6209-52a4-8837-332d35cd1d69",
+      "name": "ReturnNotVerified",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        272
+      ]
+    },
+    {
+      "parameters": {
         "operation": "get",
         "dataTableId": {
           "__rl": true,
@@ -87,7 +156,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        416,
+        624,
         0
       ],
       "alwaysOutputData": true
@@ -122,7 +191,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        624,
+        832,
         0
       ]
     },
@@ -176,7 +245,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        624,
+        832,
         272
       ]
     },
@@ -259,7 +328,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        832,
+        1040,
         0
       ]
     },
@@ -293,7 +362,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1040,
+        1248,
         0
       ]
     },
@@ -313,7 +382,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1248,
+        1456,
         0
       ],
       "onError": "continueErrorOutput"
@@ -334,8 +403,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1456,
-        0
+        0,
+        672
       ],
       "retryOnFail": true,
       "maxTries": 2,
@@ -391,7 +460,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        0,
+        208,
         672
       ]
     },
@@ -421,7 +490,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        208,
+        416,
         672
       ]
     },
@@ -870,6 +939,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -881,7 +960,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        416,
+        624,
         672
       ],
       "alwaysOutputData": true
@@ -897,7 +976,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        624,
+        832,
         672
       ]
     },
@@ -938,15 +1017,15 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1456,
-        272
+        0,
+        944
       ]
     },
     {
       "parameters": {
-        "content": "## Find slots\n\nAPI V2 order: a missing reservation is created first from the session's dealer (CreateReservation); PATCH the selected services onto the reservation (new booking only), then GET timeslots for the reservation (or the existing booking's offer when rescheduling) in the market's window; at most maxSlotsOffered, labelled in the session language.",
+        "content": "## Find slots\n\nAn unverified session (no PIN yet) is refused. API V2 order: a missing reservation is created first from the session's dealer (CreateReservation); PATCH the selected services onto the reservation (new booking only), then GET timeslots for the reservation (or the existing booking's offer when rescheduling) in the market's window; at most maxSlotsOffered, labelled in the session language.",
         "width": 1696,
-        "height": 624,
+        "height": 656,
         "color": 5
       },
       "id": "zone-01",
@@ -955,14 +1034,14 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -144
+        -176
       ]
     },
     {
       "parameters": {
-        "content": "## Remember what was offered\n\nSelected services and offered slots are stored on the session so a booking or a move can only name one of them; the tool returns them by day and time, never by slotId.",
-        "width": 864,
-        "height": 352,
+        "content": "## Slots and what was offered\n\nGET timeslots, then the selected services and offered slots are stored on the session so a booking or a move can only name one of them; the tool returns them by day and time, never by slotId.",
+        "width": 1072,
+        "height": 624,
         "color": 3
       },
       "id": "zone-02",
@@ -987,7 +1066,7 @@
       "typeVersion": 1,
       "position": [
         -64,
-        -432
+        -464
       ]
     }
   ],
@@ -1007,7 +1086,25 @@
       "main": [
         [
           {
+            "node": "Verified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verified": {
+      "main": [
+        [
+          {
             "node": "LoadMarket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReturnNotVerified",
             "type": "main",
             "index": 0
           }
@@ -1154,7 +1251,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Agent tool. Writes the chosen services to the DealerBook reservation (PATCH) and returns up to maxSlotsOffered (market row, default three) bookable timeslots in the market's window from a date, for the session's reservation (new booking) or the existing booking's offer (reschedule). Inputs: sessionId (plumbed), serviceIds, fromDate (YYYY-MM-DD). Side effect: stores the selected services and the offered slots on the session so BookAppointment and MoveAppointment can validate the choice."

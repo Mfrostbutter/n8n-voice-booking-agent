@@ -220,7 +220,7 @@
     },
     {
       "parameters": {
-        "content": "## AR-10 Identify customer\n\nIdentity from the UUI: VIN for an in-car call, the phone number for an IVR call. The model never sees either. An unknown caller is identified by spoken data points through IdentifyCaller (AR-18).",
+        "content": "## AR-10 Identify customer\n\nIdentity from the UUI: VIN for an in-car call, the phone number for an IVR call. The model never sees either. Every caller then verifies with the four-digit PIN through VerifyIdentity (AR-18).",
         "width": 704,
         "height": 256,
         "color": 6
@@ -267,7 +267,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Looks the caller up in the CASE customer account from the UUI identifiers (VIN first, then the phone number). Inputs: vin, msisdn, correlationId. Returns {ok, known, customerRef, accountName, greetingName, vehicleLabel, preferredDealerId, preferredDealerName, market, language}. Called by AR-01, never by the model."

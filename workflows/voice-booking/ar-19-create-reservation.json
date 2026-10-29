@@ -690,6 +690,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -945,7 +955,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Agent tool. Creates the DealerBook reservation for the session's vehicle at the agreed dealer (POST reservations), then reads the services and the fulfilments available for it (GET services, GET fulfilments), the first three calls of the API V2 lifecycle. Inputs: sessionId (plumbed), dealerId. Stores reservationId, dealer, services and fulfilments on the session."

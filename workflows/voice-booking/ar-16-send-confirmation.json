@@ -203,7 +203,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Sends the SMS or email confirmation through the communication service. Inputs: channel, customerRef, language, text, correlationId. Returns {ok, messageId} or {ok:false, error}."

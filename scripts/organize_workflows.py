@@ -112,6 +112,29 @@ def workflow_project_id(wf):
 
 # ------------------------------------------------------------------- folders
 
+_FOLDER_PROJECT = {}
+
+
+def folder_project(target, project_id, hint=None):
+    """Project id for the folder endpoints. Self-hosted 2.35 accepts "personal" as
+    the path segment; cloud answers 404, so the key's own project id is taken
+    from the workflow being placed (`hint`), the project list, or a data table."""
+    if project_id != PERSONAL:
+        return project_id
+    base = target["base"]
+    if base not in _FOLDER_PROJECT:
+        code, _ = api(target, "GET", f"/projects/{PERSONAL}/folders?take=1&skip=0")
+        pid = PERSONAL if code == 200 else hint
+        if not pid:
+            code, resp = api(target, "GET", "/projects?limit=100")
+            pid = next((p["id"] for p in (resp.get("data") or []) if p.get("type") == PERSONAL), None) if code == 200 else None
+        if not pid:
+            code, resp = api(target, "GET", "/data-tables?limit=1")
+            pid = next((t.get("projectId") for t in (resp.get("data") or [])), None) if code == 200 else None
+        _FOLDER_PROJECT[base] = pid or PERSONAL
+    return _FOLDER_PROJECT[base]
+
+
 def folders(target, project_id):
     out, skip = [], 0
     while True:
@@ -162,13 +185,16 @@ def folder_count(target, project_id, folder_id):
 
 def ensure_tags(target, names):
     """Resolve tag names to ids on the target, creating any that are missing."""
-    code, resp = api(target, "GET", "/tags?limit=250")
-    existing = {t["name"]: t["id"] for t in resp.get("data", [])} if code == 200 else {}
+    existing = {t["name"]: t["id"] for t in api_all(target, "/tags?limit=250")}
     ids = []
     for name in names:
         tid = existing.get(name)
         if not tid:
             c, r = api(target, "POST", "/tags", {"name": name})
+            if c == 409:  # exists but was not listed (a shared instance with many tags): re-read
+                existing = {t["name"]: t["id"] for t in api_all(target, "/tags?limit=250")}
+                r = {"id": existing.get(name)}
+                c = 200 if r["id"] else 409
             if c not in (200, 201):
                 fail(f"tag create FAILED for '{name}' HTTP {c}: {r.get('error')}", 1)
             tid = r["id"]
@@ -391,8 +417,8 @@ def place_workflow(target, wid, wf, creds=None, dry=False, body=None, tables=Non
     report["project"] = project["name"]
     report["transfer"] = needs_transfer
 
-    folder_project = project["id"]
-    folder_id, created = ensure_folder(target, folder_project, folder_path, dry=dry)
+    folder_project_id = folder_project(target, project["id"], hint=current)
+    folder_id, created = ensure_folder(target, folder_project_id, folder_path, dry=dry)
     report["folder"] = folder_path
     report["folder_created"] = created
     report["tags"] = tags
@@ -421,7 +447,7 @@ def place_workflow(target, wid, wf, creds=None, dry=False, body=None, tables=Non
     code, live = api(target, "GET", f"/workflows/{wid}")
     if project["id"] != PERSONAL and workflow_project_id(live) != project["id"]:
         fail(f"VERIFY FAILED: workflow is not in project '{project['name']}' after transfer", 1)
-    report["folder_total"] = folder_count(target, folder_project, folder_id)
+    report["folder_total"] = folder_count(target, folder_project_id, folder_id)
     report["live_tags"] = sorted(t["name"] for t in live.get("tags") or [])
     report["draft"] = bool(live.get("active")) and live.get("versionId") != live.get("activeVersionId")
     return report

@@ -312,7 +312,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "POST /webhook/ar/twilio/done, the Dial action callback: logs DialCallStatus, DialSipResponseCode and the duration, then hangs up."

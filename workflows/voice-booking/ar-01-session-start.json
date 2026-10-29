@@ -288,7 +288,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "={{ { sessionId: $json.sessionId, correlationId: $json.correlationId, caseId: $json.caseId, market: $json.market, language: $json.language, state: $json.state, customer: { known: !!$json.customerRef, greetingName: $json.greetingName, vehicle: $json.vehicleLabel }, speak: '', action: 'continue', handoff: null, listen: true, duplicate: true } }}",
+        "jsonOutput": "={{ { sessionId: $json.sessionId, correlationId: $json.correlationId, caseId: $json.caseId, market: $json.market, language: $json.language, state: $json.state, customer: { known: !!$json.customerRef, greetingName: $json.greetingName, vehicle: $json.vehicleLabel, dealer: $json.dealerName }, speak: '', action: 'continue', handoff: null, listen: true, duplicate: true } }}",
         "options": {}
       },
       "id": "0033ac2a-2b66-563b-930f-0be43296327e",
@@ -812,6 +812,12 @@
               "type": "boolean"
             },
             {
+              "id": "878bb611-ef32-56f2-9a2e-21967e38a2cf",
+              "name": "verified",
+              "value": false,
+              "type": "boolean"
+            },
+            {
               "id": "bd211fa6-dbca-568e-8e47-e9b481ec33bb",
               "name": "caseOrigin",
               "value": "={{ $('ParseStart').first().json.vin ? 'IN_CAR' : 'IVR' }}",
@@ -943,7 +949,8 @@
             "startedAt": "={{ $json.startedAt }}",
             "handoffReason": "={{ $json.handoffReason }}",
             "caseOrigin": "={{ $json.caseOrigin }}",
-            "identifyAttempts": "={{ $json.identifyAttempts }}"
+            "identifyAttempts": "={{ $json.identifyAttempts }}",
+            "verified": "={{ $json.verified }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -1366,6 +1373,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1647,7 +1664,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "={{ (s => ({ sessionId: s.sessionId, correlationId: s.correlationId, caseId: s.caseId, market: s.market, language: s.language, state: s.state, customer: { known: s.known, greetingName: s.greetingName, vehicle: s.vehicleLabel }, speak: s.speak, action: s.backendDown ? 'handoff' : 'continue', handoff: s.backendDown ? { intent: 'UNKNOWN', handoffReason: 'BACKEND_UNAVAILABLE', caseId: s.caseId, uuiPayload: $json.uuiPayload, uuiHex: $json.uuiHex, uuiAscii: $json.uuiAscii, referTo: $json.referTo, error: $json.ok === false ? ($json.error || 'handoff_build_failed') : undefined } : null, listen: !s.backendDown, latencyMs: Date.now() - new Date(s.startedAt).getTime() }))($('ComposeGreeting').first().json) }}",
+        "jsonOutput": "={{ (s => ({ sessionId: s.sessionId, correlationId: s.correlationId, caseId: s.caseId, market: s.market, language: s.language, state: s.state, customer: { known: s.known, greetingName: s.greetingName, vehicle: s.vehicleLabel, dealer: s.dealerName }, speak: s.speak, action: s.backendDown ? 'handoff' : 'continue', handoff: s.backendDown ? { intent: 'UNKNOWN', handoffReason: 'BACKEND_UNAVAILABLE', caseId: s.caseId, uuiPayload: $json.uuiPayload, uuiHex: $json.uuiHex, uuiAscii: $json.uuiAscii, referTo: $json.referTo, error: $json.ok === false ? ($json.error || 'handoff_build_failed') : undefined } : null, listen: !s.backendDown, latencyMs: Date.now() - new Date(s.startedAt).getTime() }))($('ComposeGreeting').first().json) }}",
         "options": {}
       },
       "id": "29ba2996-1a3f-542c-a9bb-d0188c5706c8",
@@ -1710,7 +1727,7 @@
     },
     {
       "parameters": {
-        "content": "## Identify and open the case\n\nMarket row, CASE account lookup by VIN (in-car) or phone number (IVR), then the case with its mandatory fields (account name, origin, description, service type) and the CASE booking prerequisites of 2026-10-23 (country, account, asset, VIN or FIN, plate, mileage unit, assigned dealer, classification, primary contact). The model never sees the VIN or the number; an unknown caller is identified by spoken data in the dialogue.",
+        "content": "## Identify and open the case\n\nMarket row, CASE account lookup by VIN (in-car) or phone number (IVR), then the case with its mandatory fields (account name, origin, description, service type) and the CASE booking prerequisites of 2026-10-23 (country, account, asset, VIN or FIN, plate, mileage unit, assigned dealer, classification, primary contact). The model never sees the VIN or the number; every caller verifies with the four-digit PIN in the dialogue.",
         "width": 656,
         "height": 464,
         "color": 3
@@ -1758,7 +1775,7 @@
     },
     {
       "parameters": {
-        "content": "## AR-01 Session start\n\nGateway calls this once the INVITE is answered. Header auth. In-car calls carry the VIN; IVR calls carry only the phone number and an unknown caller is identified by spoken data in the dialogue. Re-delivery of a known correlationId returns the existing session without speaking again.",
+        "content": "## AR-01 Session start\n\nGateway calls this once the INVITE is answered. Header auth. In-car calls carry the VIN; IVR calls carry only the phone number. Every caller verifies with the four-digit PIN in the dialogue (AR-18). Re-delivery of a known correlationId returns the existing session without speaking again.",
         "width": 816,
         "height": 256,
         "color": 6
@@ -2017,7 +2034,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none"
   },
   "meta": {
     "description": "POST /webhook/ar/v1/session/start. Parses the contact-center UUI, identifies the customer, opens the case, creates the session and returns the AI disclosure plus greeting. Idempotent on correlationId."

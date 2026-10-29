@@ -848,6 +848,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1105,7 +1115,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Agent tool. Moves the appointment in hand to one of the slots offered in this call (POST bookings/{bookingId}/reschedule). Inputs: sessionId (plumbed), slotId. MoveGate: appointment in hand, slot offered by FindSlots, read back in CONFIRM with its slotId, confirmed in a later turn. Returns {ok, when, dealerName} or {ok:false, error}."

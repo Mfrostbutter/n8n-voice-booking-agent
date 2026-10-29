@@ -59,6 +59,75 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1951c319-fd7f-5061-b6b9-cf51fe90e7d1",
+              "leftValue": "={{ $json.verified === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9aac4023-e7b5-5c26-bd95-d0d097af3a10",
+      "name": "Verified",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "369b90a3-c4fc-5f1c-a6a4-e042b3b8f5b7",
+              "name": "ok",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "cbe6f166-cf4f-5744-af3b-88c79962f048",
+              "name": "error",
+              "value": "not_identified",
+              "type": "string"
+            },
+            {
+              "id": "4dd631fb-4ee8-508d-86b7-075e91a36908",
+              "name": "message",
+              "value": "Identity not verified yet. Ask the caller for the four-digit PIN and call VerifyIdentity first.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cf8ee57b-d345-551b-a557-df8cd5388831",
+      "name": "ReturnNotVerified",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        272
+      ]
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "http://localhost:5678/webhook/ar-mock/dealerbook/bookings/search",
         "sendBody": true,
@@ -73,7 +142,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        416,
+        624,
         0
       ],
       "retryOnFail": true,
@@ -106,7 +175,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        624,
+        832,
         0
       ]
     },
@@ -139,7 +208,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        832,
+        1040,
         0
       ]
     },
@@ -592,6 +661,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -603,7 +682,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        1040,
+        1248,
         0
       ],
       "alwaysOutputData": true
@@ -619,7 +698,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1248,
+        1456,
         0
       ]
     },
@@ -660,14 +739,14 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        624,
+        832,
         272
       ]
     },
     {
       "parameters": {
-        "content": "## Find the appointment\n\nDealerBook bookings by the session's customer id and chassis number, status booked; a spoken reference code narrows. Exactly one match becomes the appointment in hand on the session, with its offer id for the slot search.",
-        "width": 1488,
+        "content": "## Find the appointment\n\nAn unverified session (no PIN yet) is refused. DealerBook bookings by the session's customer id and chassis number, status booked; a spoken reference code narrows. Exactly one match becomes the appointment in hand on the session, with its offer id for the slot search.",
+        "width": 1696,
         "height": 624,
         "color": 5
       },
@@ -713,7 +792,25 @@
       "main": [
         [
           {
+            "node": "Verified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verified": {
+      "main": [
+        [
+          {
             "node": "CallDealerBookBookings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReturnNotVerified",
             "type": "main",
             "index": 0
           }
@@ -780,7 +877,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Agent tool. Finds the caller's booked appointments in DealerBook by the session's customer id and chassis number (GET bookings, status booked), for a reschedule or a cancellation. Inputs: sessionId (plumbed), bookingRef (optional: the six-letter reference code the caller names, used to narrow the result). One match is stored on the session as the appointment in hand, with its offer id for the slot search."

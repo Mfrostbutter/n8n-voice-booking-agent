@@ -10,8 +10,10 @@ resolves every sub-workflow reference.
 import json, os, sys, uuid
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.dirname(HERE)
-ROOT = os.path.dirname(os.path.dirname(OUT))
+# AR_OUT_DIR: write the set somewhere else (an internal build never overwrites the lab JSON).
+OUT = os.environ.get("AR_OUT_DIR") or os.path.dirname(HERE)
+os.makedirs(OUT, exist_ok=True)
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 IDS_PATH = os.environ.get("AR_IDS_FILE") or os.path.join(OUT, "lab-ids.json")
 # The ids file is the per-instance configuration: credential and Data Table ids,
 # names, placement, model and the instance's own URL. build/setup.py writes it.
@@ -24,9 +26,12 @@ CRED_LM = {"id": IDS.get("credLmStudio", "PENDING"), "name": IDS.get("credLmStud
 # PoC credentials (decision doc 13 proof). Attached only once the id is known, so an unconfigured node shows an empty selector.
 CRED_OPENAI = {"id": IDS["credOpenAi"], "name": IDS.get("credOpenAiName", "AR OpenAI Realtime")} if IDS.get("credOpenAi") else None
 CRED_MCP = {"id": IDS["credMcpBearer"], "name": IDS.get("credMcpBearerName", "AR MCP bearer")} if IDS.get("credMcpBearer") else None
+CRED_SIDEBAND = {"id": IDS["credSidebandBearer"], "name": IDS.get("credSidebandBearerName", "AR sideband bearer")} if IDS.get("credSidebandBearer") else None
 MODEL = IDS.get("model", "qwen/qwen3-coder-30b")
 # Empty: the model node uses the URL stored on the credential.
 MODEL_BASE_URL = IDS.get("modelBaseUrl", "http://host.docker.internal:1234/v1")
+# Chat memory: "postgres" (the build) or "simple" (in-process Simple Memory, a test-host stand-in without a database).
+MEMORY = IDS.get("memory", "postgres")
 NAMES = {}  # key -> workflow name, filled as workflows are declared
 
 # Placement on the instance: one project per customer, one folder per demo,
@@ -45,7 +50,7 @@ ROLE_TAG = {"ar-01": "api", "ar-02": "api", "ar-03": "api", "ar-04": "api", "ar-
 
 TABLE_COLS = {
     "ar_sessions": ["sessionId","correlationId","caseId","market","language","state","intent","customerRef","vehicleRef","greetingName","vehicleLabel","dealerId","dealerName","offeredSlots","slotId","bookingRef","confirmationCode","confirmationChannel","confirmationSent","handoffReason","handoffResult","handoffSummary","turns","startedAt","endedAt","endReason","lastLatencyMs",
-                    "caseOrigin","identifyAttempts","reservationId","services","selectedServices","appointmentRef","appointmentLabel","appointmentDealerId","appointmentDealerName","cancelledAt","movedAt","callbackAt","voiceCallId","appointmentOfferId","fulfilments"],
+                    "caseOrigin","identifyAttempts","reservationId","services","selectedServices","appointmentRef","appointmentLabel","appointmentDealerId","appointmentDealerName","cancelledAt","movedAt","callbackAt","voiceCallId","appointmentOfferId","fulfilments","verified"],
     "ar_events": ["at","correlationId","sessionId","caseId","workflow","event","state","tool","latencyMs","outcome","errorCode","detail"],
     "ar_markets": ["market","languages","defaultLanguage","bookable","disclosure_pl","disclosure_es","disclosure_en","disclosure_de","handoverLine","closingLine","confirmationChannels","returnNumber","slotWindowDays","maxSlotsOffered"],
     "ar_codes": ["kind","code","short","ccValue","description"],
@@ -53,12 +58,12 @@ TABLE_COLS = {
     "ar_mock_bookings": ["bookingRef","confirmationCode","slotId","dealerId","dealerName","vin","serviceType","mobility","startsAt","status","bookedAt","reservationId","serviceIds","movedFrom","customerRef","fulfilmentId"],
     "ar_mock_cases": ["caseId","correlationId","status","subject","classification","solution","delegatedReason","openedAt","lastUpdate","accountName","caseOrigin","description","serviceType","delegatedTo","callbackNote",
                       "caseCountry","accountId","assetId","vinOrFin","licensePlate","mileage","mileageUnit","assignedDealerId","type","topic","reason","primaryContact"],
-    "ar_mock_customers": ["vin","customerRef","accountName","greetingName","vehicleLabel","preferredDealerId","preferredDealerName","market","language","msisdn","plate","postcode","meId","cvrId","fin"],
+    "ar_mock_customers": ["vin","customerRef","accountName","greetingName","vehicleLabel","preferredDealerId","preferredDealerName","market","language","msisdn","plate","postcode","meId","cvrId","fin","pin"],
     "ar_mock_dealers": ["dealerId","name","city","market","bookable"],
     "ar_proof_config": ["key","value"],
 }
 NUMERIC = {"turns","lastLatencyMs","latencyMs","slotWindowDays","maxSlotsOffered","identifyAttempts"}
-BOOLEAN = {"confirmationSent","bookable"}
+BOOLEAN = {"confirmationSent","bookable","verified"}
 
 
 def coltype(c):
@@ -96,7 +101,11 @@ class WF:
         self.key, self.name, self.description = key, name, description
         self.nodes, self.conns = [], {}
         self.panels = []
+        self.exceptions = []
         NAMES[key] = name
+
+    def exception(self, node, rule, reason, approved_by, date):
+        self.exceptions.append({"node": node, "rule": rule, "reason": reason, "approvedBy": approved_by, "date": date})
 
     def add(self, name, ntype, ver, params, x, y, **extra):
         node = {"parameters": params, "id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"ar/{self.key}/{name}")),
@@ -319,11 +328,25 @@ class WF:
                            "nodes": [n for r in z["rows"] for n in r if n]} for z in spec],
                 "panels": self.panels}
 
+    def settings(self):
+        """Workflow settings: AR-30 as the error workflow, same-owner caller policy on
+        sub-workflows, success data off on the session workflows (ar_events is the trace)."""
+        st = {"executionOrder": "v1"}
+        err = IDS.get("wf_ar-30-error-workflow")
+        if err and self.key != "ar-30-error-workflow":
+            st["errorWorkflow"] = err
+        if any(n["type"] == "n8n-nodes-base.executeWorkflowTrigger" for n in self.nodes):
+            st["callerPolicy"] = "workflowsFromSameOwner"
+        st["saveDataSuccessExecution"] = "none" if self.key[:5] in ("ar-01", "ar-02", "ar-03", "ar-04", "ar-05") else "all"
+        return st
+
     def dump(self):
         spec = self.layout()
         wf = {"name": self.name, "nodes": self.nodes, "connections": self.conns,
-              "settings": {"executionOrder": "v1"}, "meta": {"description": self.description},
+              "settings": self.settings(), "meta": {"description": self.description},
               "tags": TAGS + [ROLE_TAG[self.key[:5]]], "project": PROJECT, "folder": FOLDER}
+        if self.exceptions:
+            wf["nodePolicy"] = {"exceptions": self.exceptions}
         wid = IDS.get("wf_" + self.key)
         if wid:
             wf = {"id": wid, **wf}
@@ -378,6 +401,11 @@ def lang_pick(key, lang_expr="$json.language"):
     return f"={{{{ {prompt_text(key, lang_expr)} }}}}"
 
 
+# Reply of a journey tool called before VerifyIdentity succeeded (session row verified false).
+NOT_VERIFIED = [("ok", False, "boolean"), ("error", "not_identified", "string"),
+                ("message", "Identity not verified yet. Ask the caller for the four-digit PIN and call VerifyIdentity first.", "string")]
+
+
 def with_guard(code, when=None):
     """Expression appending a guard code to $json.guards, optionally only when a JS condition holds."""
     if when:
@@ -403,12 +431,12 @@ def build_ar17():
 # Mocks
 # =============================================================================
 MOCK_CUSTOMERS = [
-    {"vin": "TST2970461A123456", "customerRef": "C-PL-004711", "accountName": "Anna Kowalska", "greetingName": "Pani Kowalska", "vehicleLabel": "GLC 300 4MATIC", "preferredDealerId": "PL-WAW-01", "preferredDealerName": "Dealer Warszawa Okęcie", "market": "PL", "language": "pl", "msisdn": "+48601234567", "plate": "WA12345", "postcode": "00-001", "meId": "", "cvrId": "", "fin": ""},
-    {"vin": "TST2970461A223344", "customerRef": "C-PL-004812", "accountName": "Piotr Nowak", "greetingName": "Panie Nowak", "vehicleLabel": "C 200", "preferredDealerId": "PL-WAW-02", "preferredDealerName": "Dealer Warszawa Wola", "market": "PL", "language": "pl", "msisdn": "+48601234999", "plate": "WB98765", "postcode": "01-100", "meId": "", "cvrId": "", "fin": ""},
-    {"vin": "TST2130421A654321", "customerRef": "C-ES-002310", "accountName": "Luis García", "greetingName": "Señor García", "vehicleLabel": "Clase E 220 d", "preferredDealerId": "ES-MAD-02", "preferredDealerName": "Dealer Madrid Castellana", "market": "ES", "language": "es", "msisdn": "+34612345678", "plate": "1234ABC", "postcode": "28001", "meId": "", "cvrId": "", "fin": ""},
-    {"vin": "TST1770871N998877", "customerRef": "C-DE-009902", "accountName": "Thomas Weber", "greetingName": "Herr Weber", "vehicleLabel": "A 200", "preferredDealerId": "DE-STR-01", "preferredDealerName": "Dealer Stuttgart Mitte", "market": "DE", "language": "de", "msisdn": "+4915112345678", "plate": "SAB1234", "postcode": "70173", "meId": "", "cvrId": "", "fin": ""},
-    {"vin": "TST2476011J112233", "customerRef": "C-GB-001177", "accountName": "Priya Patel", "greetingName": "Ms Patel", "vehicleLabel": "EQB 300", "preferredDealerId": "GB-LON-01", "preferredDealerName": "Dealer London West", "market": "GB", "language": "en", "msisdn": "+447700900123", "plate": "LK21XYZ", "postcode": "SW1A 1AA", "meId": "", "cvrId": "", "fin": ""},
-    {"vin": "TST2476011J445566", "customerRef": "C-GB-001290", "accountName": "David Hughes", "greetingName": "Mr Hughes", "vehicleLabel": "GLA 200", "preferredDealerId": "GB-LON-01", "preferredDealerName": "Dealer London West", "market": "GB", "language": "en", "msisdn": "+447700900456", "plate": "LM70ABC", "postcode": "W1A 1AA", "meId": "", "cvrId": "", "fin": ""},
+    {"vin": "TST2970461A123456", "customerRef": "C-PL-004711", "accountName": "Anna Kowalska", "greetingName": "Pani Kowalska", "vehicleLabel": "GLC 300 4MATIC", "preferredDealerId": "PL-WAW-01", "preferredDealerName": "Dealer Warszawa Okęcie", "market": "PL", "language": "pl", "msisdn": "+48601234567", "plate": "WA12345", "postcode": "00-001", "meId": "", "cvrId": "", "fin": "", "pin": "4711"},
+    {"vin": "TST2970461A223344", "customerRef": "C-PL-004812", "accountName": "Piotr Nowak", "greetingName": "Panie Nowak", "vehicleLabel": "C 200", "preferredDealerId": "PL-WAW-02", "preferredDealerName": "Dealer Warszawa Wola", "market": "PL", "language": "pl", "msisdn": "+48601234999", "plate": "WB98765", "postcode": "01-100", "meId": "", "cvrId": "", "fin": "", "pin": "2580"},
+    {"vin": "TST2130421A654321", "customerRef": "C-ES-002310", "accountName": "Luis García", "greetingName": "Señor García", "vehicleLabel": "Clase E 220 d", "preferredDealerId": "ES-MAD-02", "preferredDealerName": "Dealer Madrid Castellana", "market": "ES", "language": "es", "msisdn": "+34612345678", "plate": "1234ABC", "postcode": "28001", "meId": "", "cvrId": "", "fin": "", "pin": "1379"},
+    {"vin": "TST1770871N998877", "customerRef": "C-DE-009902", "accountName": "Thomas Weber", "greetingName": "Herr Weber", "vehicleLabel": "A 200", "preferredDealerId": "DE-STR-01", "preferredDealerName": "Dealer Stuttgart Mitte", "market": "DE", "language": "de", "msisdn": "+4915112345678", "plate": "SAB1234", "postcode": "70173", "meId": "", "cvrId": "", "fin": "", "pin": "8642"},
+    {"vin": "TST2476011J112233", "customerRef": "C-GB-001177", "accountName": "Priya Patel", "greetingName": "Ms Patel", "vehicleLabel": "EQB 300", "preferredDealerId": "GB-LON-01", "preferredDealerName": "Dealer London West", "market": "GB", "language": "en", "msisdn": "+447700900123", "plate": "LK21XYZ", "postcode": "SW1A 1AA", "meId": "", "cvrId": "", "fin": "", "pin": "7391"},
+    {"vin": "TST2476011J445566", "customerRef": "C-GB-001290", "accountName": "David Hughes", "greetingName": "Mr Hughes", "vehicleLabel": "GLA 200", "preferredDealerId": "GB-LON-01", "preferredDealerName": "Dealer London West", "market": "GB", "language": "en", "msisdn": "+447700900456", "plate": "LM70ABC", "postcode": "W1A 1AA", "meId": "", "cvrId": "", "fin": "", "pin": "4826"},
 ]
 # Existing appointments for the reschedule and cancel scenarios. Re-seeding restores them.
 MOCK_BOOKINGS = [
@@ -453,8 +481,8 @@ MOCK_DEALERS = [
 ]
 
 def build_ar20():
-    w = WF("ar-20-mock-crm", "AR-MOCK-CASE Customer account", "Lab stand-in for the CASE customer account. POST ar-mock/crm/customer-lookup {vin, msisdn} -> {found, ...} (VIN first, then the phone number). POST ar-mock/crm/customer-identify {plate, lastName, postcode} -> {found, ...} for spoken identification. Synthetic rows in ar_mock_customers.")
-    w.sticky("## Mock CASE customer account\nSynthetic customers in ar_mock_customers (seeded by AR-90). Lookup: VIN, then phone number. Identify: registration plate plus surname or postcode, a placeholder until the identification rule is agreed (question 20; CASE holds me ID, name, e-mail, mobile, postcode, VIN or FIN and plate). Real build: CASE account search in place of the table reads.", 0, -400, 700, 110)
+    w = WF("ar-20-mock-crm", "AR-MOCK-CASE Customer account", "Lab stand-in for the CASE customer account. POST ar-mock/crm/customer-lookup {vin, msisdn} -> {found, ...} (VIN first, then the phone number). POST ar-mock/crm/customer-identify {pin, customerRef, plate} -> {found, ...}: the four-digit PIN of the account named by customerRef (a known caller) or by the registration plate (an unknown one). Synthetic rows in ar_mock_customers.")
+    w.sticky("## Mock CASE customer account\nSynthetic customers in ar_mock_customers (seeded by AR-90). Lookup: VIN, then phone number. Identify: the four-digit PIN on the account (pin column), anchored by customerRef for a known caller or by the registration plate for an unknown one; a test-period stand-in until the identification rule is agreed (question 20). Real build: CASE account search in place of the table reads.", 0, -400, 700, 110)
     shape = lambda name, x, y: w.set_json(name, "={{ $json.customerRef ? { found: true, vin: $json.vin, customerRef: $json.customerRef, accountName: $json.accountName, greetingName: $json.greetingName, vehicleLabel: $json.vehicleLabel, preferredDealerId: $json.preferredDealerId, preferredDealerName: $json.preferredDealerName, market: $json.market, language: $json.language, meId: $json.meId || '', cvrId: $json.cvrId || '', fin: $json.fin || '', plate: $json.plate || '' } : { found: false } }}", x, y)
     a = w.webhook("ReceiveLookup", "ar-mock/crm/customer-lookup", 0, 0, auth=False)
     g = w.dt("LookupByVin", "ar_mock_customers", "get", 260, 0, conditions=[("vin", "={{ String($json.body.vin || '-').toUpperCase().trim() }}")])
@@ -464,13 +492,13 @@ def build_ar20():
     c = w.respond("RespondCustomer", "={{ JSON.stringify($json) }}", 780, 0)
     w.chain(a, g, f)
     w.link(f, s, 0); w.link(f, gp, 1); w.link(gp, s); w.link(s, c)
-    # identify: plate normalised (upper, no spaces); then surname inside the account name or the postcode must match
+    # identify: the account by customerRef (known caller) or by the normalised plate, then the PIN (digits only) must match
     a2 = w.webhook("ReceiveIdentify", "ar-mock/crm/customer-identify", 0, 400, auth=False)
-    gi = w.dt("LookupByPlate", "ar_mock_customers", "get", 260, 400, conditions=[("plate", "={{ String($json.body.plate || '-').toUpperCase().replace(/[^A-Z0-9]/g, '') }}")])
     B = "$('ReceiveIdentify').first().json.body"
+    gi = w.dt("LookupAccount", "ar_mock_customers", "get", 260, 400, conditions=[(f"={{{{ {B}.customerRef ? 'customerRef' : 'plate' }}}}", f"={{{{ {B}.customerRef || String({B}.plate || '-').toUpperCase().replace(/[^A-Z0-9]/g, '') }}}}")])
     mi = w.if_rules("MatchesIdentity", [
         w.cond("={{ $json.customerRef || '' }}", "notEmpty"),
-        w.cond(f"={{{{ ({B}.lastName && String($json.accountName || '').toLowerCase().includes(String({B}.lastName).toLowerCase().trim())) || ({B}.postcode && String($json.postcode || '').replace(/\\s/g, '').toUpperCase() === String({B}.postcode).replace(/\\s/g, '').toUpperCase()) }}}}", "true", kind="boolean"),
+        w.cond(f"={{{{ String($json.pin || '').length === 4 && String({B}.pin || '').replace(/\\D/g, '') === String($json.pin) }}}}", "true", kind="boolean"),
     ], 390, 400)
     si = shape("ShapeIdentified", 520, 320)
     nf = w.set_json("ShapeNotFound", "={{ { found: false } }}", 520, 480)
@@ -671,7 +699,7 @@ def build_ar23():
 # =============================================================================
 def build_ar10():
     w = WF("ar-10-identify-customer", "AR-10 Identify customer by VIN and MSISDN", "Looks the caller up in the CASE customer account from the UUI identifiers (VIN first, then the phone number). Inputs: vin, msisdn, correlationId. Returns {ok, known, customerRef, accountName, greetingName, vehicleLabel, preferredDealerId, preferredDealerName, market, language}. Called by AR-01, never by the model.")
-    w.sticky("## AR-10 Identify customer\nIdentity from the UUI: VIN for an in-car call, the phone number for an IVR call. The model never sees either. An unknown caller is identified by spoken data points through IdentifyCaller (AR-18).", 0, -400, 700, 100)
+    w.sticky("## AR-10 Identify customer\nIdentity from the UUI: VIN for an in-car call, the phone number for an IVR call. The model never sees either. Every caller then verifies with the four-digit PIN through VerifyIdentity (AR-18).", 0, -400, 700, 100)
     t = w.sub_trigger([("vin","string"),("msisdn","string"),("correlationId","string")])
     h = w.http_post("CallCrm", MOCK + "/crm/customer-lookup", "={{ JSON.stringify({ vin: $json.vin, msisdn: $json.msisdn, correlationId: $json.correlationId }) }}", 260, 0)
     s = w.set_fields("ShapeCustomer", [("ok", True, "boolean"), ("known", "={{ !!$json.found }}", "boolean"), ("customerRef", "={{ $json.customerRef || '' }}", "string"),
@@ -706,7 +734,9 @@ def build_ar12():
     w.sticky("## AR-12 FindSlots\nDealerBook API V2 order (endpoint sheet, 2026-10-23): the selected services are a PATCH on the reservation, then GET timeslots for the reservation in a window (fromDateTime to toDateTime, slotWindowDays of the market row). A reschedule searches the existing booking's offer id and skips the PATCH. The offered slots are written to the session row; a booking or a move can only name one of them. Labels are spoken-form weekday, date and time in the session language.", 0, -400, 760, 130)
     t = w.sub_trigger([("sessionId","string"),("serviceIds","string"),("fromDate","string")])
     g = w.dt("LoadSession", "ar_sessions", "get", 260, 0, conditions=[("sessionId", "={{ $json.sessionId }}")])
-    m = w.dt("LoadMarket", "ar_markets", "get", 390, 0, conditions=[("market", "={{ $json.market }}")])
+    v = w.if_node("Verified", "={{ $json.verified === true }}", 390, 0)
+    nv = w.set_fields("ReturnNotVerified", NOT_VERIFIED, 390, 200)
+    m = w.dt("LoadMarket", "ar_markets", "get", 520, 0, conditions=[("market", "={{ $json.market }}")])
     S, I, M = "$('LoadSession').first().json", "$('ToolInput').first().json", "$('LoadMarket').first().json"
     # A new booking without a reservation (the dialogue skipped DEALER) gets one here from the session's dealer: the API needs it before any PATCH.
     hr = w.if_node("HasReservation", "={{ !!(" + S + ".reservationId || " + S + ".appointmentRef) || !" + S + ".dealerId }}", 520, 0)
@@ -745,7 +775,9 @@ def build_ar12():
              values={"offeredSlots": "={{ $json.offeredSlots }}", "selectedServices": "={{ $json.selectedServices }}"})
     rt = w.set_json("ReturnSlots", "={{ $('OfferSlots').first().json.result }}", 1690, -80)
     e = w.return_error("ReturnSlotsError", 1170, 120)
-    w.chain(t, g, m, hr)
+    w.chain(t, g, v)
+    w.link(v, m, 0); w.link(v, nv, 1)
+    w.chain(m, hr)
     w.link(hr, ws, 0); w.link(hr, cr, 1); w.link(cr, ws)
     w.chain(ws, nb)
     w.link(nb, ps, 0); w.link(nb, h, 1)
@@ -922,26 +954,26 @@ def build_ar16():
 # Tools added for the joint scope (2026-10-22): spoken identification, reservation, lookup, cancel, move, callback
 # =============================================================================
 def build_ar18():
-    w = WF("ar-18-identify-caller", "AR-18 Tool: Identify caller by spoken data", "Agent tool. Matches the caller against the CASE customer account from spoken data points (registration plate plus surname or postcode; placeholder until the identification rule is agreed, question 20). Inputs: sessionId (plumbed), lastName, registrationPlate, postcode. Stores the identified customer on the session and the account name on the case. Two failed attempts: the dialogue hands off with IDENTIFICATION_FAILED.")
-    w.sticky("## AR-18 IdentifyCaller\nFor IVR calls (no VIN) and unknown VINs. The data points are a placeholder until the identification rule is agreed (question 20; no document holds it); the rule lives in the mock and this tool, nowhere else. A match also writes account, asset, VIN or FIN, plate and dealer to the case. Attempts are counted on the session; the IdentifyExhausted guard in AR-02 hands off after two.", 0, -400, 760, 110)
-    t = w.sub_trigger([("sessionId","string"),("lastName","string"),("registrationPlate","string"),("postcode","string")])
+    w = WF("ar-18-identify-caller", "AR-18 Tool: Verify identity by PIN", "Agent tool. Verifies the caller against the CASE customer account with the four-digit PIN: the session's customer (in-car call) or the account behind the spoken registration plate (IVR call). Inputs: sessionId (plumbed), pin, registrationPlate. A match sets verified on the session, stores the customer and writes the account to the case. Two failed attempts: the dialogue hands off with IDENTIFICATION_FAILED.")
+    w.sticky("## AR-18 VerifyIdentity\nEvery caller: the four-digit PIN against the account on the session (in-car) or the account behind the spoken plate (IVR). The PIN is a test-period stand-in until the identification rule is agreed (question 20); the rule lives in the mock and this tool, nowhere else. A match sets verified on the session and writes account, asset, VIN or FIN, plate and dealer to the case. Attempts are counted on the session; the IdentifyExhausted guard in AR-02 hands off after two.", 0, -400, 760, 110)
+    t = w.sub_trigger([("sessionId","string"),("pin","string"),("registrationPlate","string")])
     g = w.dt("LoadSession", "ar_sessions", "get", 260, 0, conditions=[("sessionId", "={{ $json.sessionId }}")])
     I, S = "$('ToolInput').first().json", "$('LoadSession').first().json"
-    h = w.http_post("CallIdentify", MOCK + "/crm/customer-identify", f"={{{{ JSON.stringify({{ plate: {I}.registrationPlate || '', lastName: {I}.lastName || '', postcode: {I}.postcode || '', correlationId: {S}.correlationId }}) }}}}", 520, 0)
+    h = w.http_post("CallIdentify", MOCK + "/crm/customer-identify", f"={{{{ JSON.stringify({{ pin: String({I}.pin || '').replace(/\\D/g, ''), customerRef: {S}.customerRef || '', plate: {S}.customerRef ? '' : ({I}.registrationPlate || ''), correlationId: {S}.correlationId }}) }}}}", 520, 0)
     f = w.if_node("Identified", "={{ $json.found === true }}", 780, 0)
     st = w.dt("StoreIdentity", "ar_sessions", "update", 1040, -120, conditions=[("sessionId", f"={{{{ {S}.sessionId }}}}")],
               values={"customerRef": "={{ $json.customerRef }}", "vehicleRef": "={{ $json.vin || '' }}", "greetingName": "={{ $json.greetingName || '' }}", "vehicleLabel": "={{ $json.vehicleLabel || '' }}",
-                      "dealerId": "={{ $json.preferredDealerId || '' }}", "dealerName": "={{ $json.preferredDealerName || '' }}"})
+                      "dealerId": "={{ $json.preferredDealerId || '' }}", "dealerName": "={{ $json.preferredDealerName || '' }}", "verified": True})
     C = "$('CallIdentify').first().json"
     uc = w.exec_wf("UpdateCaseAccount", "ar-15-case-system", case_inputs(op="update", correlationId=f"={{{{ {S}.correlationId }}}}", caseId=f"={{{{ {S}.caseId }}}}", accountName=f"={{{{ {C}.accountName || '' }}}}", accountId=f"={{{{ {C}.customerRef || '' }}}}", assetId=f"={{{{ {C}.cvrId || '' }}}}", vinOrFin=f"={{{{ {C}.vin || {C}.fin || '' }}}}",
         licensePlate=f"={{{{ {C}.plate || '' }}}}", assignedDealerId=f"={{{{ {C}.preferredDealerId || '' }}}}", primaryContact=f"={{{{ {C}.accountName || '' }}}}"), 1300, -120)
     ok = w.set_fields("ReturnIdentified", [("ok", True, "boolean"), ("known", True, "boolean"), ("greetingName", f"={{{{ {C}.greetingName || '' }}}}", "string"), ("vehicleLabel", f"={{{{ {C}.vehicleLabel || '' }}}}", "string"),
         ("preferredDealerName", f"={{{{ {C}.preferredDealerName || '' }}}}", "string"),
-        ("note", "Identified. Greet the customer by the greeting name, confirm the vehicle in one sentence, then move to CONSENT.", "string")], 1560, -120)
+        ("note", "Identity verified. Address the customer by the greeting name, move to CONSENT and ask the consent question.", "string")], 1560, -120)
     ca = w.dt("CountAttempt", "ar_sessions", "update", 1040, 120, conditions=[("sessionId", f"={{{{ {S}.sessionId }}}}")], values={"identifyAttempts": f"={{{{ (Number({S}.identifyAttempts) || 0) + 1 }}}}"})
     nf = w.set_fields("ReturnNotIdentified", [("ok", False, "boolean"), ("known", False, "boolean"), ("error", "not_identified", "string"),
         ("attempts", f"={{{{ (Number({S}.identifyAttempts) || 0) + 1 }}}}", "number"),
-        ("message", f"={{{{ (Number({S}.identifyAttempts) || 0) + 1 >= 2 ? 'No match after two attempts. Say you cannot verify the details and set action handoff with handoffReason IDENTIFICATION_FAILED.' : 'No customer matched. Ask the caller to repeat the registration plate and the surname once, then call IdentifyCaller again.' }}}}", "string")], 1300, 120)
+        ("message", f"={{{{ (Number({S}.identifyAttempts) || 0) + 1 >= 2 ? 'No match after two attempts. Say you cannot verify the identity and set action handoff with handoffReason IDENTIFICATION_FAILED.' : 'The PIN did not match. Ask the caller to say the four-digit PIN once more (a caller with no vehicle on file: PIN and registration plate), then call VerifyIdentity again.' }}}}", "string")], 1300, 120)
     e = w.return_error("ReturnIdentifyError", 780, 240)
     w.chain(t, g, h)
     w.link(h, f, 0); w.link(h, e, 1)
@@ -988,6 +1020,8 @@ def build_ar24():
     w.sticky("## AR-24 FindAppointment\nLookup keys of the endpoint sheet (2026-10-23): customerId, chassisNumber, offerId, status. The session's customer and vehicle are the keys; a spoken reference code only narrows. Exactly one booked appointment becomes the appointment in hand (DealerBook booking id, offer id, dealer); several are listed for the caller to choose from.", 0, -400, 760, 110)
     t = w.sub_trigger([("sessionId","string"),("bookingRef","string")])
     g = w.dt("LoadSession", "ar_sessions", "get", 260, 0, conditions=[("sessionId", "={{ $json.sessionId }}")])
+    v = w.if_node("Verified", "={{ $json.verified === true }}", 390, 0)
+    nv = w.set_fields("ReturnNotVerified", NOT_VERIFIED, 390, 200)
     I, S = "$('ToolInput').first().json", "$('LoadSession').first().json"
     h = w.http_post("CallDealerBookBookings", MOCK + "/dealerbook/bookings/search", f"={{{{ JSON.stringify({{ customerId: {S}.customerRef || '', chassisNumber: {S}.vehicleRef || '', status: 'booked', referenceCode: String({I}.bookingRef || '').toUpperCase().replace(/[^A-Z]/g, ''), correlationId: {S}.correlationId }}) }}}}", 520, 0)
     s = w.set_fields("ShapeAppointments", [
@@ -1001,7 +1035,8 @@ def build_ar24():
                       "appointmentOfferId": "={{ $json.appointments[0].offerId }}", "offeredSlots": "[]"})
     r = w.set_json("ReturnAppointments", "={{ (a => ({ ok: true, count: a.length, appointments: a.map(x => ({ bookingRef: x.bookingRef, referenceCode: x.referenceCode, when: x.label, dealerName: x.dealerName })), note: a.length === 1 ? 'This is the appointment in hand. Read it back (day, time, dealer). To cancel: move to CONFIRM_CANCEL and ask for an explicit yes. To reschedule: ask for the earliest new date and call FindSlots.' : a.length ? 'Several appointments. Ask which one by day and dealer, then call FindAppointment again with its reference code as bookingRef.' : 'No booked appointment found. Offer to book a new one (intent BOOK) or hand off with SCENARIO_REQUIRES_AGENT.' }))($('ShapeAppointments').first().json.appointments) }}", 1300, -80)
     e = w.return_error("ReturnAppointmentsError", 780, 120)
-    w.chain(t, g, h)
+    w.chain(t, g, v)
+    w.link(v, h, 0); w.link(v, nv, 1)
     w.link(h, s, 0); w.link(h, e, 1)
     w.chain(s, one)
     w.link(one, st, 0); w.link(st, r); w.link(one, r, 1)
@@ -1075,9 +1110,11 @@ def build_ar27():
     g = w.dt("LoadSession", "ar_sessions", "get", 260, 0, conditions=[("sessionId", "={{ $json.sessionId }}")])
     I, S = "$('ToolInput').first().json", "$('LoadSession').first().json"
     gate = w.switch("CallbackGate", [
+        ("NotVerified", [w.cond("={{ $json.verified === true }}", "false", kind="boolean")], "and"),
         ("AlreadyLogged", [w.cond("={{ $json.callbackAt || '' }}", "notEmpty")], "and"),
         ("NotConfirmed", [w.cond("={{ $json.state || '' }}", "notEquals", "CALLBACK")], "and"),
     ], 520, 0, fallback="Proceed")
+    rv = w.set_fields("ReplyNotVerified", NOT_VERIFIED, 780, 280)
     r0 = w.set_fields("ReplyAlreadyLogged", [("ok", True, "boolean"), ("already", True, "boolean"), ("message", "The callback is already logged in this call. Tell the caller the dealer will call; do not log it again.", "string")], 780, 140)
     r1 = w.set_fields("ReplyNotConfirmed", [("ok", False, "boolean"), ("error", "not_confirmed", "string"), ("message", "The caller has not confirmed the callback yet. Read back the dealer, the reason and the preferred time, set state CALLBACK, and call RequestCallback only in the next turn after the caller says yes.", "string")], 780, 280)
     d = w.exec_wf("DelegateCase", "ar-15-case-system", case_inputs(op="delegate", correlationId="={{ $json.correlationId }}", caseId="={{ $json.caseId }}", status="Delegated", delegatedTo="XCCC",
@@ -1090,7 +1127,7 @@ def build_ar27():
         ("note", "Logged and delegated to the dealer. Tell the caller the dealer will call them back, confirm the preferred time, ask if there is anything else.", "string")], 1560, -100)
     e = w.set_fields("ReturnDelegateError", [("ok", False, "boolean"), ("error", "backend_unavailable", "string"), ("message", "The case system is unavailable. Apologise once and hand the caller to an agent (BACKEND_UNAVAILABLE).", "string")], 1300, 100)
     w.chain(t, g, gate)
-    w.link(gate, r0, 0); w.link(gate, r1, 1); w.link(gate, d, 2)
+    w.link(gate, rv, 0); w.link(gate, r0, 1); w.link(gate, r1, 2); w.link(gate, d, 3)
     w.chain(d, dk)
     w.link(dk, u, 0); w.link(u, rb); w.link(dk, e, 1)
     return w
@@ -1100,7 +1137,7 @@ def build_ar27():
 # =============================================================================
 def build_ar01():
     w = WF("ar-01-session-start", "AR-01 API: Session start", "POST /webhook/ar/v1/session/start. Parses the contact-center UUI, identifies the customer, opens the case, creates the session and returns the AI disclosure plus greeting. Idempotent on correlationId.")
-    w.sticky("## AR-01 Session start\nGateway calls this once the INVITE is answered. Header auth. In-car calls carry the VIN; IVR calls carry only the phone number and an unknown caller is identified by spoken data in the dialogue. Re-delivery of a known correlationId returns the existing session without speaking again.", 0, -400, 820, 110)
+    w.sticky("## AR-01 Session start\nGateway calls this once the INVITE is answered. Header auth. In-car calls carry the VIN; IVR calls carry only the phone number. Every caller verifies with the four-digit PIN in the dialogue (AR-18). Re-delivery of a known correlationId returns the existing session without speaking again.", 0, -400, 820, 110)
     a = w.webhook("ReceiveStart", "ar/v1/session/start", 0, 0)
     # The raw UUI string wins over pre-parsed fields: version;correlationId;vin;msisdn;language
     U = "($json.body.uui || {})"; parts = "String(($json.body.uui || {}).raw || '').split(';')"
@@ -1125,7 +1162,7 @@ def build_ar01():
     lp, pr = w.load_prompts(780, -100)
     ex = w.dt("CheckExisting", "ar_sessions", "get", 780, -100, conditions=[("correlationId", "={{ $('ResolveMarket').first().json.correlationId }}")])
     ie = w.if_node("AlreadyStarted", "={{ $json.sessionId }}", 1040, -100, kind="string")
-    ce = w.set_json("ShapeExisting", "={{ { sessionId: $json.sessionId, correlationId: $json.correlationId, caseId: $json.caseId, market: $json.market, language: $json.language, state: $json.state, customer: { known: !!$json.customerRef, greetingName: $json.greetingName, vehicle: $json.vehicleLabel }, speak: '', action: 'continue', handoff: null, listen: true, duplicate: true } }}", 1300, -260)
+    ce = w.set_json("ShapeExisting", "={{ { sessionId: $json.sessionId, correlationId: $json.correlationId, caseId: $json.caseId, market: $json.market, language: $json.language, state: $json.state, customer: { known: !!$json.customerRef, greetingName: $json.greetingName, vehicle: $json.vehicleLabel, dealer: $json.dealerName }, speak: '', action: 'continue', handoff: null, listen: true, duplicate: true } }}", 1300, -260)
     rdup = w.respond("RespondExisting", "={{ JSON.stringify($json) }}", 1560, -260)
     lm = w.dt("LoadMarket", "ar_markets", "get", 1300, -40, conditions=[("market", "={{ $('ResolveMarket').first().json.market }}")])
     ic = w.exec_wf("IdentifyCustomer", "ar-10-identify-customer", {"vin": "={{ $('ParseStart').first().json.vin }}", "msisdn": "={{ $('ParseStart').first().json.msisdn }}", "correlationId": "={{ $('ParseStart').first().json.correlationId }}"}, 1560, -40)
@@ -1147,7 +1184,7 @@ def build_ar01():
         ("backendDown", f"={{{{ {C}.ok === false || {K}.ok === false }}}}", "boolean"),
         ("state", f"={{{{ ({C}.ok === false || {K}.ok === false) ? 'HANDOFF' : 'IDENTIFY' }}}}", "string"), ("intent", "UNKNOWN", "string"),
         ("handoffReason", f"={{{{ ({C}.ok === false || {K}.ok === false) ? 'BACKEND_UNAVAILABLE' : '' }}}}", "string"),
-        ("known", f"={{{{ !!{known} }}}}", "boolean"), ("caseOrigin", f"={{{{ {P}.vin ? 'IN_CAR' : 'IVR' }}}}", "string"), ("identifyAttempts", 0, "number"),
+        ("known", f"={{{{ !!{known} }}}}", "boolean"), ("verified", False, "boolean"), ("caseOrigin", f"={{{{ {P}.vin ? 'IN_CAR' : 'IVR' }}}}", "string"), ("identifyAttempts", 0, "number"),
         ("customerRef", f"={{{{ {known} ? ({C}.customerRef || '') : '' }}}}", "string"), ("vehicleRef", f"={{{{ {P}.vin || ({known} ? ({C}.vehicleRef || '') : '') }}}}", "string"),
         ("greetingName", f"={{{{ {known} ? ({C}.greetingName || '') : '' }}}}", "string"), ("vehicleLabel", f"={{{{ {known} ? ({C}.vehicleLabel || '') : '' }}}}", "string"),
         ("dealerId", f"={{{{ {known} ? ({C}.preferredDealerId || '') : '' }}}}", "string"), ("dealerName", f"={{{{ {known} ? ({C}.preferredDealerName || '') : '' }}}}", "string"),
@@ -1160,12 +1197,12 @@ def build_ar01():
         ("speak", f"={{{{ $json.backendDown ? ({M}.handoverLine || '') : (({M}['disclosure_' + $json.language] || {M}.disclosure_en || '') + ' ' + {greeting}).trim() }}}}", "string"),
     ], 2210, -40, keep=True)
     ins = w.dt("InsertSession", "ar_sessions", "insert", 2340, -40, always=False,
-               values={c: f"={{{{ $json.{c} }}}}" for c in ["sessionId","correlationId","caseId","market","language","state","intent","customerRef","vehicleRef","greetingName","vehicleLabel","dealerId","dealerName","offeredSlots","turns","startedAt","handoffReason","caseOrigin","identifyAttempts"]})
+               values={c: f"={{{{ $json.{c} }}}}" for c in ["sessionId","correlationId","caseId","market","language","state","intent","customerRef","vehicleRef","greetingName","vehicleLabel","dealerId","dealerName","offeredSlots","turns","startedAt","handoffReason","caseOrigin","identifyAttempts","verified"]})
     lg = w.exec_wf("LogStart", "ar-17-log-event", {"correlationId": "={{ $('ComposeSession').first().json.correlationId }}", "sessionId": "={{ $('ComposeSession').first().json.sessionId }}", "caseId": "={{ $('ComposeSession').first().json.caseId }}", "workflow": "AR-01", "event": "session_start", "state": "={{ $('ComposeSession').first().json.state }}", "tool": "", "latencyMs": "={{ Date.now() - new Date($('ComposeSession').first().json.startedAt).getTime() }}", "outcome": "={{ $('ComposeSession').first().json.backendDown ? 'handoff' : 'continue' }}", "errorCode": "={{ $('ComposeSession').first().json.backendDown ? 'backend_unavailable' : '' }}", "detail": "={{ 'known=' + $('ComposeSession').first().json.known + ' market=' + $('ComposeSession').first().json.market + ' lang=' + $('ComposeSession').first().json.language }}"}, 2600, -40)
     ib = w.if_node("BackendDown", "={{ $('ComposeSession').first().json.backendDown }}", 2860, -40)
     bh = w.exec_wf("BuildStartHandoff", "ar-14-build-handoff", {"sessionId": "={{ $('ComposeSession').first().json.sessionId }}", "intent": "UNKNOWN", "handoffReason": "BACKEND_UNAVAILABLE", "summary": "Backend unavailable at session start"}, 3120, -140)
     # Response contract for session/start (section 4.1 of the spec). On the handoff path $json is BuildStartHandoff's output.
-    sh = w.set_json("ShapeStart", "={{ (s => ({ sessionId: s.sessionId, correlationId: s.correlationId, caseId: s.caseId, market: s.market, language: s.language, state: s.state, customer: { known: s.known, greetingName: s.greetingName, vehicle: s.vehicleLabel }, speak: s.speak, action: s.backendDown ? 'handoff' : 'continue', handoff: s.backendDown ? { intent: 'UNKNOWN', handoffReason: 'BACKEND_UNAVAILABLE', caseId: s.caseId, uuiPayload: $json.uuiPayload, uuiHex: $json.uuiHex, uuiAscii: $json.uuiAscii, referTo: $json.referTo, error: $json.ok === false ? ($json.error || 'handoff_build_failed') : undefined } : null, listen: !s.backendDown, latencyMs: Date.now() - new Date(s.startedAt).getTime() }))($('ComposeGreeting').first().json) }}", 3380, -40)
+    sh = w.set_json("ShapeStart", "={{ (s => ({ sessionId: s.sessionId, correlationId: s.correlationId, caseId: s.caseId, market: s.market, language: s.language, state: s.state, customer: { known: s.known, greetingName: s.greetingName, vehicle: s.vehicleLabel, dealer: s.dealerName }, speak: s.speak, action: s.backendDown ? 'handoff' : 'continue', handoff: s.backendDown ? { intent: 'UNKNOWN', handoffReason: 'BACKEND_UNAVAILABLE', caseId: s.caseId, uuiPayload: $json.uuiPayload, uuiHex: $json.uuiHex, uuiAscii: $json.uuiAscii, referTo: $json.referTo, error: $json.ok === false ? ($json.error || 'handoff_build_failed') : undefined } : null, listen: !s.backendDown, latencyMs: Date.now() - new Date(s.startedAt).getTime() }))($('ComposeGreeting').first().json) }}", 3380, -40)
     rs = w.respond("RespondStart", "={{ JSON.stringify($json) }}", 3640, -40)
     w.chain(a, p, rm, iv)
     w.link(iv, lp, 0); w.link(iv, r400, 1)
@@ -1233,10 +1270,9 @@ def add_prepare_turn(w, src):
     ], 0, 0)
     st = lambda v: w.cond("={{ $json.rowState }}", "equals", v)
     yes, no = w.cond("={{ $json.utter }}", "regex", SAID_YES), w.cond("={{ $json.utter }}", "regex", SAID_NO)
-    # An unknown caller (IVR entry or unknown VIN) is identified in the dialogue by IdentifyCaller, so no gate fires for them.
+    # Identity is the PIN through VerifyIdentity (AR-18), never a yes; a no from a customer on file ("that is not me") hands off.
     gate = w.switch("YesNoGate", [
         ("IdentityDenied", [st("IDENTIFY"), no, w.cond("={{ $json.customerRef }}", "notEmpty")], "and"),
-        ("IdentityConfirmed", [st("IDENTIFY"), yes, w.cond("={{ $json.customerRef }}", "notEmpty")], "and"),
         ("ConsentDeclined", [st("CONSENT"), no], "and"),
         ("ConsentGiven", [st("CONSENT"), yes], "and"),
         ("DealerAgreed", [st("DEALER"), w.cond("={{ $json.utter }}", "regex", "(" + SAID_YES + ")|" + DEALER_AGREE), w.cond("={{ $json.dealerId }}", "notEmpty")], "and"),
@@ -1254,7 +1290,6 @@ def add_prepare_turn(w, src):
     chosen = f"={{{{ Object.entries({kw}).filter(([id, re]) => new RegExp(re).test($json.utter)).map(([id]) => id).join(',') || 'MAINT' }}}}"
     on = {
         "OnIdentityFailed": [("gateDecline", "IDENTIFICATION_FAILED", "string")],
-        "OnIdentityConfirmed": [("state", "CONSENT", "string"), ("gateAdvanced", True, "boolean")],
         "OnConsentDeclined": [("gateDecline", "POLICY", "string")],
         "OnConsentGiven": [("state", "NEED", "string"), ("gateAdvanced", True, "boolean")],
         "OnDealerAgreed": [("state", "SERVICES", "string"), ("gateAdvanced", True, "boolean")],
@@ -1271,7 +1306,7 @@ def add_prepare_turn(w, src):
     for name, fields in on.items():
         w.set_fields(name, fields, 0, 0, keep=True)
     w.chain(src, tf, gate)
-    routes =["OnIdentityFailed", "OnIdentityConfirmed", "OnConsentDeclined", "OnConsentGiven", "OnDealerAgreed",
+    routes =["OnIdentityFailed", "OnConsentDeclined", "OnConsentGiven", "OnDealerAgreed",
              "OnNeedCancel", "OnNeedReschedule", "OnNeedCallback", "OnNeedSelfService", "OnServicesChosen",
              "OnRescheduleDate", "OnCancelInLookup", "OnCancelConfirmed", "OnSlotConfirmed"]
     af = w.set_fields("AssembleFacts", [
@@ -1325,7 +1360,7 @@ def add_prepare_turn(w, src):
     w.link(pf, af, len(fetch))
     cf = w.set_fields("ComposeFacts", [
         ("factsText", "={{ [ $json.gateLine, $json.prefetchNote, 'Session state: ' + $json.state + '.', 'Call origin: ' + ($json.caseOrigin === 'IVR' ? 'phone call through the IVR (no vehicle identified from the car)' : 'in-car call') + '.', "
-                      "'Customer identified: ' + ($json.customerRef ? 'yes' : 'no' + ($json.identifyAttempts ? ' (failed identification attempts: ' + $json.identifyAttempts + ' of 2)' : '')) + '.', "
+                      "'Customer on file: ' + ($json.customerRef ? 'yes' : 'no (the caller gives the registration plate with the PIN)') + '. Identity verified by PIN: ' + ($json.verified === true ? 'yes' : 'no' + ($json.identifyAttempts ? ' (failed attempts: ' + $json.identifyAttempts + ' of 2)' : '')) + '.', "
                       "$json.greetingName ? 'Name to address the customer: ' + $json.greetingName + '.' : '', $json.vehicleLabel ? 'Vehicle: ' + $json.vehicleLabel + '.' : '', "
                       "$json.dealerName ? 'Preferred dealer: ' + $json.dealerName + ' (dealerId ' + $json.dealerId + ').' : 'Preferred dealer: none on file.', "
                       "'Market: ' + $json.market + '. Online booking enabled in this market: ' + ($json.marketBookable ? 'yes' : 'no') + '.', "
@@ -1382,7 +1417,7 @@ def add_guards(w, src):
         ("offeredSlotIds", f"={{{{ {P}.offeredSlotIds || [] }}}}", "array"), ("prevPendingSlotId", f"={{{{ {P}.pendingSlotId || '' }}}}", "string"),
         ("booked", "={{ !!$json.bookingRef }}", "boolean"), ("bookingRef", "={{ $json.bookingRef || '' }}", "string"),
         ("confirmationCode", "={{ $json.confirmationCode || '' }}", "string"), ("sessIntent", "={{ $json.intent || 'UNKNOWN' }}", "string"),
-        ("known", "={{ !!$json.customerRef }}", "boolean"), ("identifyAttempts", "={{ Number($json.identifyAttempts) || 0 }}", "number"),
+        ("known", "={{ !!$json.customerRef }}", "boolean"), ("verified", "={{ $json.verified === true }}", "boolean"), ("identifyAttempts", "={{ Number($json.identifyAttempts) || 0 }}", "number"),
         ("movedAt", "={{ $json.movedAt || '' }}", "string"), ("cancelledAt", "={{ $json.cancelledAt || '' }}", "string"), ("callbackAt", "={{ $json.callbackAt || '' }}", "string"),
         ("selfServiceText", f"={{{{ {P}.selfServiceText || '' }}}}", "string"),
     ], 0, 0)
@@ -1413,9 +1448,13 @@ def add_guards(w, src):
         ("CallerAsksForHuman", [w.cond("={{ $json.chatInput }}", "regex", ASKS_FOR_HUMAN), w.cond("={{ $json.chatInput }}", "notRegex", DECLINES_HUMAN),
                                 w.cond("={{ $json.action }}", "notEquals", "handoff"), booked_false], "and",
          "OnCallerRequest", [("action", "handoff", "string"), ("handoffReason", "CALLER_REQUEST", "string"), ("guards", with_guard("caller_request_rule"), "array")]),
-        ("IdentifyExhausted", [w.cond("={{ $json.known }}", "false", kind="boolean"), w.cond("={{ $json.identifyAttempts }}", "gte", 2, kind="number"),
+        ("IdentifyExhausted", [w.cond("={{ $json.verified }}", "false", kind="boolean"), w.cond("={{ $json.identifyAttempts }}", "gte", 2, kind="number"),
                                w.cond("={{ $json.action }}", "notEquals", "handoff")], "and",
          "OnIdentifyExhausted", [("action", "handoff", "string"), ("handoffReason", "IDENTIFICATION_FAILED", "string"), ("guards", with_guard("identify_exhausted"), "array")]),
+        # No state beyond IDENTIFY until VerifyIdentity set verified on the session row (re-read after the agent ran).
+        ("IdentityUnverified", [w.cond("={{ $json.verified }}", "false", kind="boolean"), w.cond("={{ ['IDENTIFY', 'HANDOFF'].includes($json.state) }}", "false", kind="boolean"),
+                                w.cond("={{ $json.action }}", "notEquals", "handoff")], "and",
+         "OnIdentityUnverified", [("state", "IDENTIFY", "string"), ("guards", with_guard("identity_unverified"), "array")]),
     ])
     slot_set = "$json.state === 'CONFIRM' && $json.slotId && $json.offeredSlotIds.includes($json.slotId)"
     ps = w.set_fields("PendingSlot", [
@@ -1515,7 +1554,7 @@ OUTPUT_SCHEMA = json.dumps({
 def build_ar02():
     w = WF("ar-02-dialogue-turn", "AR-02 API: Dialogue turn", "POST /webhook/ar/v1/session/turn. One call per caller utterance. Loads the session, runs the dialogue agent with its nine tools (identify, dealers, reservation, slots, book, find, cancel, move, callback), applies deterministic guards, builds the handoff context when needed, updates the session and logs. Returns speak, action, state and handoff.")
     w.sticky("## AR-02 Dialogue turn\nThe brain. State lives in ar_sessions; the system prompt is rebuilt every turn. Guards after the model: no booking claim without a confirmation code, no slot that was not offered, no end before WRAPUP.", 0, -448, 896, 160)
-    w.sticky("### Tools\nIdentifyCaller, FindDealers, CreateReservation, FindSlots, BookAppointment, FindAppointment, CancelAppointment, MoveAppointment, RequestCallback. sessionId is plumbed, never a model parameter. Handoff is not a tool: it is a deterministic consequence of action=handoff.", 1296, 560, 704, 160, color=4)
+    w.sticky("### Tools\nVerifyIdentity, FindDealers, CreateReservation, FindSlots, BookAppointment, FindAppointment, CancelAppointment, MoveAppointment, RequestCallback. sessionId is plumbed, never a model parameter. Handoff is not a tool: it is a deterministic consequence of action=handoff.", 1296, 560, 704, 160, color=4)
     a = w.webhook("ReceiveTurn", "ar/v1/session/turn", 0, 0)
     v = validate_turn_node(w)
     iv = w.if_node("IsValid", "={{ $json.valid }}", 520, 0)
@@ -1530,9 +1569,13 @@ def build_ar02():
                {"promptType": "define", "text": "={{ $json.chatInput }}", "hasOutputParser": True,
                 "options": {"systemMessage": "={{ $json.systemPrompt }}", "maxIterations": 10}}, 1820, -180, onError="continueErrorOutput")
     mdl = w.model("DialogueModel", 1700, 60)
-    mem = w.add("TurnMemory", "@n8n/n8n-nodes-langchain.memoryPostgresChat", 1.4,
-                {"sessionIdType": "customKey", "sessionKey": "={{ $('PrepareTurn').first().json.sessionId }}", "tableName": "ar_chat_memory", "contextWindowLength": 30},
-                1860, 60, credentials={"postgres": CRED_PG})
+    if MEMORY == "simple":
+        mem = w.add("TurnMemory", "@n8n/n8n-nodes-langchain.memoryBufferWindow", 1.3,
+                    {"sessionIdType": "customKey", "sessionKey": "={{ $('PrepareTurn').first().json.sessionId }}", "contextWindowLength": 30}, 1860, 60)
+    else:
+        mem = w.add("TurnMemory", "@n8n/n8n-nodes-langchain.memoryPostgresChat", 1.4,
+                    {"sessionIdType": "customKey", "sessionKey": "={{ $('PrepareTurn').first().json.sessionId }}", "tableName": "ar_chat_memory", "contextWindowLength": 30},
+                    1860, 60, credentials={"postgres": CRED_PG})
     prs = w.add("TurnOutputShape", "@n8n/n8n-nodes-langchain.outputParserStructured", 1.3,
                 {"schemaType": "manual", "inputSchema": OUTPUT_SCHEMA, "autoFix": True}, 2020, 60)
     fix = w.model("ParserFixerModel", 2020, 240)
@@ -1549,11 +1592,10 @@ def build_ar02():
                    {"sessionId": sid, "slotId": "={{ $fromAI('slotId', 'slotId of the option the caller chose, exactly as returned by FindSlots', 'string') }}",
                     "mobility": "={{ $fromAI('mobility', 'Replacement mobility the caller asked for: none, courtesy car, pick-up, or shuttle', 'string') }}",
                     "notes": "={{ $fromAI('notes', 'Anything the dealer should know, in one sentence, or empty', 'string') }}"}, 1820, 380)
-    t0 = w.tool_wf("IdentifyCaller", "ar-18-identify-caller",
-                   "Identifies a caller who is not yet identified (IVR call or unknown vehicle) from the data points they give: vehicle registration plate plus surname or postcode. Call it as soon as the caller has given the plate and one more data point. Returns the customer's greeting name and vehicle, or not_identified with what to do next.",
-                   {"sessionId": sid, "lastName": "={{ $fromAI('lastName', 'Surname the caller gave, or empty', 'string') }}",
-                    "registrationPlate": "={{ $fromAI('registrationPlate', 'Vehicle registration plate as spoken, letters and digits, or empty', 'string') }}",
-                    "postcode": "={{ $fromAI('postcode', 'Postcode the caller gave, or empty', 'string') }}"}, 1040, 380)
+    t0 = w.tool_wf("VerifyIdentity", "ar-18-identify-caller",
+                   "Verifies the caller's identity with the four-digit PIN they say. Call it as soon as the caller has given the PIN (digits as spoken: 'one two three four' is 1234); a caller with no vehicle on file also gives the registration plate. Returns ok when verified, or not_identified with what to do next.",
+                   {"sessionId": sid, "pin": "={{ $fromAI('pin', 'The four-digit PIN the caller said, digits only', 'string') }}",
+                    "registrationPlate": "={{ $fromAI('registrationPlate', 'Vehicle registration plate as spoken, letters and digits, or empty when the vehicle is on file', 'string') }}"}, 1040, 380)
     t4 = w.tool_wf("CreateReservation", "ar-19-create-reservation",
                    "Creates the DealerBook reservation for the caller's vehicle at the agreed dealer and returns the services available there. Call it once the dealer is agreed, before offering services or slots. Offer the services by name and keep their serviceId for FindSlots.",
                    {"sessionId": sid, "dealerId": "={{ $fromAI('dealerId', 'dealerId of the agreed dealer, exactly as given in the facts or by FindDealers, for example PL-WAW-01', 'string') }}"}, 1300, 620)
@@ -1658,9 +1700,12 @@ def build_ar03():
     for n in (ob, om, oca, ocb, oss, oh, oc):
         w.link(n, d)
     cc = w.exec_wf("CloseCase", "ar-15-case-system", case_inputs(op="close", correlationId="={{ $json.correlationId }}", caseId="={{ $json.caseId }}", status="={{ $json.caseStatus }}", solution="={{ $json.solution }}", delegatedReason="={{ $json.delegatedReason }}"), 1560, -180)
-    pm = w.add("PurgeMemory", "n8n-nodes-base.postgres", 2.7,
-               {"operation": "executeQuery", "query": "DELETE FROM ar_chat_memory WHERE session_id = $1", "options": {"queryReplacement": "={{ $('DecideOutcome').first().json.sessionId }}"}},
-               2340, -180, credentials={"postgres": CRED_PG}, onError="continueRegularOutput", alwaysOutputData=True)
+    if MEMORY == "simple":
+        pm = w.set_fields("PurgeMemory", [("error", "simple memory: nothing to purge", "string")], 2340, -180)
+    else:
+        pm = w.add("PurgeMemory", "n8n-nodes-base.postgres", 2.7,
+                   {"operation": "executeQuery", "query": "DELETE FROM ar_chat_memory WHERE session_id = $1", "options": {"queryReplacement": "={{ $('DecideOutcome').first().json.sessionId }}"}},
+                   2340, -180, credentials={"postgres": CRED_PG}, onError="continueRegularOutput", alwaysOutputData=True)
     fs = w.dt("FinalizeSession", "ar_sessions", "update", 2600, -180, conditions=[("sessionId", "={{ $('DecideOutcome').first().json.sessionId }}")],
               values={"endedAt": "={{ $now.toUTC().toISO() }}", "endReason": "={{ $('DecideOutcome').first().json.endReason }}", "greetingName": "", "offeredSlots": "[]", "services": "[]"})
     lg = w.exec_wf("LogEnd", "ar-17-log-event", {"correlationId": "={{ $('DecideOutcome').first().json.correlationId }}", "sessionId": "={{ $('DecideOutcome').first().json.sessionId }}", "caseId": "={{ $('DecideOutcome').first().json.caseId }}", "workflow": "AR-03", "event": "session_end", "state": "={{ $('DecideOutcome').first().json.state }}", "tool": "", "latencyMs": "={{ Date.now() - $('ValidateEnd').first().json.startedAt }}", "outcome": "={{ $('DecideOutcome').first().json.caseStatus }}", "errorCode": "={{ $('CloseCase').first().json.ok === false ? 'case_update_failed' : '' }}", "detail": "={{ 'endReason=' + $('DecideOutcome').first().json.endReason + ' booked=' + $('DecideOutcome').first().json.booked + ' memoryPurged=' + ($('PurgeMemory').first().json.error ? 'no' : 'yes') }}"}, 2860, -180)
@@ -1787,7 +1832,7 @@ def _prompt(key, en, pl="", es="", de="", note=""):
     return {"key": key, "pl": pl, "es": es, "de": de, "en": en, "note": note}
 
 GOALS = {
-    "IDENTIFY": "If the facts say the customer is identified: confirm in one short question that you are speaking with the customer named in the facts about the vehicle named in the facts. Never read out a VIN or a phone number. If the caller says it is not them, set action handoff with handoffReason IDENTIFICATION_FAILED. If the customer is not identified: ask for the vehicle registration plate and the surname (a postcode also works), then call IdentifyCaller with what the caller gave. Do not ask for a VIN. When confirmed or identified, move to CONSENT.",
+    "IDENTIFY": "Identity is the four-digit PIN. If the facts say the customer is on file: ask for the PIN in one short question (name the customer, never read out a VIN, a phone number or a PIN). If the customer is not on file: ask for the vehicle registration plate and the PIN. Do not ask for a VIN, a name or a postcode. When the caller has given the PIN, call VerifyIdentity with the digits. ok is the identification: do not ask a further confirmation question; address the customer by the greeting name, set state CONSENT and ask the CONSENT question in the same answer. not_identified: do what its message says. If the caller says it is not them, set action handoff with handoffReason IDENTIFICATION_FAILED. Stay in IDENTIFY until VerifyIdentity returned ok.",
     "CONSENT": "The AI disclosure was already spoken. Ask once whether the caller is happy to continue with the assistant. Yes: move to NEED. No: set action handoff with handoffReason POLICY.",
     "NEED": "Find out what the caller needs: a new appointment (intent BOOK, move to DEALER), moving an existing one (RESCHEDULE, move to LOOKUP and call FindAppointment), cancelling one (CANCEL, move to LOOKUP and call FindAppointment), a call back from the dealer (CALLBACK, move to CALLBACK), instructions to book themselves in the app or on the website (SELF_SERVICE, move to SELF_SERVICE), or something else (OTHER, then action handoff with SCENARIO_REQUIRES_AGENT). For BOOK also ask whether replacement mobility is needed.",
     "DEALER": "If the facts say a tool was already called this turn, use its result and do not call that tool again. Propose the preferred dealer from the facts. If the caller wants a different one, ask for the city and call FindDealers. When a dealer is agreed, call CreateReservation with its dealerId and move to SERVICES. If CreateReservation says the dealer cannot be booked online, offer a retailer callback (CALLBACK) or self-service instructions (SELF_SERVICE).",
@@ -1896,11 +1941,12 @@ def log_inputs(workflow, event, **kw):
 
 def build_ar50():
     w = WF("ar-50-twilio-voice", "AR-50 PoC: Twilio voice entry", "POST /webhook/ar/twilio/voice, called by Twilio Programmable Voice on an inbound call. Answers TwiML: Dial Sip to the OpenAI Realtime SIP ingress with a synthetic in-car UUI, referUrl on AR-53, action on AR-54. Without openaiProjectId in ar_proof_config the caller hears a lab line (Twilio-only smoke test). POST /webhook/ar/proof/config (gateway auth) upserts the config rows.")
-    w.sticky("## AR-50 Twilio voice entry\nProof of decision doc 13: Twilio stands in for the contact center trunk. No Twilio signature check on the lab (PoC exception, test plan). The UUI is the first GB fixture customer, hex-encoded as contact center would send it.", 0, -400, 760, 110)
+    w.sticky("## AR-50 Twilio voice entry\nProof of decision doc 13: Twilio stands in for the contact center trunk. No Twilio signature check on the lab (PoC exception, test plan). The UUI names the vehicle in the proofVin config row (fallback: the first GB fixture customer), hex-encoded as contact center would send it.", 0, -400, 760, 110)
     a = w.webhook("ReceiveTwilioCall", "ar/twilio/voice", 0, 0, auth=False)
     g, c = w.load_config(260, 0)
-    cu = w.dt("PickCustomer", "ar_mock_customers", "get", 900, 0, conditions=[("market", "GB")])
     C, T, K = "$('ProofConfig').first().json", "$('ReceiveTwilioCall').first().json.body", "$('PickCustomer').first().json"
+    # proofVin in ar_proof_config names the caller's vehicle; without it the first GB row stands in.
+    cu = w.dt("PickCustomer", "ar_mock_customers", "get", 900, 0, conditions=[(f"={{{{ {C}.proofVin ? 'vin' : 'market' }}}}", f"={{{{ {C}.proofVin || 'GB' }}}}")])
     corr = f"('TW-' + String({T}.CallSid || Date.now()).slice(-10))"
     raw = f"['1', {corr}, {K}.vin || '', {K}.msisdn || '', {K}.language || 'en'].join(';')"
     su = w.set_fields("ShapeUui", [
@@ -1935,7 +1981,9 @@ SIDEBAND_BASE = "http://host.docker.internal:8790"  # scripts/ar-sideband.mjs on
 ACCEPT_INSTRUCTIONS = ("['You are the workshop appointment assistant of a car brand, on a live phone call. Speak ' + ({ pl: 'Polish', es: 'Spanish', de: 'German' }[$json.language] || 'English') + '.', "
                        "'One message per turn: one or two short sentences ending in one question, then stop and wait for the caller. Never say two messages in a row. Never narrate what you are doing or thinking.', "
                        "'Internal reference, never spoken: sessionId ' + $json.sessionId + '. Pass it as sessionId to every tool, unchanged. Never say a sessionId or a slotId aloud.', "
-                       "'Flow, one step per turn: confirm the identity; ask for consent; ask what the caller needs; FindSlots and offer at most two slots by day and time; when the caller picks one, ConfirmSlot and read back exactly what it returns, then ask for a yes; after the yes, BookAppointment with the same slotId and read the confirmation code back slowly.', "
+                       "'Flow, one step per turn: ask for the four-digit PIN and call VerifyIdentity with the digits as spoken (never say a PIN back); only when it returns ok, ask for consent; ask what the caller needs; FindSlots and offer at most two slots by day and time; when the caller picks one, ConfirmSlot and read back exactly what it returns, then ask for a yes; after the yes, BookAppointment with the same slotId and read the confirmation code back slowly.', "
+                       "'Retailer on file: ' + ((($json.customer || {}).dealer) || 'none') + '. The appointment is at that retailer. Never ask where the caller is, for a city or for a location; say which retailer you are checking and go on. Call FindDealers only if the caller asks for a different retailer and names a city.', "
+                       "'No tool call except VerifyIdentity before the identity is verified and consent given. If VerifyIdentity fails, ask for the PIN once more; after a second failure call RequestAgent. If the caller states a request before consent, acknowledge it in a few words and ask the consent question; act on the request only after the yes.', "
                        "'Only say what a tool returned. Never invent a dealer, a time or a booking. If a tool fails, say the booking system is unavailable right now and offer a colleague.', "
                        "'After the confirmation code, ask once whether the caller needs anything else. When they say no or say goodbye, call EndCall, say exactly the line it returns, and stop talking.', "
                        "'If the caller asks for a person, call RequestAgent with a one-line summary, then say: I am connecting you to a colleague now, and stop talking.'].join(' ')")
@@ -1974,13 +2022,15 @@ def build_ar51():
                       2100, -100, cred=CRED_OPENAI)
     A = "$('ComposeAccept').first().json"
     ns = w.http_json("NotifySideband", "POST", f"={{{{ String({C}.sidebandBase || SIDEBAND_BASE).replace(/\\/$/, '') + '/attach' }}}}".replace("SIDEBAND_BASE", repr(SIDEBAND_BASE)),
-                     f"={{{{ JSON.stringify({{ callId: {A}.callId, sessionId: {A}.sessionId, correlationId: {S}.correlationId, language: {A}.language, speak: {A}.speak, vadThreshold: {C}.vadThreshold || '', vadSilenceMs: {C}.vadSilenceMs || '' }}) }}}}", 2300, -200, timeout=5000)
+                     f"={{{{ JSON.stringify({{ callId: {A}.callId, sessionId: {A}.sessionId, correlationId: {S}.correlationId, language: {A}.language, speak: {A}.speak, vadThreshold: {C}.vadThreshold || '', vadSilenceMs: {C}.vadSilenceMs || '' }}) }}}}", 2300, -200, cred=CRED_SIDEBAND, timeout=5000)
     us = w.dt("StoreCallId", "ar_sessions", "update", 2500, -200, conditions=[("sessionId", f"={{{{ {A}.sessionId }}}}")], values={"voiceCallId": f"={{{{ {A}.callId }}}}"})
     lg = w.exec_wf("LogAccept", "ar-17-log-event", log_inputs("AR-51", "call_accepted", correlationId=f"={{{{ {S}.correlationId }}}}", sessionId=f"={{{{ {A}.sessionId }}}}", caseId=f"={{{{ {A}.caseId }}}}",
                    latencyMs=f"={{{{ Date.now() - {S}.startedAt }}}}", outcome="accepted", detail=f"={{{{ 'callId=' + {S}.callId + ' from=' + {S}.sipFrom }}}}"), 2500, -200)
     lf = w.exec_wf("LogAcceptFailed", "ar-17-log-event", log_inputs("AR-51", "call_accept_failed", correlationId=f"={{{{ {S}.correlationId }}}}", sessionId=f"={{{{ {A}.sessionId }}}}",
                    latencyMs=f"={{{{ Date.now() - {S}.startedAt }}}}", outcome="failed", errorCode="accept_failed", detail="={{ String(($json.error || {}).message || '').slice(0, 200) }}"), 2500, 0)
     rj = w.http_json("RejectCall", "POST", "={{ '" + OPENAI_CALLS + "' + " + S + ".callId + '/reject' }}", "={{ JSON.stringify({ status_code: 486 }) }}", 1900, 100, cred=CRED_OPENAI)
+    for n, op in (("AcceptCall", "accept"), ("RejectCall", "reject")):
+        w.exception(n, "http-native-available", f"OpenAI Realtime SIP: POST /v1/realtime/calls/{{id}}/{op} has no operation in the OpenAI node; the request carries the OpenAI credential.", "the repository owner", "2026-10-23")
     ls = w.exec_wf("LogStartFailed", "ar-17-log-event", log_inputs("AR-51", "session_start_failed", correlationId=f"={{{{ {S}.correlationId }}}}", outcome="rejected", errorCode="start_failed",
                    detail="={{ String(($json.error || {}).message || '').slice(0, 200) }}"), 2100, 100)
     w.chain(a, ii)
@@ -2036,15 +2086,18 @@ def build_ar57():
 
 
 def build_ar52():
-    w = WF("ar-52-proof-tools", "AR-52 PoC: MCP tool server", "MCP Server Trigger at /mcp/ar-proof-tools (bearer auth) exposing FindDealers, FindSlots, BookAppointment and RequestAgent to the OpenAI Realtime session. The same sub-workflows the demo agent uses; RequestAgent is the REFER path (AR-55).")
+    w = WF("ar-52-proof-tools", "AR-52 PoC: MCP tool server", "MCP Server Trigger at /mcp/ar-proof-tools (bearer auth) exposing VerifyIdentity, FindDealers, FindSlots, ConfirmSlot, BookAppointment, RequestAgent and EndCall to the OpenAI Realtime session. The same sub-workflows the demo agent uses; RequestAgent is the REFER path (AR-55).")
     w.sticky("## AR-52 MCP tool server\nThe Realtime API executes MCP tools itself, so the tools are the sub-workflows behind a bearer-protected MCP trigger. The session id travels in the instructions and comes back as a tool argument.", 0, -400, 760, 110)
     p = {"path": "ar-proof-tools", "authentication": "bearerAuth",
-         "instructions": "Appointment booking tools for one phone call. Always pass the sessionId from the instructions. Order: FindSlots, ConfirmSlot when the caller picks one, BookAppointment after the caller says yes, EndCall when the caller is done. Call RequestAgent when the caller asks for a person."}
+         "instructions": "Appointment booking tools for one phone call. Always pass the sessionId from the instructions. Order: VerifyIdentity with the PIN first, FindSlots, ConfirmSlot when the caller picks one, BookAppointment after the caller says yes, EndCall when the caller is done. Call RequestAgent when the caller asks for a person."}
     extra = {"credentials": {"httpBearerAuth": CRED_MCP}} if CRED_MCP else {}
     t = w.add("ProofTools", "@n8n/n8n-nodes-langchain.mcpTrigger", 2.1, p, 0, 0, **extra)
     sid = "={{ $fromAI('sessionId', 'The session id given in the instructions, unchanged', 'string') }}"
     tools = [
-        w.tool_wf("FindDealers", "ar-11-find-dealers", "Dealers in the caller's market, nearest first. Call when the caller names a city or asks where to go.",
+        w.tool_wf("VerifyIdentity", "ar-18-identify-caller", "Verifies the caller with the four-digit PIN they say. Call it as soon as the caller has given the PIN; nothing else works before it returns ok.",
+                  {"sessionId": sid, "pin": "={{ $fromAI('pin', 'The four-digit PIN the caller said, digits only', 'string') }}",
+                   "registrationPlate": "={{ $fromAI('registrationPlate', 'Registration plate the caller gave, or empty', 'string') }}"}, -208, 300),
+        w.tool_wf("FindDealers", "ar-11-find-dealers", "Other retailers in the caller's market, by city. Call it only when the caller asks for a retailer other than the one on file and names a city; never to find out where the caller is.",
                   {"sessionId": sid, "city": "={{ $fromAI('city', 'City the caller named, as spoken, or empty for all dealers', 'string') }}"}, 0, 300),
         w.tool_wf("FindSlots", "ar-12-find-slots", "Free workshop slots at the agreed dealer. Returns slotIds with labels; read at most three back.",
                   {"sessionId": sid, "serviceIds": "={{ $fromAI('serviceIds', 'Service ids the caller chose, comma separated, for example MAINT; default MAINT', 'string') }}",
@@ -2081,6 +2134,7 @@ def build_ar55():
     ], 1420, 0)
     hc = w.if_node("HasCallId", "={{ $json.callId }}", 1620, 0, kind="string")
     cr = w.http_json("CallRefer", "POST", "={{ '" + OPENAI_CALLS + "' + $json.callId + '/refer' }}", "={{ JSON.stringify({ target_uri: $json.targetUri }) }}", 1820, -100, cred=CRED_OPENAI)
+    w.exception("CallRefer", "http-native-available", "OpenAI Realtime SIP: POST /v1/realtime/calls/{id}/refer has no operation in the OpenAI node; the request carries the OpenAI credential.", "the repository owner", "2026-10-23")
     R = "$('ReferRequest').first().json"
     lg = w.exec_wf("LogReferSent", "ar-17-log-event", log_inputs("AR-55", "refer_sent", correlationId=f"={{{{ {R}.correlationId }}}}", sessionId=f"={{{{ {R}.sessionId }}}}", latencyMs=f"={{{{ Date.now() - {R}.startedAt }}}}",
                    outcome="sent", detail=f"={{{{ 'target=' + {R}.targetUri }}}}"), 2020, -100)
@@ -2154,7 +2208,7 @@ ZONES = {
          "rows": [["ReceiveStart", "ParseStart", "ResolveMarket", "IsValid"], [None, None, None, "RespondInvalid"]]},
         {"title": "Idempotency", "color": 5, "body": "Prompts are loaded once. A re-delivered correlationId returns the existing session without speaking again.",
          "rows": [["LoadPrompts", "Prompts", "CheckExisting", "AlreadyStarted"], [None, None, "ShapeExisting", "RespondExisting"]]},
-        {"title": "Identify and open the case", "color": 3, "body": "Market row, CASE account lookup by VIN (in-car) or phone number (IVR), then the case with its mandatory fields (account name, origin, description, service type) and the CASE booking prerequisites of 2026-10-23 (country, account, asset, VIN or FIN, plate, mileage unit, assigned dealer, classification, primary contact). The model never sees the VIN or the number; an unknown caller is identified by spoken data in the dialogue.",
+        {"title": "Identify and open the case", "color": 3, "body": "Market row, CASE account lookup by VIN (in-car) or phone number (IVR), then the case with its mandatory fields (account name, origin, description, service type) and the CASE booking prerequisites of 2026-10-23 (country, account, asset, VIN or FIN, plate, mileage unit, assigned dealer, classification, primary contact). The model never sees the VIN or the number; every caller verifies with the four-digit PIN in the dialogue.",
          "rows": [["LoadMarket", "IdentifyCustomer", "CreateCase"]]},
         {"title": "Session", "color": 3, "body": "Random session id, one row in ar_sessions per call, state starts at IDENTIFY. The greeting is the market's disclosure plus the ar_prompts greeting in the session language. Every start is logged to ar_events.",
          "rows": [["GenerateSessionId", "ComposeSession", "ComposeGreeting", "InsertSession", "LogStart"]]},
@@ -2166,18 +2220,18 @@ ZONES = {
          "rows": [["ReceiveTurn", "ValidateTurn", "IsValid"], [None, None, "RespondInvalid"]]},
         {"title": "Load state", "color": 3, "body": "Prompts (goals, rules, spoken lines), the session row and the market row are the only state the model sees.",
          "rows": [["LoadPrompts", "Prompts", "LoadSession", "SessionFound", "LoadMarket"], [None, None, None, "RespondNotFound"]]},
-        {"title": "Gates", "color": 5, "body": "YesNoGate: a deterministic yes or no in IDENTIFY (identified caller), CONSENT, DEALER, CONFIRM and CONFIRM_CANCEL, a spoken journey in NEED (cancel, reschedule, callback, self-service), a chosen service in SERVICES and a date in LOOKUP move the state before the model runs, so a small model cannot loop on a confirmed question or forget a tool call.",
-         "rows": [["TurnFacts", "YesNoGate", "OnIdentityFailed", "OnNeedCancel", "OnRescheduleDate"], [None, None, "OnIdentityConfirmed", "OnNeedReschedule", "OnCancelInLookup"], [None, None, "OnConsentDeclined", "OnNeedCallback", "OnCancelConfirmed"], [None, None, "OnConsentGiven", "OnNeedSelfService", "OnSlotConfirmed"], [None, None, "OnDealerAgreed", "OnServicesChosen"]]},
+        {"title": "Gates", "color": 5, "body": "YesNoGate: a deterministic no in IDENTIFY (a customer on file says it is not them), a yes or no in CONSENT, DEALER, CONFIRM and CONFIRM_CANCEL, a spoken journey in NEED (cancel, reschedule, callback, self-service), a chosen service in SERVICES and a date in LOOKUP move the state before the model runs, so a small model cannot loop on a confirmed question or forget a tool call.",
+         "rows": [["TurnFacts", "YesNoGate", "OnIdentityFailed", "OnNeedCancel", "OnRescheduleDate"], [None, None, None, "OnNeedReschedule", "OnCancelInLookup"], [None, None, "OnConsentDeclined", "OnNeedCallback", "OnCancelConfirmed"], [None, None, "OnConsentGiven", "OnNeedSelfService", "OnSlotConfirmed"], [None, None, "OnDealerAgreed", "OnServicesChosen"]]},
         {"title": "Prefetch and prompt", "color": 5, "body": "The sub-workflow a gate implies runs here, deterministically: the appointment search on cancel or reschedule, the reservation on dealer agreed, the slot search on services chosen or a new date, the cancel, book or move on the caller's yes. Its result goes into the facts and the model reads it out instead of calling the tool. Then the system prompt is composed.",
          "rows": [["GateFacts", "Prefetch", "FetchAppointment", "WithAppointment", "AssembleFacts", "ComposeFacts", "PrepareTurn"], [None, None, "FetchReservation", "WithReservation"], [None, None, "FetchSlots", "WithSlots"], [None, None, "FetchCancel", "WithOutcome"], [None, None, "FetchBook"], [None, None, "FetchMove"]]},
-        {"title": "Reason", "color": 5, "body": "The agent has nine tools (one per joint-scope step), Postgres memory and a structured parser with auto-fix.",
-         "rows": [["DialogueAgent"], ["DialogueModel", "TurnMemory", "TurnOutputShape", "ParserFixerModel"], ["IdentifyCaller", "FindDealers", "CreateReservation", "FindSlots", "BookAppointment"], ["FindAppointment", "CancelAppointment", "MoveAppointment", "RequestCallback"]]},
+        {"title": "Reason", "color": 5, "body": "The agent has nine tools (PIN verification, then one per joint-scope step), Postgres memory and a structured parser with auto-fix.",
+         "rows": [["DialogueAgent"], ["DialogueModel", "TurnMemory", "TurnOutputShape", "ParserFixerModel"], ["VerifyIdentity", "FindDealers", "CreateReservation", "FindSlots", "BookAppointment"], ["FindAppointment", "CancelAppointment", "MoveAppointment", "RequestCallback"]]},
         {"title": "Guards 1: gates", "color": 5, "body": "ClampOutput: only values the schema allows, only a state transition the table allows (illegal_transition), a journey intent sticks for the call. Then each rule is an If (the condition) and an Edit Fields (what it changes). Gates: a deterministic yes or no in IDENTIFY and CONSENT wins over the model.",
          "rows": [["ReloadSession", "ReadOutput", "ClampOutput", "GateDecline", "GateAdvance", "ScenarioDowngrade"], [None, None, None, "OnGateDecline", "OnGateAdvance", "OnScenarioDowngrade"]]},
-        {"title": "Guards 2: caller, identification and outcomes", "color": 5, "body": "Caller asks for a person: handoff. Two failed identifications: handoff. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
-         "rows": [["CallerAsksForHuman", "IdentifyExhausted", "PendingSlot", "OutcomeSync", "FalseConfirmation", "FalseCancellation", "SelfServiceLine"],
-                  ["OnCallerRequest", "OnIdentifyExhausted", None, "OnSyncBooked", "OnFalseConfirmation", "OnFalseCancellation", "OnSelfService"],
-                  [None, None, None, "OnSyncMoved"], [None, None, None, "OnSyncCancelled"], [None, None, None, "OnSyncCallbackLogged"]]},
+        {"title": "Guards 2: caller, identification and outcomes", "color": 5, "body": "Caller asks for a person: handoff. Two failed PIN checks: handoff. A state beyond IDENTIFY before VerifyIdentity succeeded is forced back. OutcomeSync: a booking, move, cancellation or callback written by a tool forces its state. A booking, move or cancellation claim without a tool result is replaced by a question. Self-service instructions are read out verbatim.",
+         "rows": [["CallerAsksForHuman", "IdentifyExhausted", "IdentityUnverified", "PendingSlot", "OutcomeSync", "FalseConfirmation", "FalseCancellation", "SelfServiceLine"],
+                  ["OnCallerRequest", "OnIdentifyExhausted", "OnIdentityUnverified", None, "OnSyncBooked", "OnFalseConfirmation", "OnFalseCancellation", "OnSelfService"],
+                  [None, None, None, None, "OnSyncMoved"], [None, None, None, None, "OnSyncCancelled"], [None, None, None, None, "OnSyncCallbackLogged"]]},
         {"title": "Guards 3: reply and end", "color": 5, "body": "Empty or over-long replies are fixed. A handoff always speaks the market's handover line. No end before a journey outcome (BOOKED, MOVED, CANCELLED, CALLBACK_LOGGED, SELF_SERVICE) or WRAPUP.",
          "rows": [["EmptyReply", "ReplyTooLong", "HandoffNormalise", "ForceHandoff", "EndBlocked", "GuardResult"], ["OnEmptyReply", "OnReplyTooLong", "OnHandoff", "OnForceHandoff", "OnEndBlocked"]]},
         {"title": "Handoff", "color": 3, "body": "A model failure answers with a fixed apology and PLATFORM_ERROR. Any handoff builds the Refer-To through AR-14.",
@@ -2216,10 +2270,10 @@ ZONES = {
          "rows": [["ToolInput", "LoadSession", "CallDealerBookDealers", "ShapeDealers"], [None, None, None, "ReturnDealersError"]]},
     ],
     "ar-12-find-slots": [
-        {"title": "Find slots", "color": 5, "body": "API V2 order: a missing reservation is created first from the session's dealer (CreateReservation); PATCH the selected services onto the reservation (new booking only), then GET timeslots for the reservation (or the existing booking's offer when rescheduling) in the market's window; at most maxSlotsOffered, labelled in the session language.",
-         "rows": [["ToolInput", "LoadSession", "LoadMarket", "HasReservation", "SlotWindow", "NewBooking", "PatchServices", "CallDealerBookTimeslots"], [None, None, None, "CreateReservationFirst", None, None, None, "ReturnSlotsError"]]},
-        {"title": "Remember what was offered", "color": 3, "body": "Selected services and offered slots are stored on the session so a booking or a move can only name one of them; the tool returns them by day and time, never by slotId.",
-         "rows": [["ShapeSlots", "OfferSlots", "StoreOffered", "ReturnSlots"]]},
+        {"title": "Find slots", "color": 5, "body": "An unverified session (no PIN yet) is refused. API V2 order: a missing reservation is created first from the session's dealer (CreateReservation); PATCH the selected services onto the reservation (new booking only), then GET timeslots for the reservation (or the existing booking's offer when rescheduling) in the market's window; at most maxSlotsOffered, labelled in the session language.",
+         "rows": [["ToolInput", "LoadSession", "Verified", "LoadMarket", "HasReservation", "SlotWindow", "NewBooking", "PatchServices"], [None, None, "ReturnNotVerified", None, "CreateReservationFirst"]]},
+        {"title": "Slots and what was offered", "color": 3, "body": "GET timeslots, then the selected services and offered slots are stored on the session so a booking or a move can only name one of them; the tool returns them by day and time, never by slotId.",
+         "rows": [["CallDealerBookTimeslots", "ShapeSlots", "OfferSlots", "StoreOffered", "ReturnSlots"], ["ReturnSlotsError"]]},
     ],
     "ar-13-book-appointment": [
         {"title": "Booking gate", "color": 5, "body": "Rules in order: a booking already exists; no reservation in hand; the slot was not offered in this call; the caller has not confirmed it (state CONFIRM with this slotId read back). Only Proceed books.",
@@ -2248,8 +2302,8 @@ ZONES = {
     "ar-20-mock-crm": [
         {"title": "Account lookup", "color": 7, "body": "Synthetic customers in ar_mock_customers: by VIN (in-car), then by phone number (IVR). Lab only; the real build is the CASE account search.",
          "rows": [["ReceiveLookup", "LookupByVin", "FoundByVin", "ShapeFixture", "RespondCustomer"], [None, None, "LookupByPhone"]]},
-        {"title": "Spoken identification", "color": 7, "body": "Registration plate (normalised) plus surname or postcode: the placeholder rule until the identification rule is agreed (question 20).",
-         "rows": [["ReceiveIdentify", "LookupByPlate", "MatchesIdentity", "ShapeIdentified", "RespondIdentify"], [None, None, None, "ShapeNotFound"]]},
+        {"title": "PIN identification", "color": 7, "body": "The account by customerRef (known caller) or by the normalised registration plate, then the four-digit PIN must match. Test-period stand-in until the identification rule is agreed (question 20).",
+         "rows": [["ReceiveIdentify", "LookupAccount", "MatchesIdentity", "ShapeIdentified", "RespondIdentify"], [None, None, None, "ShapeNotFound"]]},
     ],
     "ar-21-mock-dealerbook": [
         {"title": "Dealers", "color": 7, "body": "Rows from ar_mock_dealers, narrowed by market, dealerId and city (accent-insensitive).",
@@ -2292,7 +2346,7 @@ ZONES = {
                   [None, "MockBookingRows", "SplitMockBookings", "UpsertMockBooking", "RespondSeeded"]]},
     ],
     "ar-18-identify-caller": [
-        {"title": "Identify by spoken data", "color": 3, "body": "Plate plus surname or postcode against the CASE account (placeholder rule until question 20 is agreed). A match stores the customer on the session and account, asset, VIN or FIN, plate and dealer on the case; a miss counts an attempt.",
+        {"title": "Verify by PIN", "color": 3, "body": "The four-digit PIN against the CASE account on the session (in-car) or behind the spoken plate (IVR); test-period stand-in until question 20 is agreed. A match sets verified, stores the customer on the session and account, asset, VIN or FIN, plate and dealer on the case; a miss counts an attempt.",
          "rows": [["ToolInput", "LoadSession", "CallIdentify", "Identified", "StoreIdentity", "UpdateCaseAccount", "ReturnIdentified"], [None, None, None, "ReturnIdentifyError", "CountAttempt", "ReturnNotIdentified"]]},
     ],
     "ar-19-create-reservation": [
@@ -2302,8 +2356,8 @@ ZONES = {
          "rows": [["ShapeReservation", "StoreReservation", "ReturnReservation"]]},
     ],
     "ar-24-find-appointment": [
-        {"title": "Find the appointment", "color": 5, "body": "DealerBook bookings by the session's customer id and chassis number, status booked; a spoken reference code narrows. Exactly one match becomes the appointment in hand on the session, with its offer id for the slot search.",
-         "rows": [["ToolInput", "LoadSession", "CallDealerBookBookings", "ShapeAppointments", "ExactlyOne", "StoreAppointment", "ReturnAppointments"], [None, None, None, "ReturnAppointmentsError"]]},
+        {"title": "Find the appointment", "color": 5, "body": "An unverified session (no PIN yet) is refused. DealerBook bookings by the session's customer id and chassis number, status booked; a spoken reference code narrows. Exactly one match becomes the appointment in hand on the session, with its offer id for the slot search.",
+         "rows": [["ToolInput", "LoadSession", "Verified", "CallDealerBookBookings", "ShapeAppointments", "ExactlyOne", "StoreAppointment", "ReturnAppointments"], [None, None, "ReturnNotVerified", None, "ReturnAppointmentsError"]]},
     ],
     "ar-25-cancel-appointment": [
         {"title": "Cancel gate", "color": 5, "body": "Rules in order: already cancelled; no appointment in hand; a different reference; not confirmed (state CONFIRM_CANCEL from the previous turn). Only Proceed cancels.",
@@ -2318,13 +2372,13 @@ ZONES = {
          "rows": [["CallDealerBookReschedule", "StoreMoved", "ReturnMoved"], ["ReturnMoveError"]]},
     ],
     "ar-27-request-callback": [
-        {"title": "Callback gate", "color": 5, "body": "Already logged, or not yet confirmed (state CALLBACK from the previous turn). Only Proceed delegates.",
-         "rows": [["ToolInput", "LoadSession", "CallbackGate"], [None, None, "ReplyAlreadyLogged"], [None, None, "ReplyNotConfirmed"]]},
+        {"title": "Callback gate", "color": 5, "body": "Not verified (no PIN yet), already logged, or not yet confirmed (state CALLBACK from the previous turn). Only Proceed delegates.",
+         "rows": [["ToolInput", "LoadSession", "CallbackGate"], [None, None, "ReplyNotVerified"], [None, None, "ReplyAlreadyLogged"], [None, None, "ReplyNotConfirmed"]]},
         {"title": "Delegate", "color": 3, "body": "The CASE case is delegated to XCCC with the callback note; callbackAt and state CALLBACK_LOGGED on the session. No DealerBook.",
          "rows": [["DelegateCase", "DelegateOk", "StoreCallback", "ReturnLogged"], [None, None, "ReturnDelegateError"]]},
     ],
     "ar-50-twilio-voice": [
-        {"title": "Twilio voice entry", "color": 4, "body": "Twilio posts the inbound call. The config rows and the first GB fixture customer shape the synthetic UUI; with an OpenAI project the TwiML dials the SIP ingress (referUrl AR-53, action AR-54), without it the caller hears the lab line.",
+        {"title": "Twilio voice entry", "color": 4, "body": "Twilio posts the inbound call. The config rows and the vehicle named by proofVin (fallback: the first GB fixture customer) shape the synthetic UUI; with an OpenAI project the TwiML dials the SIP ingress (referUrl AR-53, action AR-54), without it the caller hears the lab line.",
          "rows": [["ReceiveTwilioCall", "LoadProofConfig", "ProofRows", "ProofConfig", "PickCustomer", "ShapeUui", "HasOpenAi", "TwimlDial"], [None, None, None, None, None, None, None, "TwimlLabLine"]]},
         {"title": "Respond and log", "color": 3, "body": "TwiML as text/xml, then the call is logged with the UUI it was given.",
          "rows": [["RespondTwiml", "LogTwilioCall"]]},
@@ -2340,8 +2394,8 @@ ZONES = {
          "rows": [["ComposeAccept", "AcceptCall", "NotifySideband", "StoreCallId", "LogAccept"], [None, None, "LogAcceptFailed"]]},
     ],
     "ar-52-proof-tools": [
-        {"title": "MCP server", "color": 3, "body": "Bearer-protected MCP trigger at /mcp/ar-proof-tools. The tools are the demo sub-workflows plus ConfirmSlot (the CONFIRM step as a tool); RequestAgent is the REFER path.",
-         "rows": [["ProofTools"], ["FindDealers", "FindSlots", "ConfirmSlot", "BookAppointment", "RequestAgent", "EndCall"]]},
+        {"title": "MCP server", "color": 3, "body": "Bearer-protected MCP trigger at /mcp/ar-proof-tools. The tools are the demo sub-workflows (VerifyIdentity first: FindSlots, FindAppointment and RequestCallback refuse an unverified session) plus ConfirmSlot (the CONFIRM step as a tool); RequestAgent is the REFER path.",
+         "rows": [["ProofTools"], ["VerifyIdentity", "FindDealers", "FindSlots", "ConfirmSlot", "BookAppointment", "RequestAgent", "EndCall"]]},
     ],
     "ar-57-end-call": [
         {"title": "End", "color": 5, "body": "State ENDED and the reason on the session; the closing line from the market row. The sidecar hangs up after the goodbye audio stops.",

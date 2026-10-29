@@ -768,6 +768,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "verified",
+              "displayName": "verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1297,7 +1307,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Builds the SIP REFER target with the return UUI (version, correlationId, sessionId, intent, handoffReason, language, caseId when it fits) and marks the session HANDOFF. Inputs: sessionId, intent, handoffReason, summary. Returns {ok, referTo, uuiHex, uuiAscii, uuiPayload, truncated}. Deterministic; called by AR-01 and AR-02, never by the model."

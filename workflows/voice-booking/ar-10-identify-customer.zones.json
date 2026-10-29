@@ -16,7 +16,7 @@
   "panels": [
     {
       "title": "AR-10 Identify customer",
-      "body": "Identity from the UUI: VIN for an in-car call, the phone number for an IVR call. The model never sees either. An unknown caller is identified by spoken data points through IdentifyCaller (AR-18).",
+      "body": "Identity from the UUI: VIN for an in-car call, the phone number for an IVR call. The model never sees either. Every caller then verifies with the four-digit PIN through VerifyIdentity (AR-18).",
       "color": 6,
       "width": 704
     }

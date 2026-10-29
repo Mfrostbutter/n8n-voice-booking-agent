@@ -3,16 +3,18 @@
   "zones": [
     {
       "title": "Find the appointment",
-      "body": "DealerBook bookings by the session's customer id and chassis number, status booked; a spoken reference code narrows. Exactly one match becomes the appointment in hand on the session, with its offer id for the slot search.",
+      "body": "An unverified session (no PIN yet) is refused. DealerBook bookings by the session's customer id and chassis number, status booked; a spoken reference code narrows. Exactly one match becomes the appointment in hand on the session, with its offer id for the slot search.",
       "color": 5,
       "nodes": [
         "ToolInput",
         "LoadSession",
+        "Verified",
         "CallDealerBookBookings",
         "ShapeAppointments",
         "ExactlyOne",
         "StoreAppointment",
         "ReturnAppointments",
+        "ReturnNotVerified",
         "ReturnAppointmentsError"
       ]
     }

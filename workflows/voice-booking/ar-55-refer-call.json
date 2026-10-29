@@ -814,7 +814,9 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "all"
   },
   "meta": {
     "description": "Inputs: sessionId, summary. Builds the handover UUI (AR-14), then POSTs refer to the OpenAI call with target_uri sip:agent@<referDomain>?User-to-User=<hex>;encoding=hex. Twilio receives the REFER and posts the Refer-To to AR-53. Returns {ok, message}."
@@ -824,5 +826,16 @@
     "poc"
   ],
   "project": "Voice Booking",
-  "folder": "Voice Booking Agent"
+  "folder": "Voice Booking Agent",
+  "nodePolicy": {
+    "exceptions": [
+      {
+        "node": "CallRefer",
+        "rule": "http-native-available",
+        "reason": "OpenAI Realtime SIP: POST /v1/realtime/calls/{id}/refer has no operation in the OpenAI node; the request carries the OpenAI credential.",
+        "approvedBy": "the repository owner",
+        "date": "2026-10-23"
+      }
+    ]
+  }
 }

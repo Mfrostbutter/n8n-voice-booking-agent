@@ -3,7 +3,7 @@
   "zones": [
     {
       "title": "Twilio voice entry",
-      "body": "Twilio posts the inbound call. The config rows and the first GB fixture customer shape the synthetic UUI; with an OpenAI project the TwiML dials the SIP ingress (referUrl AR-53, action AR-54), without it the caller hears the lab line.",
+      "body": "Twilio posts the inbound call. The config rows and the vehicle named by proofVin (fallback: the first GB fixture customer) shape the synthetic UUI; with an OpenAI project the TwiML dials the SIP ingress (referUrl AR-53, action AR-54), without it the caller hears the lab line.",
       "color": 4,
       "nodes": [
         "ReceiveTwilioCall",
@@ -42,7 +42,7 @@
   "panels": [
     {
       "title": "AR-50 Twilio voice entry",
-      "body": "Proof of decision doc 13: Twilio stands in for the contact center trunk. No Twilio signature check on the lab (PoC exception, test plan). The UUI is the first GB fixture customer, hex-encoded as contact center would send it.",
+      "body": "Proof of decision doc 13: Twilio stands in for the contact center trunk. No Twilio signature check on the lab (PoC exception, test plan). The UUI names the vehicle in the proofVin config row (fallback: the first GB fixture customer), hex-encoded as contact center would send it.",
       "color": 6,
       "width": 768
     }

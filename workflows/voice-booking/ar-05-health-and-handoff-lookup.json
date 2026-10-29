@@ -218,7 +218,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none"
   },
   "meta": {
     "description": "GET /webhook/ar/v1/health for probes. GET /webhook/ar/v1/handoff?correlationId=... returns the handoff context (case, intent, reason, summary) for the agent desktop. No transcript."

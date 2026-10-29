@@ -3,10 +3,11 @@
   "zones": [
     {
       "title": "MCP server",
-      "body": "Bearer-protected MCP trigger at /mcp/ar-proof-tools. The tools are the demo sub-workflows plus ConfirmSlot (the CONFIRM step as a tool); RequestAgent is the REFER path.",
+      "body": "Bearer-protected MCP trigger at /mcp/ar-proof-tools. The tools are the demo sub-workflows (VerifyIdentity first: FindSlots, FindAppointment and RequestCallback refuse an unverified session) plus ConfirmSlot (the CONFIRM step as a tool); RequestAgent is the REFER path.",
       "color": 3,
       "nodes": [
         "ProofTools",
+        "VerifyIdentity",
         "FindDealers",
         "FindSlots",
         "ConfirmSlot",
