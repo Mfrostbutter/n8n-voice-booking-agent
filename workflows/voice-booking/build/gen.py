@@ -1023,7 +1023,7 @@ def build_ar24():
     v = w.if_node("Verified", "={{ $json.verified === true }}", 390, 0)
     nv = w.set_fields("ReturnNotVerified", NOT_VERIFIED, 390, 200)
     I, S = "$('ToolInput').first().json", "$('LoadSession').first().json"
-    h = w.http_post("CallDealerBookBookings", MOCK + "/dealerbook/bookings/search", f"={{{{ JSON.stringify({{ customerId: {S}.customerRef || '', chassisNumber: {S}.vehicleRef || '', status: 'booked', referenceCode: String({I}.bookingRef || '').toUpperCase().replace(/[^A-Z]/g, ''), correlationId: {S}.correlationId }}) }}}}", 520, 0)
+    h = w.http_post("CallDealerBookBookings", MOCK + "/dealerbook/bookings/search", f"={{{{ JSON.stringify({{ customerId: {S}.customerRef || '', chassisNumber: {S}.vehicleRef || '', status: 'booked', referenceCode: (c => c.length === 6 ? c : '')(String({I}.bookingRef || '').toUpperCase().replace(/[^A-Z]/g, '')), correlationId: {S}.correlationId }}) }}}}", 520, 0)
     s = w.set_fields("ShapeAppointments", [
         ("appointments", f"={{{{ ($json.bookings || []).map(a => ({{ bookingRef: a.bookingId || a.bookingRef, referenceCode: a.referenceCode || a.confirmationCode || '', offerId: a.reservationId || '', slotId: a.slotId, startsAt: a.startsAt, dealerId: a.dealerId, dealerName: a.dealerName || '', label: DateTime.fromISO(a.startsAt, {{ zone: 'utc' }}).setLocale({S}.language || 'en').toFormat('cccc dd.MM. HH:mm') }})) }}}}", "array"),
         ("sessionId", f"={{{{ {S}.sessionId }}}}", "string"),
@@ -1606,8 +1606,8 @@ def build_ar02():
                    "Creates the DealerBook reservation for the caller's vehicle at the agreed dealer and returns the services available there. Call it once the dealer is agreed, before offering services or slots. Offer the services by name and keep their serviceId for FindSlots.",
                    {"sessionId": sid, "dealerId": "={{ $fromAI('dealerId', 'dealerId of the agreed dealer, exactly as given in the facts or by FindDealers, for example PL-WAW-01', 'string') }}"}, 1300, 620)
     t5 = w.tool_wf("FindAppointment", "ar-24-find-appointment",
-                   "Finds the caller's existing booked appointments for a reschedule or a cancellation. Call it as soon as the caller wants to move or cancel an appointment; pass the booking number only if the caller named one. Returns the appointment in hand with day, time and dealer.",
-                   {"sessionId": sid, "bookingRef": "={{ $fromAI('bookingRef', 'Booking number the caller named, or empty', 'string') }}"}, 1560, 620)
+                   "Finds the caller's existing booked appointments for a reschedule or a cancellation. Call it as soon as the caller wants to move or cancel an appointment; pass the six-letter reference code only if the caller spoke one, never an id from the facts. Returns the appointment in hand with day, time and dealer.",
+                   {"sessionId": sid, "bookingRef": "={{ $fromAI('bookingRef', 'Six-letter reference code the caller spoke, or empty', 'string') }}"}, 1560, 620)
     t6 = w.tool_wf("CancelAppointment", "ar-25-cancel-appointment",
                    "Cancels the appointment in hand. Call it only in the turn after the caller explicitly confirmed the cancellation of the appointment read back in state CONFIRM_CANCEL. Returns ok, or not_confirmed with what to do next.",
                    {"sessionId": sid, "bookingRef": "={{ $fromAI('bookingRef', 'bookingRef of the appointment in hand, exactly as returned by FindAppointment', 'string') }}"}, 1820, 620)

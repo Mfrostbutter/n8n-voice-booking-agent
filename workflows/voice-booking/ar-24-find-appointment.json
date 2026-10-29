@@ -132,7 +132,7 @@
         "url": "http://localhost:5678/webhook/ar-mock/dealerbook/bookings/search",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ customerId: $('LoadSession').first().json.customerRef || '', chassisNumber: $('LoadSession').first().json.vehicleRef || '', status: 'booked', referenceCode: String($('ToolInput').first().json.bookingRef || '').toUpperCase().replace(/[^A-Z]/g, ''), correlationId: $('LoadSession').first().json.correlationId }) }}",
+        "jsonBody": "={{ JSON.stringify({ customerId: $('LoadSession').first().json.customerRef || '', chassisNumber: $('LoadSession').first().json.vehicleRef || '', status: 'booked', referenceCode: (c => c.length === 6 ? c : '')(String($('ToolInput').first().json.bookingRef || '').toUpperCase().replace(/[^A-Z]/g, '')), correlationId: $('LoadSession').first().json.correlationId }) }}",
         "options": {
           "timeout": 15000
         }

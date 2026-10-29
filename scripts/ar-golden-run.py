@@ -110,6 +110,18 @@ if os.path.exists(EXTRA):
 # Fixture appointments are consumed by the cancel and reschedule scenarios: reseed before every run.
 import subprocess
 subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "ar-seed.py")], check=True)
+# Bookings left by earlier runs for the synthetic customers are cancelled in the mock, so a lookup finds the fixture only.
+# Only the synthetic set: the engagement's test identities may carry real test bookings.
+FIXTURE_CODES = {"FIXPLA", "FIXGBA"}
+SYNTHETIC = ["C-PL-004711", "C-PL-004812", "C-ES-002310", "C-DE-009902", "C-GB-001177", "C-GB-001290"]
+stale = 0
+for ref in SYNTHETIC:
+    s, r, _ = call("POST", "/ar-mock/dealerbook/bookings/search", {"customerId": ref, "status": "booked"})
+    for b in (r.get("bookings") or []) if s == 200 else []:
+        if (b.get("confirmationCode") or b.get("referenceCode")) not in FIXTURE_CODES:
+            s2, _, _ = call("POST", "/ar-mock/dealerbook/bookings/cancel", {"bookingId": b.get("bookingRef") or b.get("bookingId")})
+            stale += 1 if s2 == 200 else 0
+print(f"stale synthetic bookings cancelled: {stale}")
 only = sys.argv[sys.argv.index("--only") + 1].split(",") if "--only" in sys.argv else None
 results = []
 for sc in SCENARIOS:

@@ -2789,7 +2789,7 @@
     },
     {
       "parameters": {
-        "description": "Finds the caller's existing booked appointments for a reschedule or a cancellation. Call it as soon as the caller wants to move or cancel an appointment; pass the booking number only if the caller named one. Returns the appointment in hand with day, time and dealer.",
+        "description": "Finds the caller's existing booked appointments for a reschedule or a cancellation. Call it as soon as the caller wants to move or cancel an appointment; pass the six-letter reference code only if the caller spoke one, never an id from the facts. Returns the appointment in hand with day, time and dealer.",
         "workflowId": {
           "__rl": true,
           "value": "PENDING_ar-24-find-appointment",
@@ -2800,7 +2800,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "sessionId": "={{ $('PrepareTurn').first().json.sessionId }}",
-            "bookingRef": "={{ $fromAI('bookingRef', 'Booking number the caller named, or empty', 'string') }}"
+            "bookingRef": "={{ $fromAI('bookingRef', 'Six-letter reference code the caller spoke, or empty', 'string') }}"
           },
           "matchingColumns": [],
           "schema": [
