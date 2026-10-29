@@ -3455,6 +3455,97 @@
           },
           "conditions": [
             {
+              "id": "91b04449-ccd2-5346-a4e1-61d689e2c598",
+              "leftValue": "={{ $json.gateAdvanced }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "1cc051f0-7a2e-5b49-8c5b-43802487ee35",
+              "leftValue": "={{ $json.rowState }}",
+              "rightValue": "CONSENT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "c102d7cb-c4be-565a-8704-ffed23cbdb43",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "continue",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "801f5f4d-fb6f-5b5f-8896-c4dff0036f68",
+              "leftValue": "={{ $json.state }}",
+              "rightValue": "NEED",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "efe10d58-5492-543b-9800-5e1c23fb2516",
+      "name": "ConsentHold",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        5248
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d77ee9ca-d3d2-5fba-a3b3-dbf16942ea01",
+              "name": "state",
+              "value": "NEED",
+              "type": "string"
+            },
+            {
+              "id": "934cf180-f1c0-5e08-827b-f0020d1681d8",
+              "name": "guards",
+              "value": "={{ $json.guards.concat(['consent_hold']) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "cd0e09a8-e874-591d-b77a-5efa02adfa1a",
+      "name": "OnConsentHold",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        5520
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
               "id": "ece1f9b6-5727-5d83-8233-ded712a2eda0",
               "leftValue": "={{ $json.gateAdvanced }}",
               "rightValue": "",
@@ -3492,7 +3583,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1040,
+        1248,
         5248
       ]
     },
@@ -3540,7 +3631,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1040,
+        1248,
         5520
       ]
     },
@@ -5986,8 +6077,8 @@
     },
     {
       "parameters": {
-        "content": "## Guards 1: gates\n\nClampOutput: only values the schema allows, only a state transition the table allows (illegal_transition), a journey intent sticks for the call. Then each rule is an If (the condition) and an Edit Fields (what it changes). Gates: a deterministic yes or no in IDENTIFY and CONSENT wins over the model.",
-        "width": 1280,
+        "content": "## Guards 1: gates\n\nClampOutput: only values the schema allows, only a state transition the table allows (illegal_transition), a journey intent sticks for the call. Then each rule is an If (the condition) and an Edit Fields (what it changes). Gates: a deterministic yes or no in IDENTIFY and CONSENT wins over the model; a consent yes lands in NEED, never beyond (consent_hold).",
+        "width": 1488,
         "height": 656,
         "color": 5
       },
@@ -6788,7 +6879,7 @@
         ],
         [
           {
-            "node": "ScenarioDowngrade",
+            "node": "ConsentHold",
             "type": "main",
             "index": 0
           }
@@ -6796,6 +6887,35 @@
       ]
     },
     "OnGateAdvance": {
+      "main": [
+        [
+          {
+            "node": "ConsentHold",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConsentHold": {
+      "main": [
+        [
+          {
+            "node": "OnConsentHold",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ScenarioDowngrade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OnConsentHold": {
       "main": [
         [
           {

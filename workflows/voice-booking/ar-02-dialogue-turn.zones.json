@@ -92,7 +92,7 @@
     },
     {
       "title": "Guards 1: gates",
-      "body": "ClampOutput: only values the schema allows, only a state transition the table allows (illegal_transition), a journey intent sticks for the call. Then each rule is an If (the condition) and an Edit Fields (what it changes). Gates: a deterministic yes or no in IDENTIFY and CONSENT wins over the model.",
+      "body": "ClampOutput: only values the schema allows, only a state transition the table allows (illegal_transition), a journey intent sticks for the call. Then each rule is an If (the condition) and an Edit Fields (what it changes). Gates: a deterministic yes or no in IDENTIFY and CONSENT wins over the model; a consent yes lands in NEED, never beyond (consent_hold).",
       "color": 5,
       "nodes": [
         "ReloadSession",
@@ -100,9 +100,11 @@
         "ClampOutput",
         "GateDecline",
         "GateAdvance",
+        "ConsentHold",
         "ScenarioDowngrade",
         "OnGateDecline",
         "OnGateAdvance",
+        "OnConsentHold",
         "OnScenarioDowngrade"
       ]
     },
