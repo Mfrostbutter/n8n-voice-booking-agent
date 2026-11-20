@@ -23,7 +23,8 @@ if not TOK:
 # Overlay rows (the engagement's test identities, gitignored): {"mockCustomers": [...], "mockDealers": [...], "mockBookings": [...]}.
 OVERLAY = os.path.join(os.path.dirname(HERE), "data", "voice-booking", "fixtures", "mock-overlay.json")
 body = {}
-if os.path.exists(OVERLAY):
+# AR_SEED_OVERLAY=0: synthetic rows only (a shared instance must not hold the test identities).
+if os.path.exists(OVERLAY) and os.environ.get("AR_SEED_OVERLAY", "1") != "0":
     body = {k: v for k, v in json.load(open(OVERLAY)).items() if k in ("mockCustomers", "mockDealers", "mockBookings")}
     print("overlay rows:", {k: len(v) for k, v in body.items()})
 req = urllib.request.Request(BASE + "/webhook/ar/v1/admin/seed", data=json.dumps(body).encode(), method="POST")

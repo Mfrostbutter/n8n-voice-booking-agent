@@ -42,6 +42,7 @@ import organize_workflows as org  # noqa: E402
 DRY = "--dry-run" in sys.argv
 TABLES_ONLY = "--tables-only" in sys.argv  # add new tables or columns to an existing instance; credentials and ids untouched
 CREDS_ONLY = "--creds-only" in sys.argv  # create missing credentials only; tables and the other ids untouched
+ROTATE = "--rotate-creds" in sys.argv  # rewrite the data of credentials that already exist (after a secret rotation)
 IDS_PATH = os.environ.get("AR_IDS_FILE") or os.path.join(OUT, "lab-ids.json")
 
 
@@ -125,8 +126,12 @@ def ensure_credentials(project, ids):
         if not cur and code == 403 and ids.get(key):
             print(f"credential '{name}': kept from the ids file ({ids[key]})"); continue
         if cur:
-            print(f"credential '{name}': exists ({cur['id']})")
             ids[key] = cur["id"]; ids[key + "Name"] = name
+            if ROTATE and not DRY and not (key in OPTIONAL and not os.environ.get(OPTIONAL[key])):
+                rc, out = org.api(TARGET, "PATCH", f"/credentials/{cur['id']}", {"name": name, "type": ctype, "data": data()})
+                print(f"credential '{name}': {'data rewritten' if rc == 200 else f'rewrite failed ({rc}) {str(out)[:160]}'} ({cur['id']})")
+            else:
+                print(f"credential '{name}': exists ({cur['id']})")
             continue
         if key in OPTIONAL and not os.environ.get(OPTIONAL[key]):
             print(f"credential '{name}': skipped ({OPTIONAL[key]} not in the environment)"); continue

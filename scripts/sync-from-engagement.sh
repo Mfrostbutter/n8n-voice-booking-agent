@@ -24,6 +24,9 @@ cp "$SRC/workflows/agentic-race/build/gen.py" "$SRC/workflows/agentic-race/build
 cp "$SRC/scripts/ar-golden-run.py" "$SRC/scripts/ar-seed.py" "$SRC/scripts/organize_workflows.py" "$SRC/scripts/secrets_env.py" "$DST/scripts/"
 cp "$SRC/scripts/canvas/zone_layout.py" "$SRC/scripts/canvas/layout_check.py" "$DST/scripts/canvas/"
 cp "$SRC/docs/agentic-race/04-workflow-catalogue.md" "$DST/docs/workflow-catalogue.md"
+# The call script and the realtime instructions the reference voice worker reads (docs/voice-worker.md).
+mkdir -p "$WF/worker"
+cp "$SRC/workflows/agentic-race/worker/script.en.json" "$SRC/workflows/agentic-race/worker/realtime-instructions.txt" "$WF/worker/"
 
 # The node policy skill and its checker, vendored from the harness so the
 # rule the workflows were built under travels with them. .agents/skills is

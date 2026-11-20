@@ -1,0 +1,217 @@
+{
+  "sessionArg": "sessionId",
+  "greeting": "Hello, this is the workshop's digital assistant. This conversation is handled by an artificial intelligence. You can ask for a human colleague at any time.",
+  "afterGreeting": "ask_pin",
+  "errorLine": "The booking system is unavailable right now. Would you like to speak to a colleague?",
+  "instructions": "You route a live phone call for a workshop appointment line. You never speak and never write text: for every caller utterance call exactly one tool, and the system speaks the right line. Flow: the caller is asked for a four-digit PIN first. When the caller says digits, call VerifyIdentity with them. After a successful verification the caller is asked for consent: on yes call Say with ask_need, on no call Say with consent_declined. When the caller wants an appointment, service or maintenance, call FindSlots. When the caller picks one of the offered times, call ChooseSlot with 1 for the first offered time or 2 for the second. After the read-back, when the caller says yes call BookAppointment; when the caller says no call FindSlots again. After a booking, when the caller needs nothing else or says goodbye, call EndCall. If the caller asks for a person, a human or an agent at any point, also before the PIN, call RequestAgent at once. If the caller has not given a PIN yet and says something else, call Say with ask_pin. If the audio contained no words (noise, echo, silence), call Say with wait. If the caller said words you could not make sense of, call Say with repeat. If the caller asks for something this line cannot do, call Say with not_supported.",
+  "lines": {
+    "ask_pin": "Before we start, please tell me your four-digit PIN.",
+    "verified": "Thank you, {state.name}. Your details are confirmed. To arrange your appointment I need to process your vehicle and contact data. Do you agree?",
+    "pin_retry": "That PIN did not match. Please say your four-digit PIN once more.",
+    "pin_failed": "I could not verify you. I am connecting you to a colleague, one moment please.",
+    "ask_need": "Thank you. How can I help with your service appointment?",
+    "consent_declined": "Without your agreement I cannot arrange an appointment here. Would you like to speak to a colleague?",
+    "offer_two": "At {state.dealer} I can offer {state.when1|en_when}, or {state.when2|en_when}. Which would you prefer?",
+    "offer_one": "At {state.dealer} I can offer {state.when1|en_when}. Would that work for you?",
+    "no_slots": "I could not find a free appointment at {state.dealer} in the coming days. Would you like to speak to a colleague?",
+    "readback": "That is {result.dealerName}, {result.when|en_when}. Shall I book it?",
+    "booked": "Your appointment is booked for {result.when|en_when}. Your booking reference is {result.confirmationCode}. Is there anything else I can help you with?",
+    "handover": "I am connecting you to a colleague, one moment please.",
+    "goodbye": "Thank you for calling. Goodbye.",
+    "repeat": "Sorry, I did not catch that. Could you say it again?",
+    "not_supported": "I can help with workshop appointments on this line. Would you like to book one, or speak to a colleague?",
+    "wait": ""
+  },
+  "say": {
+    "name": "Say",
+    "description": "Speaks one fixed line when no other tool fits.",
+    "lines": {
+      "wait": "the audio had no words in it: noise, echo, a cough or silence. Nothing is said.",
+      "ask_pin": "the caller has not given a PIN yet.",
+      "ask_need": "the caller agreed to the consent question.",
+      "consent_declined": "the caller refused consent.",
+      "repeat": "the caller said words but they made no sense for this step.",
+      "not_supported": "the caller asks for something other than a workshop appointment or a person."
+    }
+  },
+  "tools": [
+    {
+      "name": "VerifyIdentity",
+      "description": "Checks the four-digit PIN the caller said. Call it as soon as the caller says digits.",
+      "params": {
+        "pin": {
+          "type": "string",
+          "description": "The four digits the caller said, digits only"
+        }
+      },
+      "call": "VerifyIdentity",
+      "args": {
+        "pin": "{args.pin}",
+        "registrationPlate": ""
+      },
+      "capture": {
+        "name": "{result.greetingName}"
+      },
+      "outcomes": [
+        {
+          "when": {
+            "ok": true
+          },
+          "line": "verified"
+        },
+        {
+          "when": {
+            "error": "not_identified",
+            "attempts": 1
+          },
+          "line": "pin_retry"
+        },
+        {
+          "when": {
+            "error": "not_identified"
+          },
+          "line": "pin_failed",
+          "action": "handoff"
+        }
+      ]
+    },
+    {
+      "name": "FindSlots",
+      "description": "Finds free workshop appointments at the caller's retailer. Call it when the caller wants an appointment, or rejects the offered times.",
+      "params": {
+        "fromDate": {
+          "type": "string",
+          "description": "Earliest acceptable date as YYYY-MM-DD, or empty for the earliest available"
+        }
+      },
+      "call": "FindSlots",
+      "args": {
+        "serviceIds": "MAINT",
+        "fromDate": "{args.fromDate}"
+      },
+      "capture": {
+        "dealer": "{result.dealerName}",
+        "slot1": "{result.slots.0.slotId}",
+        "when1": "{result.slots.0.when}",
+        "slot2": "{result.slots.1.slotId}",
+        "when2": "{result.slots.1.when}"
+      },
+      "outcomes": [
+        {
+          "when": {
+            "ok": true,
+            "slots.1.slotId": "*"
+          },
+          "line": "offer_two"
+        },
+        {
+          "when": {
+            "ok": true,
+            "slots.0.slotId": "*"
+          },
+          "line": "offer_one"
+        },
+        {
+          "when": {
+            "ok": true
+          },
+          "line": "no_slots"
+        },
+        {
+          "when": {
+            "error": "not_identified"
+          },
+          "line": "ask_pin"
+        }
+      ]
+    },
+    {
+      "name": "ChooseSlot",
+      "description": "Records which offered time the caller picked. 1 is the first time offered, 2 the second.",
+      "params": {
+        "option": {
+          "type": "integer",
+          "enum": [
+            1,
+            2
+          ]
+        }
+      },
+      "call": "ConfirmSlot",
+      "args": {
+        "slotId": "{state.slot{args.option}}"
+      },
+      "capture": {
+        "slotId": "{result.slotId}"
+      },
+      "outcomes": [
+        {
+          "when": {
+            "ok": true
+          },
+          "line": "readback"
+        }
+      ]
+    },
+    {
+      "name": "BookAppointment",
+      "description": "Books the time that was read back. Call it only after the caller said yes to the read-back.",
+      "params": {},
+      "call": "BookAppointment",
+      "args": {
+        "slotId": "{state.slotId}",
+        "mobility": "",
+        "notes": ""
+      },
+      "outcomes": [
+        {
+          "when": {
+            "ok": true
+          },
+          "line": "booked"
+        }
+      ]
+    },
+    {
+      "name": "RequestAgent",
+      "description": "Hands the call to a human colleague. Call it whenever the caller asks for a person, at any point.",
+      "params": {
+        "summary": {
+          "type": "string",
+          "description": "One line on what the caller wanted and how far the call got"
+        }
+      },
+      "outcomes": [
+        {
+          "when": {},
+          "line": "handover",
+          "action": "handoff"
+        }
+      ]
+    },
+    {
+      "name": "EndCall",
+      "description": "Ends the call. Call it when the caller needs nothing else or says goodbye.",
+      "params": {},
+      "call": "EndCall",
+      "args": {
+        "reason": "caller_done"
+      },
+      "outcomes": [
+        {
+          "when": {
+            "ok": true,
+            "say": "*"
+          },
+          "say": "{result.say}",
+          "action": "end"
+        },
+        {
+          "when": {},
+          "line": "goodbye",
+          "action": "end"
+        }
+      ]
+    }
+  ]
+}

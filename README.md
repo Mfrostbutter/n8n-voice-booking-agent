@@ -7,23 +7,45 @@ dealer, books it, confirms it, or hands the caller to a person with the
 context attached. This is the n8n reference build.
 
 Lab build with synthetic data: every backend system is a mock on the same
-instance. Five scripted calls pass end to end, zero false confirmations.
+instance. Ten scripted calls pass end to end, zero false confirmations.
 Not a finished product: the shape to build an MVP on, one real connector at
 a time.
 
 **Stand it up on your own instance: [SETUP.md](SETUP.md).**
 
-## Two builds, two branches
+## Three builds, three branches
 
-| Branch | Build | Code nodes |
+| Branch | Build | Workflows |
 |---|---|---|
-| `release/v1-code-nodes` | The first public build (2026-10-21 morning). Rules and guards as Code nodes | 40 |
-| `release/v2-native-nodes` | The same behaviour as native nodes: If, Switch, Edit Fields, Crypto, Data Table. Prompts in the `ar_prompts` table | 2 |
+| `release/v1-code-nodes` | The first public build (2026-10-21 morning). Rules and guards as Code nodes (40) | 19 |
+| `release/v2-native-nodes` | The same behaviour as native nodes: If, Switch, Edit Fields, Crypto, Data Table. Prompts in the `ar_prompts` table | 19 |
+| `release/v3-scripted-voice` | The current build (2026-11-20): six journeys, PIN identity, the voice path with an MCP tool server, and the call script for the reference LiveKit worker | 33 |
 
-Both pass the same five scripted calls. Pick one with `git clone -b <branch>`.
-`main` moves; the release branches do not. The two builds use the same
-webhook paths and table names, so run one set per instance, or deploy the
-second into its own project with the first set unpublished.
+Pick one with `git clone -b <branch>`. `main` moves; the release branches do
+not. The builds use the same webhook paths and table names, so run one set
+per instance, or deploy the second into its own project with the first set
+unpublished.
+
+## What v3 adds over v2
+
+- Six journeys: book, assisted self-service, retailer callback, cancel,
+  reschedule, and handover to a person from any step.
+- Identity by a four-digit PIN (`VerifyIdentity`); the tools refuse to act
+  for an unverified session.
+- Deterministic guards around the model: a verified session moves on to
+  consent, a consent yes lands on the need question, a booking lookup takes
+  only a six-letter reference code. The gates run the tool a caller's words
+  imply; the model reads the result out.
+- A voice path: AR-50 to AR-57, with an MCP tool server (AR-52) that a
+  speech-to-speech model or a voice worker calls.
+- `workflows/voice-booking/worker/`: the call script and instructions for
+  the reference LiveKit worker. In scripted mode the caller hears the same
+  words and voice on every call. See [docs/voice-worker.md](docs/voice-worker.md).
+- Repeatable operations: the deploy matches a workflow by its recorded id
+  before its name, so a rename leaves no orphan holding a webhook path;
+  `build/setup.py --rotate-creds` rewrites existing credentials after a
+  secret rotation; the test runner cancels stale synthetic bookings before
+  each run, so a run starts from the same data every time.
 
 ## How it works
 
@@ -64,11 +86,13 @@ with inputs, outputs and guards: [docs/workflow-catalogue.md](docs/workflow-cata
 | `SETUP.md` | Requirements, setup script, deploy, seed, test |
 | `docs/architecture.md` | API contract, dialogue design, guards, data, security |
 | `docs/workflow-catalogue.md` | Every workflow, its inputs, outputs and the guards |
-| `workflows/voice-booking/` | 19 workflow JSON files with their canvas zone sidecars |
+| `workflows/voice-booking/` | 33 workflow JSON files with their canvas zone sidecars |
+| `workflows/voice-booking/worker/` | Call script and realtime instructions for the reference LiveKit worker |
+| `docs/voice-worker.md` | Running a phone call against this build with the reference worker |
 | `workflows/voice-booking/build/gen.py` | The generator. Edit this, never the JSON |
 | `workflows/voice-booking/build/setup.py` | Creates credentials and Data Tables on the target instance, writes the ids file |
 | `workflows/voice-booking/build/deploy.py` | Two-pass deploy, placement, publish |
-| `scripts/ar-golden-run.py` | Five scripted calls through the API; writes a scored report per run |
+| `scripts/ar-golden-run.py` | Ten scripted calls through the API; writes a scored report per run |
 | `scripts/organize_workflows.py`, `scripts/secrets_env.py` | Library the deploy script uses to place every workflow in its project and folder and to stop when the project cannot reach a credential or Data Table |
 | `scripts/canvas/` | Canvas layout scripts the generator runs: zone stickies and the layout check |
 | `scripts/node-policy.sh` | Node policy check over the workflow set: `RESULT: ok` or the findings |
@@ -105,12 +129,13 @@ credential.
 
 ## Testing
 
-`scripts/ar-golden-run.py` drives five scripted calls (PL happy path, ES
-caller asks for a person, EN unknown VIN, DE false-confirmation probe, ES
-transfer fails twice) and scores final action, booking, case status, handoff
+`scripts/ar-golden-run.py` drives ten scripted calls (PL happy path, GB
+keypad-entry booking, PL reschedule, GB cancel, GB callback, PL
+self-service, ES caller asks for a person, EN identification fails, DE
+false-confirmation probe, ES transfer fails twice) and scores final action, booking, case status, handoff
 reason, transfer retries, false-confirmation hits, handoff context and
 memory purge. Reports land in `data/voice-booking/runs/` (gitignored). Pass
-bar before any promotion: 5/5 twice in a row.
+bar before any promotion: 10/10 twice in a row.
 
 ## Node policy
 

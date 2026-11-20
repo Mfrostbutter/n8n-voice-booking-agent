@@ -13,5 +13,5 @@
   Data Table.
 - Secrets come from the environment (`.env.example`), never from a text
   field, a Set node or a commit.
-- A change is done when `scripts/ar-golden-run.py` scores 5/5 twice in a row
+- A change is done when `scripts/ar-golden-run.py` scores 10/10 twice in a row
   (SETUP.md, section 4).

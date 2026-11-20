@@ -23,7 +23,7 @@ a container `http://localhost:5678` also works.
 ## 2. Setup: credentials, Data Tables, ids file
 
 ```bash
-git clone -b release/v2-native-nodes <this repository>   # or release/v1-code-nodes
+git clone -b release/v3-scripted-voice <this repository>   # the current build; v1 and v2 are the earlier ones
 cd <repository>/workflows/voice-booking
 
 export N8N_URL=https://n8n.example.com        # no trailing slash
@@ -49,7 +49,9 @@ voice proof), ten Data Tables (`ar_sessions`, `ar_events`, `ar_markets`,
 `lab-ids.json`, the per-instance configuration
 the generator and the deploy script read. Re-running reuses what exists by
 name; `python3 build/setup.py --tables-only` adds a new table or column to
-an instance that already runs the set, leaving credentials alone. Secret values
+an instance that already runs the set, leaving credentials alone;
+`python3 build/setup.py --rotate-creds` rewrites the data of the credentials
+that already exist, for use after a secret rotation. Secret values
 go to n8n once and are never written to disk; keep them in your secret
 manager and export them for the session only.
 
@@ -89,16 +91,21 @@ curl -s -X POST -H "Authorization: Bearer $AR_GATEWAY_TOKEN" "$N8N_URL/webhook/a
 # health
 curl -s -H "Authorization: Bearer $AR_GATEWAY_TOKEN" "$N8N_URL/webhook/ar/v1/health"
 
-# the five scripted calls
+# the ten scripted calls
 cd ../..
 python3 scripts/ar-golden-run.py
 ```
 
-The runner drives five calls through the API (Polish happy path, Spanish
-caller asks for a person, English unknown VIN, German false-confirmation
-probe, Spanish transfer fails twice) and scores final action, booking, case
+The runner drives ten calls through the API (booking, keypad-entry booking,
+reschedule, cancel, callback, self-service, caller asks for a person,
+identification fails, false-confirmation probe, transfer fails twice) and
+scores final action, booking, case
 status, handoff reason, transfer retries, false confirmations and handoff
-context. Reports land in `data/voice-booking/runs/`. The pass bar is 5/5.
+context. It cancels stale synthetic bookings first, so every run starts
+from the same data. Reports land in `data/voice-booking/runs/`. The pass bar
+is 10/10.
+
+A phone call with the same words every time: [docs/voice-worker.md](docs/voice-worker.md).
 
 The memory-purge check needs a way to count rows in `ar_chat_memory`. Give
 the runner a command that prints the count for a session, for example:
