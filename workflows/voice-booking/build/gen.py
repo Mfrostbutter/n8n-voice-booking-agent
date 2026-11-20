@@ -58,7 +58,7 @@ TABLE_COLS = {
     "ar_mock_bookings": ["bookingRef","confirmationCode","slotId","dealerId","dealerName","vin","serviceType","mobility","startsAt","status","bookedAt","reservationId","serviceIds","movedFrom","customerRef","fulfilmentId"],
     "ar_mock_cases": ["caseId","correlationId","status","subject","classification","solution","delegatedReason","openedAt","lastUpdate","accountName","caseOrigin","description","serviceType","delegatedTo","callbackNote",
                       "caseCountry","accountId","assetId","vinOrFin","licensePlate","mileage","mileageUnit","assignedDealerId","type","topic","reason","primaryContact"],
-    "ar_mock_customers": ["vin","customerRef","accountName","greetingName","vehicleLabel","preferredDealerId","preferredDealerName","market","language","msisdn","plate","postcode","meId","cvrId","fin","pin"],
+    "ar_mock_customers": ["vin","customerRef","accountName","greetingName","vehicleLabel","preferredDealerId","preferredDealerName","market","language","msisdn","plate","postcode","meId","assetRef","fin","pin"],
     "ar_mock_dealers": ["dealerId","name","city","market","bookable"],
     "ar_proof_config": ["key","value"],
 }
@@ -431,12 +431,12 @@ def build_ar17():
 # Mocks
 # =============================================================================
 MOCK_CUSTOMERS = [
-    {"vin": "TST2970461A123456", "customerRef": "C-PL-004711", "accountName": "Anna Kowalska", "greetingName": "Pani Kowalska", "vehicleLabel": "GLC 300 4MATIC", "preferredDealerId": "PL-WAW-01", "preferredDealerName": "Dealer Warszawa Okęcie", "market": "PL", "language": "pl", "msisdn": "+48601234567", "plate": "WA12345", "postcode": "00-001", "meId": "", "cvrId": "", "fin": "", "pin": "4711"},
-    {"vin": "TST2970461A223344", "customerRef": "C-PL-004812", "accountName": "Piotr Nowak", "greetingName": "Panie Nowak", "vehicleLabel": "C 200", "preferredDealerId": "PL-WAW-02", "preferredDealerName": "Dealer Warszawa Wola", "market": "PL", "language": "pl", "msisdn": "+48601234999", "plate": "WB98765", "postcode": "01-100", "meId": "", "cvrId": "", "fin": "", "pin": "2580"},
-    {"vin": "TST2130421A654321", "customerRef": "C-ES-002310", "accountName": "Luis García", "greetingName": "Señor García", "vehicleLabel": "Clase E 220 d", "preferredDealerId": "ES-MAD-02", "preferredDealerName": "Dealer Madrid Castellana", "market": "ES", "language": "es", "msisdn": "+34612345678", "plate": "1234ABC", "postcode": "28001", "meId": "", "cvrId": "", "fin": "", "pin": "1379"},
-    {"vin": "TST1770871N998877", "customerRef": "C-DE-009902", "accountName": "Thomas Weber", "greetingName": "Herr Weber", "vehicleLabel": "A 200", "preferredDealerId": "DE-STR-01", "preferredDealerName": "Dealer Stuttgart Mitte", "market": "DE", "language": "de", "msisdn": "+4915112345678", "plate": "SAB1234", "postcode": "70173", "meId": "", "cvrId": "", "fin": "", "pin": "8642"},
-    {"vin": "TST2476011J112233", "customerRef": "C-GB-001177", "accountName": "Priya Patel", "greetingName": "Ms Patel", "vehicleLabel": "EQB 300", "preferredDealerId": "GB-LON-01", "preferredDealerName": "Dealer London West", "market": "GB", "language": "en", "msisdn": "+447700900123", "plate": "LK21XYZ", "postcode": "SW1A 1AA", "meId": "", "cvrId": "", "fin": "", "pin": "7391"},
-    {"vin": "TST2476011J445566", "customerRef": "C-GB-001290", "accountName": "David Hughes", "greetingName": "Mr Hughes", "vehicleLabel": "GLA 200", "preferredDealerId": "GB-LON-01", "preferredDealerName": "Dealer London West", "market": "GB", "language": "en", "msisdn": "+447700900456", "plate": "LM70ABC", "postcode": "W1A 1AA", "meId": "", "cvrId": "", "fin": "", "pin": "4826"},
+    {"vin": "TST2970461A123456", "customerRef": "C-PL-004711", "accountName": "Anna Kowalska", "greetingName": "Pani Kowalska", "vehicleLabel": "SUV 300", "preferredDealerId": "PL-WAW-01", "preferredDealerName": "Dealer Warszawa Okęcie", "market": "PL", "language": "pl", "msisdn": "+48601234567", "plate": "WA12345", "postcode": "00-001", "meId": "", "assetRef": "", "fin": "", "pin": "4711"},
+    {"vin": "TST2970461A223344", "customerRef": "C-PL-004812", "accountName": "Piotr Nowak", "greetingName": "Panie Nowak", "vehicleLabel": "Sedan 200", "preferredDealerId": "PL-WAW-02", "preferredDealerName": "Dealer Warszawa Wola", "market": "PL", "language": "pl", "msisdn": "+48601234999", "plate": "WB98765", "postcode": "01-100", "meId": "", "assetRef": "", "fin": "", "pin": "2580"},
+    {"vin": "TST2130421A654321", "customerRef": "C-ES-002310", "accountName": "Luis García", "greetingName": "Señor García", "vehicleLabel": "Sedan 220 d", "preferredDealerId": "ES-MAD-02", "preferredDealerName": "Dealer Madrid Castellana", "market": "ES", "language": "es", "msisdn": "+34612345678", "plate": "1234ABC", "postcode": "28001", "meId": "", "assetRef": "", "fin": "", "pin": "1379"},
+    {"vin": "TST1770871N998877", "customerRef": "C-DE-009902", "accountName": "Thomas Weber", "greetingName": "Herr Weber", "vehicleLabel": "Compact 200", "preferredDealerId": "DE-STR-01", "preferredDealerName": "Dealer Stuttgart Mitte", "market": "DE", "language": "de", "msisdn": "+4915112345678", "plate": "SAB1234", "postcode": "70173", "meId": "", "assetRef": "", "fin": "", "pin": "8642"},
+    {"vin": "TST2476011J112233", "customerRef": "C-GB-001177", "accountName": "Priya Patel", "greetingName": "Ms Patel", "vehicleLabel": "Electric SUV 300", "preferredDealerId": "GB-LON-01", "preferredDealerName": "Dealer London West", "market": "GB", "language": "en", "msisdn": "+447700900123", "plate": "LK21XYZ", "postcode": "SW1A 1AA", "meId": "", "assetRef": "", "fin": "", "pin": "7391"},
+    {"vin": "TST2476011J445566", "customerRef": "C-GB-001290", "accountName": "David Hughes", "greetingName": "Mr Hughes", "vehicleLabel": "Compact SUV 200", "preferredDealerId": "GB-LON-01", "preferredDealerName": "Dealer London West", "market": "GB", "language": "en", "msisdn": "+447700900456", "plate": "LM70ABC", "postcode": "W1A 1AA", "meId": "", "assetRef": "", "fin": "", "pin": "4826"},
 ]
 # Existing appointments for the reschedule and cancel scenarios. Re-seeding restores them.
 MOCK_BOOKINGS = [
@@ -483,7 +483,7 @@ MOCK_DEALERS = [
 def build_ar20():
     w = WF("ar-20-mock-crm", "AR-MOCK-CASE Customer account", "Lab stand-in for the CASE customer account. POST ar-mock/crm/customer-lookup {vin, msisdn} -> {found, ...} (VIN first, then the phone number). POST ar-mock/crm/customer-identify {pin, customerRef, plate} -> {found, ...}: the four-digit PIN of the account named by customerRef (a known caller) or by the registration plate (an unknown one). Synthetic rows in ar_mock_customers.")
     w.sticky("## Mock CASE customer account\nSynthetic customers in ar_mock_customers (seeded by AR-90). Lookup: VIN, then phone number. Identify: the four-digit PIN on the account (pin column), anchored by customerRef for a known caller or by the registration plate for an unknown one; a test-period stand-in until the identification rule is agreed (question 20). Real build: CASE account search in place of the table reads.", 0, -400, 700, 110)
-    shape = lambda name, x, y: w.set_json(name, "={{ $json.customerRef ? { found: true, vin: $json.vin, customerRef: $json.customerRef, accountName: $json.accountName, greetingName: $json.greetingName, vehicleLabel: $json.vehicleLabel, preferredDealerId: $json.preferredDealerId, preferredDealerName: $json.preferredDealerName, market: $json.market, language: $json.language, meId: $json.meId || '', cvrId: $json.cvrId || '', fin: $json.fin || '', plate: $json.plate || '' } : { found: false } }}", x, y)
+    shape = lambda name, x, y: w.set_json(name, "={{ $json.customerRef ? { found: true, vin: $json.vin, customerRef: $json.customerRef, accountName: $json.accountName, greetingName: $json.greetingName, vehicleLabel: $json.vehicleLabel, preferredDealerId: $json.preferredDealerId, preferredDealerName: $json.preferredDealerName, market: $json.market, language: $json.language, meId: $json.meId || '', assetRef: $json.assetRef || '', fin: $json.fin || '', plate: $json.plate || '' } : { found: false } }}", x, y)
     a = w.webhook("ReceiveLookup", "ar-mock/crm/customer-lookup", 0, 0, auth=False)
     g = w.dt("LookupByVin", "ar_mock_customers", "get", 260, 0, conditions=[("vin", "={{ String($json.body.vin || '-').toUpperCase().trim() }}")])
     f = w.if_node("FoundByVin", "={{ $json.customerRef }}", 390, 0, kind="string")
@@ -642,7 +642,7 @@ def build_ar21():
 
 def build_ar22():
     w = WF("ar-22-mock-case-system", "AR-MOCK-CASE Case", "Lab stand-in for the CASE case API. POST ar-mock/casesys/case {op: create|update|close|delegate, correlationId, caseId, ...} -> case (mandatory fields: accountName, caseOrigin, description, serviceType, plus the CASE booking prerequisites of 2026-10-23). POST ar-mock/casesys/appointments {vin, bookingRef} -> the account's booked appointments. Persists in ar_mock_cases.")
-    w.sticky("## Mock CASE case\nOne endpoint, op in the body. Case numbers are deterministic from the correlation ID (SHA-256), so a re-created case is the same case. delegate sets Delegated and delegatedTo (XCCC for a retailer callback). The appointment search reads the lab booking store. Real build: the case system's REST with OAuth2 client credentials.", 0, -400, 700, 110)
+    w.sticky("## Mock CASE case\nOne endpoint, op in the body. Case numbers are deterministic from the correlation ID (SHA-256), so a re-created case is the same case. delegate sets Delegated and delegatedTo (CALLBACK_DESK for a retailer callback). The appointment search reads the lab booking store. Real build: the case system's REST with OAuth2 client credentials.", 0, -400, 700, 110)
     a = w.webhook("ReceiveCaseOp", "ar-mock/casesys/case", 0, 0, auth=False)
     h = w.add("HashCorrelation", "n8n-nodes-base.crypto", 2, {"action": "hash", "type": "SHA256", "value": "={{ String($json.body.correlationId || Date.now()) }}", "dataPropertyName": "hash", "encoding": "hex"}, 260, 0)
     B = "$('ReceiveCaseOp').first().json.body"
@@ -659,7 +659,7 @@ def build_ar22():
         ("solution", keep("solution"), "string"), ("delegatedReason", keep("delegatedReason"), "string"),
         ("accountName", keep("accountName"), "string"), ("caseOrigin", keep("caseOrigin"), "string"),
         ("description", keep("description"), "string"), ("serviceType", keep("serviceType", "'CS'"), "string"),
-        ("delegatedTo", f"={{{{ {B}.delegatedTo || ({OP} === 'delegate' ? 'XCCC' : ($json.delegatedTo || '')) }}}}", "string"),
+        ("delegatedTo", f"={{{{ {B}.delegatedTo || ({OP} === 'delegate' ? 'CALLBACK_DESK' : ($json.delegatedTo || '')) }}}}", "string"),
         ("callbackNote", keep("callbackNote"), "string"),
         ("caseCountry", keep("caseCountry"), "string"), ("accountId", keep("accountId"), "string"), ("assetId", keep("assetId"), "string"), ("vinOrFin", keep("vinOrFin"), "string"),
         ("licensePlate", keep("licensePlate"), "string"), ("mileage", keep("mileage"), "string"), ("mileageUnit", keep("mileageUnit"), "string"), ("assignedDealerId", keep("assignedDealerId"), "string"),
@@ -707,7 +707,7 @@ def build_ar10():
         ("vehicleRef", "={{ $json.vin || '' }}", "string"), ("greetingName", "={{ $json.greetingName || '' }}", "string"), ("vehicleLabel", "={{ $json.vehicleLabel || '' }}", "string"),
         ("preferredDealerId", "={{ $json.preferredDealerId || '' }}", "string"), ("preferredDealerName", "={{ $json.preferredDealerName || '' }}", "string"),
         ("market", "={{ $json.market || '' }}", "string"), ("language", "={{ $json.language || '' }}", "string"),
-        ("meId", "={{ $json.meId || '' }}", "string"), ("cvrId", "={{ $json.cvrId || '' }}", "string"), ("fin", "={{ $json.fin || '' }}", "string"), ("plate", "={{ $json.plate || '' }}", "string")], 520, -80)
+        ("meId", "={{ $json.meId || '' }}", "string"), ("assetRef", "={{ $json.assetRef || '' }}", "string"), ("fin", "={{ $json.fin || '' }}", "string"), ("plate", "={{ $json.plate || '' }}", "string")], 520, -80)
     e = w.return_error("ReturnCrmError", 520, 120)
     w.chain(t, h)
     w.link(h, s, 0)
@@ -788,7 +788,7 @@ def build_ar12():
 
 def build_ar13():
     w = WF("ar-13-book-appointment", "AR-13 Tool: Book appointment", "Agent tool. Writes the chosen timeslot and fulfilment to the DealerBook reservation (PATCH), submits the booking (POST bookings) and stores the DealerBook booking id and the six-letter reference code on the session. Inputs: sessionId (plumbed), slotId, mobility, notes. Returns {ok, confirmationCode (the reference code), bookingId, when, dealerName} or {ok:false, error}. Idempotent per session and slot.")
-    w.sticky("## AR-13 BookAppointment\nBookingGate is the only place a booking can start: the slot must be one offered in this call, read back in CONFIRM, and confirmed in a later turn. Then the API V2 order: PATCH the timeslot (and the fulfilment when the caller asked for mobility) onto the reservation, POST the booking with an idempotency key. The booking id goes to the session as bookingRef, the six-letter reference code as confirmationCode; the spoken confirmation is built from this result, never from the model. A booking error is a retailer callback (CAC work instruction), not a handover.", 0, -400, 820, 140)
+    w.sticky("## AR-13 BookAppointment\nBookingGate is the only place a booking can start: the slot must be one offered in this call, read back in CONFIRM, and confirmed in a later turn. Then the API V2 order: PATCH the timeslot (and the fulfilment when the caller asked for mobility) onto the reservation, POST the booking with an idempotency key. The booking id goes to the session as bookingRef, the six-letter reference code as confirmationCode; the spoken confirmation is built from this result, never from the model. A booking error is a retailer callback (contact-center work instruction), not a handover.", 0, -400, 820, 140)
     t = w.sub_trigger([("sessionId","string"),("slotId","string"),("mobility","string"),("notes","string")])
     g = w.dt("LoadSession", "ar_sessions", "get", 260, 0, conditions=[("sessionId", "={{ $json.sessionId }}")])
     wanted = "String($('ToolInput').first().json.slotId || '').trim()"
@@ -842,7 +842,7 @@ def build_ar13():
         ("serviceType", "={{ $('BookingRequest').first().json.serviceType }}", "string"),
         ("mobility", "={{ $('BookingRequest').first().json.fulfilmentId }}", "string"),
         ("note", "Booked. Read the six-letter booking reference back to the caller slowly, letter by letter, and tell them DealerBook sends the confirmation by SMS or email.", "string")], 1690, -180)
-    # A taken slot is retried with FindSlots; any other booking error becomes a retailer callback (CAC work instruction), not a handover.
+    # A taken slot is retried with FindSlots; any other booking error becomes a retailer callback (contact-center work instruction), not a handover.
     conflict = "JSON.stringify($json.error || {}).includes('409')"
     e = w.set_fields("ReturnBookError", [
         ("ok", False, "boolean"),
@@ -910,7 +910,7 @@ def build_ar14():
 CASE_FIELDS = ["op","correlationId","caseId","subject","classification","status","solution","delegatedReason","accountName","caseOrigin","description","serviceType","delegatedTo","callbackNote",
                # CASE case prerequisites (Confluence export 2026-10-23): country, account, vehicle, dealer, classification, primary contact
                "caseCountry","accountId","assetId","vinOrFin","licensePlate","mileage","mileageUnit","assignedDealerId","type","topic","reason","primaryContact"]
-# Free-text fields of the case. The CAC work instruction forbids personal data in free text: e-mail addresses, phone numbers, VINs and postcodes are masked before the write.
+# Free-text fields of the case. The contact-center work instruction forbids personal data in free text: e-mail addresses, phone numbers, VINs and postcodes are masked before the write.
 CASE_FREE_TEXT = ["description", "solution", "delegatedReason", "callbackNote"]
 # Classification placeholders: the PROD_GEN table with the values is an image in the export (question 30).
 CASE_TYPE, CASE_TOPIC, CASE_REASON = "Appointment Booking", "Service appointment", "Maintenance"
@@ -921,8 +921,8 @@ SCRUB_JS = ("String(%s || '').replace(/[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+/g, '[email
             ".replace(/(?<![\\w-])\\d{2}-\\d{3}(?![\\w-])/g, '[postcode]')")
 
 def build_ar15():
-    w = WF("ar-15-case-system", "AR-15 CASE case create, update, close or delegate", "Writes the CASE (CRM) case. Inputs: op (create|update|close|delegate), correlationId, caseId, subject, classification, status, solution, delegatedReason, accountName, caseOrigin (IN_CAR|IVR), description, serviceType (CS|DMS|RSA), delegatedTo (XCCC for a retailer callback), callbackNote, and the booking prerequisites of the CASE case data (caseCountry, accountId, assetId, vinOrFin, licensePlate, mileage, mileageUnit, assignedDealerId, type, topic, reason, primaryContact). Free text is scrubbed of personal data before the write. Returns {ok, caseId, status} or {ok:false, error}.")
-    w.sticky("## AR-15 CASE case\nOne case per call, created at entry with the mandatory fields and the booking prerequisites of the CASE case data (2026-10-23): country, account, asset (CVR), VIN or FIN, plate, mileage, assigned dealer, status In Progress, type, topic, reason and the primary contact. Updated with the context before a handover, delegated to XCCC for a retailer callback, closed at the end. ScrubFreeText masks e-mail addresses, phone numbers, VINs and postcodes in the free-text fields (CAC rule: never personal data in free text). A standard REST API behind the mock.", 0, -400, 760, 140)
+    w = WF("ar-15-case-system", "AR-15 CASE case create, update, close or delegate", "Writes the CASE (CRM) case. Inputs: op (create|update|close|delegate), correlationId, caseId, subject, classification, status, solution, delegatedReason, accountName, caseOrigin (IN_CAR|IVR), description, serviceType (CS|DMS|RSA), delegatedTo (CALLBACK_DESK for a retailer callback), callbackNote, and the booking prerequisites of the CASE case data (caseCountry, accountId, assetId, vinOrFin, licensePlate, mileage, mileageUnit, assignedDealerId, type, topic, reason, primaryContact). Free text is scrubbed of personal data before the write. Returns {ok, caseId, status} or {ok:false, error}.")
+    w.sticky("## AR-15 CASE case\nOne case per call, created at entry with the mandatory fields and the booking prerequisites of the CASE case data (2026-10-23): country, account, asset, VIN or FIN, plate, mileage, assigned dealer, status In Progress, type, topic, reason and the primary contact. Updated with the context before a handover, delegated to CALLBACK_DESK for a retailer callback, closed at the end. ScrubFreeText masks e-mail addresses, phone numbers, VINs and postcodes in the free-text fields (contact-center rule: never personal data in free text). A standard REST API behind the mock.", 0, -400, 760, 140)
     t = w.sub_trigger([(f, "string") for f in CASE_FIELDS])
     sc = w.set_fields("ScrubFreeText", [(f, "={{ " + SCRUB_JS % ("$json." + f) + " }}", "string") for f in CASE_FREE_TEXT], 260, 0, keep=True)
     h = w.http_post("CallCaseSystem", MOCK + "/casesys/case", "={{ JSON.stringify($json) }}", 520, 0)
@@ -965,7 +965,7 @@ def build_ar18():
               values={"customerRef": "={{ $json.customerRef }}", "vehicleRef": "={{ $json.vin || '' }}", "greetingName": "={{ $json.greetingName || '' }}", "vehicleLabel": "={{ $json.vehicleLabel || '' }}",
                       "dealerId": "={{ $json.preferredDealerId || '' }}", "dealerName": "={{ $json.preferredDealerName || '' }}", "verified": True})
     C = "$('CallIdentify').first().json"
-    uc = w.exec_wf("UpdateCaseAccount", "ar-15-case-system", case_inputs(op="update", correlationId=f"={{{{ {S}.correlationId }}}}", caseId=f"={{{{ {S}.caseId }}}}", accountName=f"={{{{ {C}.accountName || '' }}}}", accountId=f"={{{{ {C}.customerRef || '' }}}}", assetId=f"={{{{ {C}.cvrId || '' }}}}", vinOrFin=f"={{{{ {C}.vin || {C}.fin || '' }}}}",
+    uc = w.exec_wf("UpdateCaseAccount", "ar-15-case-system", case_inputs(op="update", correlationId=f"={{{{ {S}.correlationId }}}}", caseId=f"={{{{ {S}.caseId }}}}", accountName=f"={{{{ {C}.accountName || '' }}}}", accountId=f"={{{{ {C}.customerRef || '' }}}}", assetId=f"={{{{ {C}.assetRef || '' }}}}", vinOrFin=f"={{{{ {C}.vin || {C}.fin || '' }}}}",
         licensePlate=f"={{{{ {C}.plate || '' }}}}", assignedDealerId=f"={{{{ {C}.preferredDealerId || '' }}}}", primaryContact=f"={{{{ {C}.accountName || '' }}}}"), 1300, -120)
     ok = w.set_fields("ReturnIdentified", [("ok", True, "boolean"), ("known", True, "boolean"), ("greetingName", f"={{{{ {C}.greetingName || '' }}}}", "string"), ("vehicleLabel", f"={{{{ {C}.vehicleLabel || '' }}}}", "string"),
         ("preferredDealerName", f"={{{{ {C}.preferredDealerName || '' }}}}", "string"),
@@ -1104,7 +1104,7 @@ def build_ar26():
 
 
 def build_ar27():
-    w = WF("ar-27-request-callback", "AR-27 Tool: Request retailer callback", "Agent tool. Logs the retailer callback in the CASE case and delegates the case to XCCC (joint scope step 5; no DealerBook). Inputs: sessionId (plumbed), reason, preferredTime. CallbackGate: read back in state CALLBACK, logged only after the caller's yes in a later turn. Returns {ok, caseId} or {ok:false, error}.")
+    w = WF("ar-27-request-callback", "AR-27 Tool: Request retailer callback", "Agent tool. Logs the retailer callback in the CASE case and delegates the case to CALLBACK_DESK (joint scope step 5; no DealerBook). Inputs: sessionId (plumbed), reason, preferredTime. CallbackGate: read back in state CALLBACK, logged only after the caller's yes in a later turn. Returns {ok, caseId} or {ok:false, error}.")
     w.sticky("## AR-27 RequestCallback\nThe callback is a case delegation, not a transfer: the dealer calls the customer back. Used when the caller asks for it or when the dealer cannot be booked online.", 0, -400, 760, 100)
     t = w.sub_trigger([("sessionId","string"),("reason","string"),("preferredTime","string")])
     g = w.dt("LoadSession", "ar_sessions", "get", 260, 0, conditions=[("sessionId", "={{ $json.sessionId }}")])
@@ -1117,7 +1117,7 @@ def build_ar27():
     rv = w.set_fields("ReplyNotVerified", NOT_VERIFIED, 780, 280)
     r0 = w.set_fields("ReplyAlreadyLogged", [("ok", True, "boolean"), ("already", True, "boolean"), ("message", "The callback is already logged in this call. Tell the caller the dealer will call; do not log it again.", "string")], 780, 140)
     r1 = w.set_fields("ReplyNotConfirmed", [("ok", False, "boolean"), ("error", "not_confirmed", "string"), ("message", "The caller has not confirmed the callback yet. Read back the dealer, the reason and the preferred time, set state CALLBACK, and call RequestCallback only in the next turn after the caller says yes.", "string")], 780, 280)
-    d = w.exec_wf("DelegateCase", "ar-15-case-system", case_inputs(op="delegate", correlationId="={{ $json.correlationId }}", caseId="={{ $json.caseId }}", status="Delegated", delegatedTo="XCCC",
+    d = w.exec_wf("DelegateCase", "ar-15-case-system", case_inputs(op="delegate", correlationId="={{ $json.correlationId }}", caseId="={{ $json.caseId }}", status="Delegated", delegatedTo="CALLBACK_DESK",
         delegatedReason="={{ 'Retailer callback requested by the customer via voice assistant. Dealer ' + ($json.dealerName || $json.dealerId || 'preferred') + '.' }}",
         callbackNote=f"={{{{ ['reason=' + String({I}.reason || ''), 'preferredTime=' + String({I}.preferredTime || ''), 'dealer=' + ($json.dealerName || $json.dealerId || ''), 'vehicle=' + ($json.vehicleLabel || '')].join('; ').slice(0, 500) }}}}"), 780, 0)
     dk = w.if_node("DelegateOk", "={{ $json.ok === true }}", 1040, 0)
@@ -1170,7 +1170,7 @@ def build_ar01():
     cc = w.exec_wf("CreateCase", "ar-15-case-system", case_inputs(op="create", correlationId="={{ $('ParseStart').first().json.correlationId }}", subject="Appointment request via voice assistant",
         classification="Appointment Booking", status="In Progress", accountName="={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.accountName : '') || '' }}",
         caseOrigin="={{ $('ParseStart').first().json.vin ? 'IN_CAR' : 'IVR' }}", description="={{ 'Service appointment request via voice assistant (' + ($('ParseStart').first().json.vin ? 'in-car call' : 'IVR') + ', market ' + $('ResolveMarket').first().json.market + ')' }}", serviceType="CS",
-        caseCountry="={{ $('ResolveMarket').first().json.market }}", accountId="={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.customerRef : '') || '' }}", assetId="={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.cvrId : '') || '' }}",
+        caseCountry="={{ $('ResolveMarket').first().json.market }}", accountId="={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.customerRef : '') || '' }}", assetId="={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.assetRef : '') || '' }}",
         vinOrFin="={{ $('ParseStart').first().json.vin || ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.vehicleRef : '') || '' }}", licensePlate="={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.plate : '') || '' }}",
         mileageUnit="={{ $('ResolveMarket').first().json.market === 'GB' ? 'mi' : 'km' }}", assignedDealerId="={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.preferredDealerId : '') || '' }}",
         type=CASE_TYPE, topic=CASE_TOPIC, reason=CASE_REASON, primaryContact="={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.accountName : '') || '' }}"), 1820, -40)
@@ -1685,7 +1685,7 @@ def build_ar03():
         ("solution", "={{ 'Appointment ' + $json.appointmentRef + ' cancelled via voice assistant. Confirmation sent by DealerBook.' }}", "string"),
         ("delegatedReason", "", "string")], 1300, 280, keep=True)
     ocb = w.set_fields("OnCallbackLogged", [("caseStatus", "Delegated", "string"), ("solution", "", "string"),
-        ("delegatedReason", "={{ 'Retailer callback requested; delegated to XCCC for ' + ($json.dealerName || $json.dealerId || 'the preferred dealer') + '.' }}", "string")], 1300, 420, keep=True)
+        ("delegatedReason", "={{ 'Retailer callback requested; delegated to CALLBACK_DESK for ' + ($json.dealerName || $json.dealerId || 'the preferred dealer') + '.' }}", "string")], 1300, 420, keep=True)
     oss = w.set_fields("OnSelfService", [("caseStatus", "Resolved", "string"), ("solution", "Assisted self-service: the customer was given the instructions to book in the app or on the website. Nothing sent.", "string"),
         ("delegatedReason", "", "string")], 1300, 560, keep=True)
     oh = w.set_fields("OnHandedOff", [("caseStatus", "Delegated", "string"), ("solution", "", "string"),
@@ -1825,7 +1825,7 @@ MARKET_ROWS = [
 ]
 CODE_ROWS = [
     ("intent", "BOOK", "B", "APPT_BOOK", "New service appointment"), ("intent", "RESCHEDULE", "R", "APPT_RESCHEDULE", "Move an existing appointment"),
-    ("intent", "CANCEL", "C", "APPT_CANCEL", "Cancel an existing appointment"), ("intent", "CALLBACK", "K", "RETAILER_CALLBACK", "Retailer callback via the case (XCCC)"),
+    ("intent", "CANCEL", "C", "APPT_CANCEL", "Cancel an existing appointment"), ("intent", "CALLBACK", "K", "RETAILER_CALLBACK", "Retailer callback via the case (CALLBACK_DESK)"),
     ("intent", "SELF_SERVICE", "S", "SELF_SERVICE", "Assisted self-service instructions"), ("intent", "OTHER", "O", "OTHER", "Outside appointment booking"), ("intent", "UNKNOWN", "U", "unknown", "Intent not identified"),
     ("reason", "CALLER_REQUEST", "CR", "CUSTOMER_REQUEST", "Caller asked for a person"), ("reason", "SCENARIO_REQUIRES_AGENT", "SA", "PROCESS", "Non-bookable dealer, callback or out-of-scope request"),
     ("reason", "NOT_UNDERSTOOD", "NU", "LOW_CONFIDENCE", "Two consecutive turns not understood"), ("reason", "BACKEND_UNAVAILABLE", "BU", "SYSTEM_ERROR", "CRM, DealerBook or case system unavailable"),
@@ -1883,12 +1883,12 @@ PROMPT_ROWS = [
             "Wizytę mogą Państwo umówić samodzielnie w aplikacji the manufacturer me w sekcji Serwis lub na stronie the manufacturer w zakładce Umów wizytę serwisową: wystarczy wybrać pojazd, dealera, rodzaj usługi i termin, a potwierdzenie przyjdzie e-mailem lub SMS-em.",
             "Puede reservar la cita usted mismo en la aplicación the manufacturer me, en Servicio, o en la web de the manufacturer en Reservar cita de taller: elija su vehículo, su concesionario, el servicio y una hora, y recibirá la confirmación por correo o SMS.",
             "Sie können den Termin selbst in der the manufacturer me App unter Service oder auf der the manufacturer Website unter Werkstatttermin buchen: Fahrzeug, Händler, Leistung und Zeit wählen, die Bestätigung kommt per E-Mail oder SMS.",
-            note="Assisted self-service instructions, read out verbatim when the state becomes SELF_SERVICE (guard self_service_line). Placeholder until the CAC work instruction text arrives (question 27)."),
+            note="Assisted self-service instructions, read out verbatim when the state becomes SELF_SERVICE (guard self_service_line). Placeholder until the contact-center work instruction text arrives (question 27)."),
     _prompt("repeat", "Sorry, could you repeat that?", "Przepraszam, czy mogą Państwo powtórzyć?", "Disculpe, ¿puede repetirlo?", "Entschuldigung, können Sie das wiederholen?", note="Spoken when the model returned an empty reply."),
     _prompt("techError", "Sorry, I have a technical problem. I will connect you to a colleague.", "Przepraszam, mam problem techniczny. Połączę Państwa z konsultantem.",
             "Disculpe, tengo un problema técnico. Le paso con un agente.", "Entschuldigung, ich habe ein technisches Problem. Ich verbinde Sie mit einem Mitarbeiter.", note="Spoken when the dialogue agent fails (PLATFORM_ERROR handoff)."),
     _prompt("confirmation", "Workshop: service appointment confirmed. Code {code}, {dealer}, slot {slot}.", "Serwis: wizyta serwisowa potwierdzona. Kod {code}, {dealer}, termin {slot}.",
-            "Taller: cita de taller confirmada. Código {code}, {dealer}, cita {slot}.", "Werkstatt: Werkstatttermin bestätigt. Code {code}, {dealer}, Termin {slot}.", note="Retired 2026-10-22: DealerBook sends the confirmation via Cusmes. Kept for AR-16, which is no longer called."),
+            "Taller: cita de taller confirmada. Código {code}, {dealer}, cita {slot}.", "Werkstatt: Werkstatttermin bestätigt. Code {code}, {dealer}, Termin {slot}.", note="Retired 2026-10-22: DealerBook sends the confirmation via the notification service. Kept for AR-16, which is no longer called."),
     _prompt("retryTransfer", "One moment, I am trying the transfer again.", "Chwileczkę, próbuję ponownie połączyć z konsultantem.", "Un momento, vuelvo a intentar pasarle con un agente.", "Einen Moment, ich versuche die Weiterleitung noch einmal.", note="First REFER failure."),
     _prompt("transferFailed", "I could not transfer you. A colleague will call you back. Goodbye.", "Nie udało mi się połączyć. Konsultant oddzwoni do Państwa. Do widzenia.",
             "No he podido transferirle. Un agente le devolverá la llamada. Adiós.", "Die Weiterleitung ist fehlgeschlagen. Ein Mitarbeiter ruft Sie zurück. Auf Wiederhören.", note="Second REFER failure: the call ends."),
@@ -2250,7 +2250,7 @@ ZONES = {
          "rows": [["ReceiveEnd", "ValidateEnd", "IsValid"], [None, None, "RespondInvalid"]]},
         {"title": "Load state", "color": 3, "body": "Prompts for the spoken lines; the session row decides the outcome.",
          "rows": [["LoadPrompts", "Prompts", "LoadSession", "SessionFound"], [None, None, None, "RespondNotFound"]]},
-        {"title": "Outcome", "color": 3, "body": "CaseOutcome in order: booked, moved or cancelled (Resolved, DealerBook sent the confirmation); callback logged (Delegated to XCCC); self-service (Resolved); ended in HANDOFF or a handoff end reason (Delegated); otherwise Closed.",
+        {"title": "Outcome", "color": 3, "body": "CaseOutcome in order: booked, moved or cancelled (Resolved, DealerBook sent the confirmation); callback logged (Delegated to CALLBACK_DESK); self-service (Resolved); ended in HANDOFF or a handoff end reason (Delegated); otherwise Closed.",
          "rows": [["CaseOutcome", "DecideOutcome", "CloseCase"], ["OnBooked"], ["OnMoved"], ["OnCancelled"], ["OnCallbackLogged"], ["OnSelfService"], ["OnHandedOff"], ["OnClosed"]]},
         {"title": "Close", "color": 4, "body": "Chat memory purged, session finalised, end logged. Nothing of the call is retained beyond ar_events.",
          "rows": [["PurgeMemory", "FinalizeSession", "LogEnd", "RespondEnd"]]},
@@ -2294,11 +2294,11 @@ ZONES = {
          "rows": [["AssemblePayload", "FitsBudget", "EncodeUui", "StoreHandoff", "UpdateCaseContext", "ReturnHandoff"], [None, "DropCaseId"]]},
     ],
     "ar-15-case-system": [
-        {"title": "CASE case", "color": 3, "body": "Create at entry with the mandatory fields and the CASE booking prerequisites, update with the handover context, delegate to XCCC for a callback, close at the end. ScrubFreeText masks e-mail, phone, VIN and postcode in the free-text fields. Standard CRM case REST behind the mock.",
+        {"title": "CASE case", "color": 3, "body": "Create at entry with the mandatory fields and the CASE booking prerequisites, update with the handover context, delegate to CALLBACK_DESK for a callback, close at the end. ScrubFreeText masks e-mail, phone, VIN and postcode in the free-text fields. Standard CRM case REST behind the mock.",
          "rows": [["ToolInput", "ScrubFreeText", "CallCaseSystem", "ShapeCase"], [None, None, None, "ReturnCaseError"]]},
     ],
     "ar-16-send-confirmation": [
-        {"title": "Send confirmation", "color": 4, "body": "Retired 2026-10-22: DealerBook sends the confirmation via Cusmes in every journey. Kept for a market where the solution must send; not called by AR-03.",
+        {"title": "Send confirmation", "color": 4, "body": "Retired 2026-10-22: DealerBook sends the confirmation via the notification service in every journey. Kept for a market where the solution must send; not called by AR-03.",
          "rows": [["ToolInput", "CallComms", "ShapeComms"], [None, None, "ReturnCommsError"]]},
     ],
     "ar-17-log-event": [
@@ -2380,7 +2380,7 @@ ZONES = {
     "ar-27-request-callback": [
         {"title": "Callback gate", "color": 5, "body": "Not verified (no PIN yet), already logged, or not yet confirmed (state CALLBACK from the previous turn). Only Proceed delegates.",
          "rows": [["ToolInput", "LoadSession", "CallbackGate"], [None, None, "ReplyNotVerified"], [None, None, "ReplyAlreadyLogged"], [None, None, "ReplyNotConfirmed"]]},
-        {"title": "Delegate", "color": 3, "body": "The CASE case is delegated to XCCC with the callback note; callbackAt and state CALLBACK_LOGGED on the session. No DealerBook.",
+        {"title": "Delegate", "color": 3, "body": "The CASE case is delegated to CALLBACK_DESK with the callback note; callbackAt and state CALLBACK_LOGGED on the session. No DealerBook.",
          "rows": [["DelegateCase", "DelegateOk", "StoreCallback", "ReturnLogged"], [None, None, "ReturnDelegateError"]]},
     ],
     "ar-50-twilio-voice": [

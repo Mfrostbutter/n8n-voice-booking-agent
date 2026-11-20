@@ -16,7 +16,7 @@
     },
     {
       "title": "Delegate",
-      "body": "The CASE case is delegated to XCCC with the callback note; callbackAt and state CALLBACK_LOGGED on the session. No DealerBook.",
+      "body": "The CASE case is delegated to CALLBACK_DESK with the callback note; callbackAt and state CALLBACK_LOGGED on the session. No DealerBook.",
       "color": 3,
       "nodes": [
         "DelegateCase",

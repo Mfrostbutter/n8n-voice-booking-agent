@@ -136,6 +136,24 @@ TERMS = [
     ("byoc.euc1.genesys.example", "cc.example"),
     ("byoc.euw2.genesys.example", "cc.example"),
     ("Genesys", "contact center"),
+    # callback desk, notification service, asset record, work instruction
+    ("XCCC", "CALLBACK_DESK"),
+    ("Cusmes", "the notification service"),
+    ("asset (CVR)", "asset"),
+    ("CVR id", "asset id"),
+    ("cvrId", "assetRef"),
+    ("CVR", "asset record"),
+    ("CAC work instruction", "contact-center work instruction"),
+    ("CAC instruction", "contact-center instruction"),
+    ("CAC rule", "contact-center rule"),
+    ("CAC", "contact-center"),
+    # vehicle model names in the mock data
+    ('"vehicleLabel": "GLC 300 4MATIC"', '"vehicleLabel": "SUV 300"'),
+    ('"vehicleLabel": "C 200"', '"vehicleLabel": "Sedan 200"'),
+    ('"vehicleLabel": "Clase E 220 d"', '"vehicleLabel": "Sedan 220 d"'),
+    ('"vehicleLabel": "A 200"', '"vehicleLabel": "Compact 200"'),
+    ('"vehicleLabel": "EQB 300"', '"vehicleLabel": "Electric SUV 300"'),
+    ('"vehicleLabel": "GLA 200"', '"vehicleLabel": "Compact SUV 200"'),
     # brand and customer
     ("The Mercedes voice-booking conversion on 2026-10-21", "The conversion of this repository's workflow set on 2026-10-21"),
     ("the MB instance", "the production instance"),
@@ -262,7 +280,7 @@ AR_FOLDER=Voice Booking Agent
 EOF
 
 # Nothing customer-specific, personal or lab-bound may remain.
-PATTERN='[Mm]ercedes|MERCEDES|Benz|BENZ|\bMB\b|[Ss]irius|SIRIUS|[Dd]sd|DSD|[Gg]enesys|GENESYS|Nexus|Model Garden|Salesforce|\bGIS\b|Daimler|Agentic Race|agentic-race|\bRace\b|jury|Jury|criteri|W1K|WDD|W1N|WDB|Frosty|frosty|Frostbutter|Marta|Vivek|Dawid|Biniam|Eitler|Malaika|Daniele|Rajeshwari|Preeth|Zacharias|MASSP4AI|infisical|Infisical|podman|pg-lab|netbird|ag-ingest|10\.10\.|n8n-fde-harness|[a-z]+labs\.com|\.claude'
+PATTERN='XCCC|Cusmes|CVR|cvr|\bCAC\b|4MATIC|EQB|\bGL[ACE]\b|Clase E|[Mm]ercedes|MERCEDES|Benz|BENZ|\bMB\b|[Ss]irius|SIRIUS|[Dd]sd|DSD|[Gg]enesys|GENESYS|Nexus|Model Garden|Salesforce|\bGIS\b|Daimler|Agentic Race|agentic-race|\bRace\b|jury|Jury|criteri|W1K|WDD|W1N|WDB|Frosty|frosty|Frostbutter|Marta|Vivek|Dawid|Biniam|Eitler|Malaika|Daniele|Rajeshwari|Preeth|Zacharias|MASSP4AI|infisical|Infisical|podman|pg-lab|netbird|ag-ingest|10\.10\.|n8n-fde-harness|[a-z]+labs\.com|\.claude'
 if grep -rnE "$PATTERN" "$DST" --exclude-dir=.git --exclude-dir=.agents --exclude=sync-from-engagement.sh --exclude=secrets_env.py; then
   echo "sync refused: customer or private terms above" >&2; exit 1
 fi

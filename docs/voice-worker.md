@@ -103,10 +103,15 @@ scripted line for it. What happens next depends on `N8N_PATH_HANDOFF`:
   UUI with AR-14 and sends the SIP transfer through the LiveKit node's SIP
   Transfer Participant operation, with the UUI as a `User-to-User` header.
 
-That handover workflow is not part of this repository: it needs the LiveKit
-community node, and this set carries native nodes only. The contract is in
-the worker README. Transfers need a SIP trunk whose provider accepts SIP
-REFER; LiveKit refuses a transfer on a number rented from LiveKit.
+That handover workflow needs the LiveKit community node, and this set
+carries native nodes only, so it ships with the node package instead:
+`examples/voice-booking-handoff.json` in
+https://github.com/Mfrostbutter/n8n-nodes-livekit. Import it next to this
+set, fill its four placeholders (two credential ids, the `ar_sessions` table
+id, the AR-14 workflow id), set the transfer target, and export
+`N8N_PATH_HANDOFF=/ar/lk/v1/handoff` for the worker. Transfers need a SIP
+trunk whose provider accepts SIP REFER; LiveKit refuses a transfer on a
+number rented from LiveKit.
 
 ## Several workers, one number
 

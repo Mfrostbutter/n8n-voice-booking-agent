@@ -622,7 +622,7 @@
             "callbackNote": "",
             "caseCountry": "",
             "accountId": "={{ $('CallIdentify').first().json.customerRef || '' }}",
-            "assetId": "={{ $('CallIdentify').first().json.cvrId || '' }}",
+            "assetId": "={{ $('CallIdentify').first().json.assetRef || '' }}",
             "vinOrFin": "={{ $('CallIdentify').first().json.vin || $('CallIdentify').first().json.fin || '' }}",
             "licensePlate": "={{ $('CallIdentify').first().json.plate || '' }}",
             "mileage": "",

@@ -587,7 +587,7 @@
             {
               "id": "afbb3fa6-efb2-56ae-8f40-496e12913ce8",
               "name": "delegatedReason",
-              "value": "={{ 'Retailer callback requested; delegated to XCCC for ' + ($json.dealerName || $json.dealerId || 'the preferred dealer') + '.' }}",
+              "value": "={{ 'Retailer callback requested; delegated to CALLBACK_DESK for ' + ($json.dealerName || $json.dealerId || 'the preferred dealer') + '.' }}",
               "type": "string"
             }
           ]
@@ -1816,7 +1816,7 @@
     },
     {
       "parameters": {
-        "content": "## Outcome\n\nCaseOutcome in order: booked, moved or cancelled (Resolved, DealerBook sent the confirmation); callback logged (Delegated to XCCC); self-service (Resolved); ended in HANDOFF or a handoff end reason (Delegated); otherwise Closed.",
+        "content": "## Outcome\n\nCaseOutcome in order: booked, moved or cancelled (Resolved, DealerBook sent the confirmation); callback logged (Delegated to CALLBACK_DESK); self-service (Resolved); ended in HANDOFF or a handoff end reason (Delegated); otherwise Closed.",
         "width": 656,
         "height": 2304,
         "color": 3

@@ -284,7 +284,7 @@
             "caseOrigin": "",
             "description": "",
             "serviceType": "",
-            "delegatedTo": "XCCC",
+            "delegatedTo": "CALLBACK_DESK",
             "callbackNote": "={{ ['reason=' + String($('ToolInput').first().json.reason || ''), 'preferredTime=' + String($('ToolInput').first().json.preferredTime || ''), 'dealer=' + ($json.dealerName || $json.dealerId || ''), 'vehicle=' + ($json.vehicleLabel || '')].join('; ').slice(0, 500) }}",
             "caseCountry": "",
             "accountId": "",
@@ -1173,7 +1173,7 @@
     },
     {
       "parameters": {
-        "content": "## Delegate\n\nThe CASE case is delegated to XCCC with the callback note; callbackAt and state CALLBACK_LOGGED on the session. No DealerBook.",
+        "content": "## Delegate\n\nThe CASE case is delegated to CALLBACK_DESK with the callback note; callbackAt and state CALLBACK_LOGGED on the session. No DealerBook.",
         "width": 864,
         "height": 1168,
         "color": 3
@@ -1306,7 +1306,7 @@
     "saveDataSuccessExecution": "all"
   },
   "meta": {
-    "description": "Agent tool. Logs the retailer callback in the CASE case and delegates the case to XCCC (joint scope step 5; no DealerBook). Inputs: sessionId (plumbed), reason, preferredTime. CallbackGate: read back in state CALLBACK, logged only after the caller's yes in a later turn. Returns {ok, caseId} or {ok:false, error}."
+    "description": "Agent tool. Logs the retailer callback in the CASE case and delegates the case to CALLBACK_DESK (joint scope step 5; no DealerBook). Inputs: sessionId (plumbed), reason, preferredTime. CallbackGate: read back in state CALLBACK, logged only after the caller's yes in a later turn. Returns {ok, caseId} or {ok:false, error}."
   },
   "tags": [
     "voice-booking",

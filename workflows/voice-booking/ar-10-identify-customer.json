@@ -131,9 +131,9 @@
               "type": "string"
             },
             {
-              "id": "d9638d9b-1c6f-5585-a881-816fa0e104b4",
-              "name": "cvrId",
-              "value": "={{ $json.cvrId || '' }}",
+              "id": "8c9f65e2-1fc0-5b39-942e-43caa53ae08a",
+              "name": "assetRef",
+              "value": "={{ $json.assetRef || '' }}",
               "type": "string"
             },
             {

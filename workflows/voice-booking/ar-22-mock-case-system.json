@@ -145,7 +145,7 @@
             {
               "id": "3d98e379-0fc8-558f-918e-864e95d5782f",
               "name": "delegatedTo",
-              "value": "={{ $('ReceiveCaseOp').first().json.body.delegatedTo || (($('ReceiveCaseOp').first().json.body.op || 'create') === 'delegate' ? 'XCCC' : ($json.delegatedTo || '')) }}",
+              "value": "={{ $('ReceiveCaseOp').first().json.body.delegatedTo || (($('ReceiveCaseOp').first().json.body.op || 'create') === 'delegate' ? 'CALLBACK_DESK' : ($json.delegatedTo || '')) }}",
               "type": "string"
             },
             {
@@ -718,7 +718,7 @@
     },
     {
       "parameters": {
-        "content": "## Mock CASE case\n\nOne endpoint, op in the body. Case numbers are deterministic from the correlation ID (SHA-256), so a re-created case is the same case. delegate sets Delegated and delegatedTo (XCCC for a retailer callback). The appointment search reads the lab booking store. Real build: the case system's REST with OAuth2 client credentials.",
+        "content": "## Mock CASE case\n\nOne endpoint, op in the body. Case numbers are deterministic from the correlation ID (SHA-256), so a re-created case is the same case. delegate sets Delegated and delegatedTo (CALLBACK_DESK for a retailer callback). The appointment search reads the lab booking store. Real build: the case system's REST with OAuth2 client credentials.",
         "width": 704,
         "height": 256,
         "color": 6

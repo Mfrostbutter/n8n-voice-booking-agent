@@ -117,7 +117,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "={{ $json.customerRef ? { found: true, vin: $json.vin, customerRef: $json.customerRef, accountName: $json.accountName, greetingName: $json.greetingName, vehicleLabel: $json.vehicleLabel, preferredDealerId: $json.preferredDealerId, preferredDealerName: $json.preferredDealerName, market: $json.market, language: $json.language, meId: $json.meId || '', cvrId: $json.cvrId || '', fin: $json.fin || '', plate: $json.plate || '' } : { found: false } }}",
+        "jsonOutput": "={{ $json.customerRef ? { found: true, vin: $json.vin, customerRef: $json.customerRef, accountName: $json.accountName, greetingName: $json.greetingName, vehicleLabel: $json.vehicleLabel, preferredDealerId: $json.preferredDealerId, preferredDealerName: $json.preferredDealerName, market: $json.market, language: $json.language, meId: $json.meId || '', assetRef: $json.assetRef || '', fin: $json.fin || '', plate: $json.plate || '' } : { found: false } }}",
         "options": {}
       },
       "id": "a3c98d39-bc8b-57c3-a393-cbb739831b4d",
@@ -241,7 +241,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "={{ $json.customerRef ? { found: true, vin: $json.vin, customerRef: $json.customerRef, accountName: $json.accountName, greetingName: $json.greetingName, vehicleLabel: $json.vehicleLabel, preferredDealerId: $json.preferredDealerId, preferredDealerName: $json.preferredDealerName, market: $json.market, language: $json.language, meId: $json.meId || '', cvrId: $json.cvrId || '', fin: $json.fin || '', plate: $json.plate || '' } : { found: false } }}",
+        "jsonOutput": "={{ $json.customerRef ? { found: true, vin: $json.vin, customerRef: $json.customerRef, accountName: $json.accountName, greetingName: $json.greetingName, vehicleLabel: $json.vehicleLabel, preferredDealerId: $json.preferredDealerId, preferredDealerName: $json.preferredDealerName, market: $json.market, language: $json.language, meId: $json.meId || '', assetRef: $json.assetRef || '', fin: $json.fin || '', plate: $json.plate || '' } : { found: false } }}",
         "options": {}
       },
       "id": "a60cdb86-4b0e-5551-8eb4-c7e43b0e87a6",

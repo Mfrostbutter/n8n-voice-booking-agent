@@ -26,7 +26,7 @@
     },
     {
       "title": "Outcome",
-      "body": "CaseOutcome in order: booked, moved or cancelled (Resolved, DealerBook sent the confirmation); callback logged (Delegated to XCCC); self-service (Resolved); ended in HANDOFF or a handoff end reason (Delegated); otherwise Closed.",
+      "body": "CaseOutcome in order: booked, moved or cancelled (Resolved, DealerBook sent the confirmation); callback logged (Delegated to CALLBACK_DESK); self-service (Resolved); ended in HANDOFF or a handoff end reason (Delegated); otherwise Closed.",
       "color": 3,
       "nodes": [
         "CaseOutcome",

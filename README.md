@@ -46,6 +46,10 @@ unpublished.
   `build/setup.py --rotate-creds` rewrites existing credentials after a
   secret rotation; the test runner cancels stale synthetic bookings before
   each run, so a run starts from the same data every time.
+- Neutral names throughout. One table column changed with them: the asset
+  id column of `ar_mock_customers` is now `assetRef`. On an instance that already
+  runs an earlier build, run `python3 build/setup.py --tables-only` before
+  the deploy, then seed again.
 
 ## How it works
 

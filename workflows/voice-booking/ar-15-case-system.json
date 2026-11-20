@@ -266,7 +266,7 @@
     },
     {
       "parameters": {
-        "content": "## CASE case\n\nCreate at entry with the mandatory fields and the CASE booking prerequisites, update with the handover context, delegate to XCCC for a callback, close at the end. ScrubFreeText masks e-mail, phone, VIN and postcode in the free-text fields. Standard CRM case REST behind the mock.",
+        "content": "## CASE case\n\nCreate at entry with the mandatory fields and the CASE booking prerequisites, update with the handover context, delegate to CALLBACK_DESK for a callback, close at the end. ScrubFreeText masks e-mail, phone, VIN and postcode in the free-text fields. Standard CRM case REST behind the mock.",
         "width": 864,
         "height": 672,
         "color": 3
@@ -282,7 +282,7 @@
     },
     {
       "parameters": {
-        "content": "## AR-15 CASE case\n\nOne case per call, created at entry with the mandatory fields and the booking prerequisites of the CASE case data (2026-10-23): country, account, asset (CVR), VIN or FIN, plate, mileage, assigned dealer, status In Progress, type, topic, reason and the primary contact. Updated with the context before a handover, delegated to XCCC for a retailer callback, closed at the end. ScrubFreeText masks e-mail addresses, phone numbers, VINs and postcodes in the free-text fields (CAC rule: never personal data in free text). A standard REST API behind the mock.",
+        "content": "## AR-15 CASE case\n\nOne case per call, created at entry with the mandatory fields and the booking prerequisites of the CASE case data (2026-10-23): country, account, asset, VIN or FIN, plate, mileage, assigned dealer, status In Progress, type, topic, reason and the primary contact. Updated with the context before a handover, delegated to CALLBACK_DESK for a retailer callback, closed at the end. ScrubFreeText masks e-mail addresses, phone numbers, VINs and postcodes in the free-text fields (contact-center rule: never personal data in free text). A standard REST API behind the mock.",
         "width": 768,
         "height": 288,
         "color": 6
@@ -345,7 +345,7 @@
     "saveDataSuccessExecution": "all"
   },
   "meta": {
-    "description": "Writes the CASE (CRM) case. Inputs: op (create|update|close|delegate), correlationId, caseId, subject, classification, status, solution, delegatedReason, accountName, caseOrigin (IN_CAR|IVR), description, serviceType (CS|DMS|RSA), delegatedTo (XCCC for a retailer callback), callbackNote, and the booking prerequisites of the CASE case data (caseCountry, accountId, assetId, vinOrFin, licensePlate, mileage, mileageUnit, assignedDealerId, type, topic, reason, primaryContact). Free text is scrubbed of personal data before the write. Returns {ok, caseId, status} or {ok:false, error}."
+    "description": "Writes the CASE (CRM) case. Inputs: op (create|update|close|delegate), correlationId, caseId, subject, classification, status, solution, delegatedReason, accountName, caseOrigin (IN_CAR|IVR), description, serviceType (CS|DMS|RSA), delegatedTo (CALLBACK_DESK for a retailer callback), callbackNote, and the booking prerequisites of the CASE case data (caseCountry, accountId, assetId, vinOrFin, licensePlate, mileage, mileageUnit, assignedDealerId, type, topic, reason, primaryContact). Free text is scrubbed of personal data before the write. Returns {ok, caseId, status} or {ok:false, error}."
   },
   "tags": [
     "voice-booking",

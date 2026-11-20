@@ -29,7 +29,7 @@
   "panels": [
     {
       "title": "Mock CASE case",
-      "body": "One endpoint, op in the body. Case numbers are deterministic from the correlation ID (SHA-256), so a re-created case is the same case. delegate sets Delegated and delegatedTo (XCCC for a retailer callback). The appointment search reads the lab booking store. Real build: the case system's REST with OAuth2 client credentials.",
+      "body": "One endpoint, op in the body. Case numbers are deterministic from the correlation ID (SHA-256), so a re-created case is the same case. delegate sets Delegated and delegatedTo (CALLBACK_DESK for a retailer callback). The appointment search reads the lab booking store. Real build: the case system's REST with OAuth2 client credentials.",
       "color": 6,
       "width": 704
     }

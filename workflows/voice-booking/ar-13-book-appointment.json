@@ -1100,7 +1100,7 @@
     },
     {
       "parameters": {
-        "content": "## AR-13 BookAppointment\n\nBookingGate is the only place a booking can start: the slot must be one offered in this call, read back in CONFIRM, and confirmed in a later turn. Then the API V2 order: PATCH the timeslot (and the fulfilment when the caller asked for mobility) onto the reservation, POST the booking with an idempotency key. The booking id goes to the session as bookingRef, the six-letter reference code as confirmationCode; the spoken confirmation is built from this result, never from the model. A booking error is a retailer callback (CAC work instruction), not a handover.",
+        "content": "## AR-13 BookAppointment\n\nBookingGate is the only place a booking can start: the slot must be one offered in this call, read back in CONFIRM, and confirmed in a later turn. Then the API V2 order: PATCH the timeslot (and the fulfilment when the caller asked for mobility) onto the reservation, POST the booking with an idempotency key. The booking id goes to the session as bookingRef, the six-letter reference code as confirmationCode; the spoken confirmation is built from this result, never from the model. A booking error is a retailer callback (contact-center work instruction), not a handover.",
         "width": 816,
         "height": 272,
         "color": 6

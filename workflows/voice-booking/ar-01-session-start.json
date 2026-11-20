@@ -440,7 +440,7 @@
             "callbackNote": "",
             "caseCountry": "={{ $('ResolveMarket').first().json.market }}",
             "accountId": "={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.customerRef : '') || '' }}",
-            "assetId": "={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.cvrId : '') || '' }}",
+            "assetId": "={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.assetRef : '') || '' }}",
             "vinOrFin": "={{ $('ParseStart').first().json.vin || ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.vehicleRef : '') || '' }}",
             "licensePlate": "={{ ($('IdentifyCustomer').first().json.known ? $('IdentifyCustomer').first().json.plate : '') || '' }}",
             "mileage": "",
